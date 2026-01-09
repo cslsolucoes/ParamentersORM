@@ -1,0 +1,5058 @@
+﻿unit ufrmParamenters_Test;
+
+{$IF DEFINED(FPC)}
+  {$MODE DELPHI} // Ensures DEFINED() and other Delphi features work
+{$ENDIF}
+
+{ =============================================================================
+  frmConfigCRUD - Exemplo de CRUD VCL para Tabela config
+    Descrição:
+  Exemplo completo de implementação CRUD usando o módulo Parameters.Database
+  para gerenciar a tabela dbcsl.config.
+  
+  Funcionalidades:
+  - List: Lista todos os registros da tabela config
+  - Insert: Insere novo registro
+  - Update: Atualiza registro existente
+  - Delete: Remove registro
+  
+  Author: Claiton de Souza Linhares
+  Version: 1.0.0
+  Date: 02/01/2026
+  ============================================================================= }
+
+interface
+
+uses
+{$IF DEFINED(FPC)}
+  LCLType, LCLIntf, SysUtils, Variants, Classes, StrUtils,
+  {$IF DEFINED(WINDOWS)}
+  Registry,
+  {$ENDIF}
+  Graphics, Controls, Forms, Dialogs, StdCtrls,
+  ExtCtrls, Grids, DBGrids, ComCtrls, Masks, FileCtrl,
+{$ELSE}
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  System.StrUtils, System.Win.Registry,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.ComCtrls, Vcl.Mask, Vcl.FileCtrl,
+{$ENDIF}
+
+  Parameters, Parameters.Intefaces, Parameters.Types,
+  Parameters.Exceptions, Parameters.Consts; // Tipos, Exceções e Constantes
+
+type
+  TfrmConfigCRUD = class(TForm)
+    pnlTop: TPanel;
+    pnlBottom: TPanel;
+    pnlCenter: TPanel;
+    lblTitulo: TLabel;
+    btnList: TButton;
+    btnInsert: TButton;
+    btnUpdate: TButton;
+    btnDelete: TButton;
+    btnRefresh: TButton;
+    btnLimparFiltro: TButton;
+    pnlDados: TPanel;
+    lblContratoID: TLabel;
+    edtContratoID: TEdit;
+    lblProdutoID: TLabel;
+    edtProdutoID: TEdit;
+    lblOrdem: TLabel;
+    edtOrdem: TEdit;
+    lblTituloCampo: TLabel;
+    edtTitulo: TEdit;
+    lblChave: TLabel;
+    edtChave: TEdit;
+    lblValor: TLabel;
+    memoValor: TMemo;
+    lblDescricao: TLabel;
+    memoDescricao: TMemo;
+    chkAtivo: TCheckBox;
+    pnlLista: TPanel;
+    lblLista: TLabel;
+    lblFiltro: TLabel;
+    edtFiltro: TEdit;
+    lblFiltroContrato: TLabel;
+    edtFiltroContrato: TEdit;
+    lblFiltroProduto: TLabel;
+    edtFiltroProduto: TEdit;
+    btnFiltrar: TButton;
+    lvConfig: TListView;
+    lblStatus: TLabel;
+    lblConexaoInfo: TLabel;
+    lblConexaoTipo: TLabel;
+    lblDLLPath: TLabel;
+    lblEngine: TLabel;
+    lblDatabaseType: TLabel;
+    lblHost: TLabel;
+    lblPort: TLabel;
+    lblUsername: TLabel;
+    lblPassword: TLabel;
+    lblDatabase: TLabel;
+    lblSchema: TLabel;
+    lblTableName: TLabel;
+    lblODBCDatabaseType: TLabel;
+    edtEngine: TEdit;
+    cmbDatabaseType: TComboBox;
+    edtHost: TEdit;
+    edtPort: TEdit;
+    edtUsername: TEdit;
+    edtPassword: TEdit;
+    edtDatabase: TEdit;
+    cmbODBCDSN: TComboBox;
+    edtSchema: TEdit;
+    edtTableName: TEdit;
+    btnConectar: TButton;
+    btnDesconectar: TButton;
+    btnSelectDatabase: TButton;
+    cmbODBCDatabaseType: TComboBox;
+    dlgOpenDatabase: TOpenDialog;
+    dlgInifilesOpen: TOpenDialog;
+    pgcMain: TPageControl;
+    tsDatabase: TTabSheet;
+    tsInifiles: TTabSheet;
+    tsJsonObject: TTabSheet;
+    pnlInifilesTop: TPanel;
+    lblInifilesFilePath: TLabel;
+    lblInifilesSection: TLabel;
+    lblInifilesAutoCreate: TLabel;
+    edtInifilesFilePath: TEdit;
+    btnInifilesSelectFile: TButton;
+    edtInifilesSection: TEdit;
+    chkInifilesAutoCreate: TCheckBox;
+    btnInifilesRefresh: TButton;
+    lblInifilesFiltroContrato: TLabel;
+    lblInifilesFiltroProduto: TLabel;
+    edtInifilesFiltroContrato: TEdit;
+    edtInifilesFiltroProduto: TEdit;
+    lblInifilesFiltroInfo: TLabel;
+    pnlInifilesLeft: TPanel;
+    lblInifilesContratoID: TLabel;
+    lblInifilesProdutoID: TLabel;
+    lblInifilesOrdem: TLabel;
+    lblInifilesTitulo: TLabel;
+    lblInifilesChave: TLabel;
+    lblInifilesValor: TLabel;
+    lblInifilesDescricao: TLabel;
+    edtInifilesContratoID: TEdit;
+    edtInifilesProdutoID: TEdit;
+    edtInifilesOrdem: TEdit;
+    edtInifilesTitulo: TEdit;
+    edtInifilesChave: TEdit;
+    memoInifilesValor: TMemo;
+    memoInifilesDescricao: TMemo;
+    chkInifilesAtivo: TCheckBox;
+    btnInifilesInsert: TButton;
+    btnInifilesUpdate: TButton;
+    btnInifilesDelete: TButton;
+    btnInifilesGet: TButton;
+    btnInifilesClear: TButton;
+    pnlInifilesRight: TPanel;
+    lblInifilesLista: TLabel;
+    lvInifiles: TListView;
+    btnInifilesList: TButton;
+    btnInifilesCount: TButton;
+    btnInifilesExists: TButton;
+    btnInifilesImport: TButton;
+    btnInifilesExport: TButton;
+    dlgInifilesSave: TSaveDialog;
+    pnlJsonObjectTop: TPanel;
+    lblJsonObjectFilePath: TLabel;
+    lblJsonObjectObjectName: TLabel;
+    lblJsonObjectAutoCreate: TLabel;
+    lblJsonObjectFiltroContrato: TLabel;
+    lblJsonObjectFiltroProduto: TLabel;
+    lblJsonObjectFiltroInfo: TLabel;
+    edtJsonObjectFilePath: TEdit;
+    btnJsonObjectSelectFile: TButton;
+    edtJsonObjectObjectName: TEdit;
+    chkJsonObjectAutoCreate: TCheckBox;
+    btnJsonObjectRefresh: TButton;
+    edtJsonObjectFiltroContrato: TEdit;
+    edtJsonObjectFiltroProduto: TEdit;
+    pnlJsonObjectLeft: TPanel;
+    lblJsonObjectContratoID: TLabel;
+    lblJsonObjectProdutoID: TLabel;
+    lblJsonObjectOrdem: TLabel;
+    lblJsonObjectTitulo: TLabel;
+    lblJsonObjectChave: TLabel;
+    lblJsonObjectValor: TLabel;
+    lblJsonObjectDescricao: TLabel;
+    edtJsonObjectContratoID: TEdit;
+    edtJsonObjectProdutoID: TEdit;
+    edtJsonObjectOrdem: TEdit;
+    edtJsonObjectTitulo: TEdit;
+    edtJsonObjectChave: TEdit;
+    memoJsonObjectValor: TMemo;
+    memoJsonObjectDescricao: TMemo;
+    chkJsonObjectAtivo: TCheckBox;
+    btnJsonObjectInsert: TButton;
+    btnJsonObjectUpdate: TButton;
+    btnJsonObjectDelete: TButton;
+    btnJsonObjectGet: TButton;
+    btnJsonObjectClear: TButton;
+    pnlJsonObjectRight: TPanel;
+    lblJsonObjectLista: TLabel;
+    lvJsonObject: TListView;
+    btnJsonObjectList: TButton;
+    btnJsonObjectCount: TButton;
+    btnJsonObjectExists: TButton;
+    btnJsonObjectImport: TButton;
+    btnJsonObjectExport: TButton;
+    btnJsonObjectSave: TButton;
+    btnJsonObjectLoad: TButton;
+    dlgJsonObjectSave: TSaveDialog;
+    dlgJsonObjectOpen: TOpenDialog;
+    cbApagar: TCheckBox;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure btnListClick(Sender: TObject);
+    procedure btnInsertClick(Sender: TObject);
+    procedure btnUpdateClick(Sender: TObject);
+    procedure btnDeleteClick(Sender: TObject);
+    procedure btnGetClick(Sender: TObject);
+    procedure btnClearClick(Sender: TObject);
+    procedure btnRefreshClick(Sender: TObject);
+    procedure btnFiltrarClick(Sender: TObject);
+    procedure btnLimparFiltroClick(Sender: TObject);
+    procedure btnDatabaseImportIniClick(Sender: TObject);
+    procedure btnDatabaseImportJsonClick(Sender: TObject);
+    procedure btnDatabaseExportIniClick(Sender: TObject);
+    procedure btnDatabaseExportJsonClick(Sender: TObject);
+    procedure lvConfigSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+    procedure lvConfigColumnClick(Sender: TObject; Column: TListColumn);
+    procedure FormShow(Sender: TObject);
+    procedure btnConectarClick(Sender: TObject);
+    procedure btnDesconectarClick(Sender: TObject);
+    procedure cmbDatabaseTypeChange(Sender: TObject);
+    procedure btnSelectDatabaseClick(Sender: TObject);
+    procedure cbApagarClick(Sender: TObject);
+    procedure cmbODBCDatabaseTypeChange(Sender: TObject);
+    procedure btnInifilesSelectFileClick(Sender: TObject);
+    procedure btnInifilesRefreshClick(Sender: TObject);
+    procedure btnInifilesListClick(Sender: TObject);
+    procedure btnInifilesGetClick(Sender: TObject);
+    procedure btnInifilesInsertClick(Sender: TObject);
+    procedure btnInifilesUpdateClick(Sender: TObject);
+    procedure btnInifilesDeleteClick(Sender: TObject);
+    procedure btnInifilesCountClick(Sender: TObject);
+    procedure btnInifilesExistsClick(Sender: TObject);
+    procedure btnInifilesImportClick(Sender: TObject);
+    procedure btnInifilesExportClick(Sender: TObject);
+    procedure btnInifilesImportJsonClick(Sender: TObject);
+    procedure btnInifilesExportJsonClick(Sender: TObject);
+    procedure lvInifilesSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+    procedure btnInifilesClearClick(Sender: TObject);
+    procedure btnJsonObjectSelectFileClick(Sender: TObject);
+    procedure btnJsonObjectRefreshClick(Sender: TObject);
+    procedure btnJsonObjectListClick(Sender: TObject);
+    procedure btnJsonObjectGetClick(Sender: TObject);
+    procedure btnJsonObjectInsertClick(Sender: TObject);
+    procedure btnJsonObjectUpdateClick(Sender: TObject);
+    procedure btnJsonObjectDeleteClick(Sender: TObject);
+    procedure btnJsonObjectCountClick(Sender: TObject);
+    procedure btnJsonObjectExistsClick(Sender: TObject);
+    procedure btnJsonObjectImportClick(Sender: TObject);
+    procedure btnJsonObjectImportIniClick(Sender: TObject);
+    procedure btnJsonObjectExportClick(Sender: TObject);
+    procedure btnJsonObjectExportIniClick(Sender: TObject);
+    procedure btnJsonObjectSaveClick(Sender: TObject);
+    procedure btnJsonObjectLoadClick(Sender: TObject);
+    procedure lvJsonObjectSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+    procedure btnJsonObjectClearClick(Sender: TObject);
+  private
+    FParameters: IParameters; // Interface unificada de convergência
+    FCurrentParameter: TParameter;
+    FFiltroTexto: string;
+    FFiltroContrato: Integer;
+    FFiltroProduto: Integer;
+    FSortColumn: Integer;
+    FSortAscending: Boolean;
+    procedure InitializeParameters;
+    procedure LoadDataToListView(const AFiltroTexto: string = ''; AFiltroContrato: Integer = 0; AFiltroProduto: Integer = 0);
+    procedure ClearFields;
+    procedure LoadFieldsFromParameter(const AParameter: TParameter);
+    function GetParameterFromFields: TParameter;
+    procedure ShowStatus(const AMessage: string; AIsError: Boolean = False);
+    function ValidateFields: Boolean;
+    procedure SortListView(AColumn: Integer);
+    procedure SortListViewDefault; // Ordenação padrão: Contrato → Produto → Título → Ordem
+    procedure UpdateConnectionInfo; // Atualiza informações de conexão no pnlTop
+    procedure LoadConnectionFields; // Carrega valores atuais nos campos de conexão
+    procedure PopulateDatabaseTypeCombo; // Popula o ComboBox com tipos de banco disponíveis
+    function GetDLLPath: string; // Obtém o caminho da DLL sendo usada (FireDAC)
+    procedure PopulateODBCDatabaseTypeCombo; // Popula o ComboBox com tipos de banco para ODBC
+    procedure PopulateODBCDSNCombo; // Popula o ComboBox com DSNs ODBC disponíveis
+    function HandleTableNotExists(const AOperation: string): Boolean; // Trata exceção de tabela não existente
+    function SelectDatabaseFromList(ADatabases: TStringList): string; // Mostra diálogo de seleção de banco
+    procedure AdjustFieldsByDatabaseType; // Ajusta campos conforme tipo de banco selecionado
+    procedure UpdateEngineField; // Atualiza o campo edtEngine com detecção automática
+    // Métodos para Inifiles
+    // InitializeInifiles removido - inicialização automática no TParameters.New
+    procedure LoadInifilesDataToListView;
+    procedure ClearInifilesFields;
+    procedure LoadInifilesFieldsFromParameter(const AParameter: TParameter);
+    function GetInifilesParameterFromFields: TParameter;
+    procedure ShowInifilesStatus(const AMessage: string; AIsError: Boolean = False);
+    function ValidateInifilesFields: Boolean;
+    // Métodos para JsonObject
+    // InitializeJsonObject removido - inicialização automática no TParameters.New
+    procedure LoadJsonObjectDataToListView;
+    procedure ClearJsonObjectFields;
+    procedure LoadJsonObjectFieldsFromParameter(const AParameter: TParameter);
+    function GetJsonObjectParameterFromFields: TParameter;
+    procedure ShowJsonObjectStatus(const AMessage: string; AIsError: Boolean = False);
+    function ValidateJsonObjectFields: Boolean;
+  public
+    { Public declarations }
+  end;
+
+var
+  frmConfigCRUD: TfrmConfigCRUD;
+
+implementation
+
+{$R *.dfm}
+
+{$I ../ParamentersORM.Defines.inc}
+
+// Declaração da API ODBC para listar DSNs
+function SQLDataSources(EnvironmentHandle: Pointer; Direction: SmallInt;
+  ServerName: PChar; BufferLength1: SmallInt; var NameLength1: SmallInt;
+  Description: PChar; BufferLength2: SmallInt; var NameLength2: SmallInt): SmallInt; stdcall;
+  external 'odbc32.dll' name 'SQLDataSources';
+function SQLAllocHandle(HandleType: SmallInt; InputHandle: Pointer;
+  var OutputHandle: Pointer): SmallInt; stdcall;
+  external 'odbc32.dll' name 'SQLAllocHandle';
+function SQLFreeHandle(HandleType: SmallInt; Handle: Pointer): SmallInt; stdcall;
+  external 'odbc32.dll' name 'SQLFreeHandle';
+function SQLSetEnvAttr(EnvironmentHandle: Pointer; Attribute: Integer;
+  ValuePtr: Pointer; StringLength: Integer): SmallInt; stdcall;
+  external 'odbc32.dll' name 'SQLSetEnvAttr';
+
+const
+  SQL_HANDLE_ENV = 1;
+  SQL_FETCH_NEXT = 1;
+  SQL_ATTR_ODBC_VERSION = 200;
+  SQL_OV_ODBC3 = 3;
+  SQL_SUCCESS = 0;
+  SQL_SUCCESS_WITH_INFO = 1;
+  SQL_NO_DATA = 100;
+
+{ TfrmConfigCRUD }
+
+procedure TfrmConfigCRUD.FormCreate(Sender: TObject);
+begin
+  FCurrentParameter := nil;
+  FFiltroTexto := '';
+  FFiltroContrato := 0;
+  FFiltroProduto := 0;
+  FSortColumn := -1;
+  FSortAscending := True;
+  
+  // Popula ComboBox de DatabaseType
+  PopulateDatabaseTypeCombo;
+  
+  // InitializeParameters já cria e inicializa automaticamente todas as fontes
+  // (Database, Inifiles e JsonObject) com valores padrão baseado na configuração
+  InitializeParameters;
+  ClearFields;
+  ShowStatus('Sistema inicializado. Clique em "Listar Todos" para carregar os dados.');
+  
+  // Inifiles e JsonObject já foram inicializados automaticamente pelo TParameters.New
+  // Atualiza os campos da interface com os valores padrão configurados
+  if Assigned(FParameters) then
+  begin
+    // Atualiza campos de Inifiles com valores padrão
+    // Define caminho fixo padrão
+    edtInifilesFilePath.Text := 'D:\Dados\config.ini';
+    
+    if Assigned(FParameters.Inifiles) then
+    begin
+      // Atualiza a configuração do Inifiles com o caminho fixo
+      FParameters.Inifiles.FilePath(edtInifilesFilePath.Text);
+      edtInifilesSection.Text := FParameters.Inifiles.Section;
+      chkInifilesAutoCreate.Checked := FParameters.Inifiles.AutoCreateFile;
+    end;
+    
+    // Atualiza campos de JsonObject com valores padrão
+    if Assigned(FParameters.JsonObject) then
+    begin
+      edtJsonObjectFilePath.Text := FParameters.JsonObject.FilePath;
+      edtJsonObjectObjectName.Text := FParameters.JsonObject.ObjectName;
+      chkJsonObjectAutoCreate.Checked := FParameters.JsonObject.AutoCreateFile;
+    end;
+  end;
+  
+  // Limpa campos de dados (não de configuração)
+  ClearInifilesFields;
+  ClearJsonObjectFields;
+end;
+
+procedure TfrmConfigCRUD.FormDestroy(Sender: TObject);
+begin
+  if Assigned(FCurrentParameter) then
+  begin
+    FCurrentParameter.Free;
+    FCurrentParameter := nil;
+  end;
+  FParameters := nil; // A interface unificada gerencia todas as fontes internamente
+end;
+
+procedure TfrmConfigCRUD.FormShow(Sender: TObject);
+begin
+  // Carrega dados automaticamente ao abrir o formulário
+  btnListClick(nil);
+end;
+
+procedure TfrmConfigCRUD.InitializeParameters;
+var
+  LEngine: TParameterDatabaseEngine;
+  LDatabaseTypeEnum: TParameterDatabaseTypes;
+  I: TParameterDatabaseTypes;
+begin
+  // Nota: Se a conexao falhar, o modulo Parameters chamara Halt() automaticamente
+  // Nao ha necessidade de tratar excecoes aqui - o modulo cuida de tudo
+
+  // DETECÇÃO AUTOMÁTICA DE ENGINE
+  // Atualiza o campo edtEngine automaticamente usando o módulo Parameters
+  UpdateEngineField;
+
+  // Detecta qual engine está ativo usando o módulo Parameters
+  LEngine := TParameters.DetectEngine;
+  edtEngine.ReadOnly := True; // Torna somente leitura para evitar edição manual
+  edtEngine.Color := clBtnFace; // Visual de campo desabilitado
+
+  // Cria instância do Parameters usando interface unificada (convergência)
+  // Configura para usar Database, Inifiles e JsonObject
+  FParameters := TParameters.New([pcfDataBase, pcfInifile, pcfJsonObject]);
+
+  // Configura Database para usar o engine detectado automaticamente
+  if LEngine <> pteNone then
+    FParameters.Database.Engine(LEngine);
+
+  // Usa valores padrão do arquivo ParamentersORM.Database.inc
+  // Esses valores podem ser alterados editando o arquivo .inc
+  // Converte string para enum usando TDatabaseTypeNames
+  LDatabaseTypeEnum := pdtNone;
+  for I := Low(TParameterDatabaseTypes) to High(TParameterDatabaseTypes) do
+  begin
+    if SameText(DEFAULT_PARAMETERS_DATABASE_TYPE, TDatabaseTypeNames[I]) then
+    begin
+      LDatabaseTypeEnum := I;
+      Break;
+    end;
+  end;
+
+  if LDatabaseTypeEnum <> pdtNone then
+    FParameters.Database.DatabaseType(LDatabaseTypeEnum);
+
+  // Configuração inicial usando valores padrão do arquivo .inc
+  // Database não é definido aqui para permitir que o usuário escolha
+  FParameters.Database.Host(DEFAULT_PARAMETERS_HOST)
+    .Port(DEFAULT_PARAMETERS_PORT)
+    .Username(DEFAULT_PARAMETERS_USERNAME)
+    .Password(DEFAULT_PARAMETERS_PASSWORD)
+    .Database(DEFAULT_PARAMETERS_DATABASE)  // REMOVIDO: permite que usuário escolha o banco
+    .Schema(DEFAULT_PARAMETERS_SCHEMA)
+    .TableName(DEFAULT_PARAMETERS_TABLE)
+    .AutoCreateTable(True); // Cria tabela automaticamente se não existir
+  edtDatabase.Text := DEFAULT_PARAMETERS_DATABASE;
+  // Carrega valores nos campos de conexão
+  LoadConnectionFields;
+
+  // Conecta automaticamente
+  // Se falhar, o modulo chamara Halt() e a aplicacao sera encerrada
+  FParameters.Database.Connect;
+
+  // Atualiza informações de conexão no topo
+  UpdateConnectionInfo;
+
+  // Atualiza estado dos botões
+  btnConectar.Enabled := False;
+  btnDesconectar.Enabled := True;
+
+  cmbDatabaseTypeChange(Self);
+  
+  ShowStatus('Conectado ao banco de dados com sucesso!');
+end;
+
+procedure TfrmConfigCRUD.btnListClick(Sender: TObject);
+var
+  LCount: Integer;
+begin
+  try
+    // Limpa todos os filtros e lista todos
+    FFiltroTexto := '';
+    FFiltroContrato := 0;
+    FFiltroProduto := 0;
+    edtFiltro.Text := '';
+    edtFiltroContrato.Text := '';
+    edtFiltroProduto.Text := '';
+    
+    // Usa versão fluente para obter contagem e listar
+    FParameters.Count(LCount);
+    
+    LoadDataToListView;
+    ShowStatus(Format('Listagem concluída. %d registro(s) encontrado(s).', [lvConfig.Items.Count]));
+  except
+    on E: EParametersSQLException do
+    begin
+      // Verifica se é erro de tabela não existente
+      if E.ErrorCode = ERR_SQL_TABLE_NOT_EXISTS then
+      begin
+        if HandleTableNotExists('listar') then
+        begin
+          // Tabela foi criada, tenta novamente
+          btnListClick(Sender);
+        end;
+      end
+      else
+      begin
+        ShowStatus('Erro ao listar: ' + E.Message, True);
+        ShowMessage('Erro ao listar registros: ' + E.Message);
+      end;
+    end;
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao listar: ' + E.Message, True);
+      ShowMessage('Erro ao listar registros: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnFiltrarClick(Sender: TObject);
+var
+  LFiltrosAtivos: TStringList;
+begin
+  try
+    // Captura os filtros dos campos
+    FFiltroTexto := Trim(edtFiltro.Text);
+    FFiltroContrato := StrToIntDef(Trim(edtFiltroContrato.Text), 0);
+    FFiltroProduto := StrToIntDef(Trim(edtFiltroProduto.Text), 0);
+    
+    // Aplica os filtros
+    LoadDataToListView(FFiltroTexto, FFiltroContrato, FFiltroProduto);
+    
+    // Monta mensagem de status com filtros ativos
+    LFiltrosAtivos := TStringList.Create;
+    try
+      if FFiltroTexto <> '' then
+        LFiltrosAtivos.Add(Format('Texto: "%s"', [FFiltroTexto]));
+      if FFiltroContrato > 0 then
+        LFiltrosAtivos.Add(Format('Contrato: %d', [FFiltroContrato]));
+      if FFiltroProduto > 0 then
+        LFiltrosAtivos.Add(Format('Produto: %d', [FFiltroProduto]));
+      
+      if LFiltrosAtivos.Count > 0 then
+        ShowStatus(Format('Filtros aplicados [%s] - %d registro(s) encontrado(s).', 
+                         [LFiltrosAtivos.DelimitedText, lvConfig.Items.Count]))
+      else
+        ShowStatus(Format('Listagem completa. %d registro(s) encontrado(s).', [lvConfig.Items.Count]));
+    finally
+      LFiltrosAtivos.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao filtrar: ' + E.Message, True);
+      ShowMessage('Erro ao filtrar registros: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnLimparFiltroClick(Sender: TObject);
+begin
+  edtFiltro.Text := '';
+  edtFiltroContrato.Text := '';
+  edtFiltroProduto.Text := '';
+  FFiltroTexto := '';
+  FFiltroContrato := 0;
+  FFiltroProduto := 0;
+  btnListClick(nil);
+end;
+
+procedure TfrmConfigCRUD.btnDatabaseImportIniClick(Sender: TObject);
+var
+  LSuccess: Boolean;
+  LList: TParameterList;
+  I: Integer;
+  LParam: TParameter;
+  LParamSuccess: Boolean;
+  LFilePath: string;
+begin
+  if not Assigned(FParameters) then
+  begin
+    ShowMessage('Configure o sistema de parâmetros primeiro.');
+    Exit;
+  end;
+  
+  try
+    // Solicita ao usuário selecionar o arquivo INI para importar
+    if not Assigned(dlgInifilesOpen) then
+    begin
+      ShowStatus('Diálogo de seleção de arquivo não configurado.', True);
+      Exit;
+    end;
+    
+    dlgInifilesOpen.Filter := 'INI Files (*.ini)|*.ini|All Files (*.*)|*.*';
+    dlgInifilesOpen.FilterIndex := 1;
+    dlgInifilesOpen.Title := 'Importar do INI para Database - Selecionar arquivo';
+    dlgInifilesOpen.Options := dlgInifilesOpen.Options + [ofFileMustExist];
+    
+    // Se já houver um caminho configurado no campo, usa como padrão
+    if Trim(edtInifilesFilePath.Text) <> '' then
+      dlgInifilesOpen.FileName := edtInifilesFilePath.Text;
+    
+    if not dlgInifilesOpen.Execute then
+    begin
+      ShowStatus('Importação cancelada pelo usuário.');
+      Exit;
+    end;
+    
+    LFilePath := dlgInifilesOpen.FileName;
+    
+    // Configura o arquivo INI antes de importar
+    FParameters.Inifiles.FilePath(LFilePath);
+    
+    // Configura filtros se necessário
+    if (FFiltroContrato > 0) or (FFiltroProduto > 0) then
+    begin
+      FParameters.Inifiles.ContratoID(FFiltroContrato).ProdutoID(FFiltroProduto);
+    end;
+    
+    // Importa do INI para o Database usando interface unificada
+    LList := FParameters.Inifiles.List;
+    try
+      for I := 0 to LList.Count - 1 do
+      begin
+        LParam := LList[I];
+        FParameters.Insert(LParam, LParamSuccess);
+        if not LParamSuccess then
+          FParameters.Update(LParam, LParamSuccess);
+      end;
+      LSuccess := True;
+    finally
+      LList.ClearAll;
+      LList.Free;
+    end;
+    
+    if LSuccess then
+    begin
+      ShowStatus(Format('Importação do INI para Database concluída com sucesso! Arquivo: %s', [LFilePath]));
+      LoadDataToListView;
+      ShowMessage(Format('Parâmetros importados do INI para o Database com sucesso!'#13#10#13#10'Arquivo importado:'#13#10'%s', [LFilePath]));
+    end
+    else
+    begin
+      ShowStatus('Erro ao importar do INI.', True);
+      ShowMessage('Erro ao importar parâmetros do INI.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao importar do INI: ' + E.Message, True);
+      ShowMessage('Erro ao importar parâmetros do INI: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnDatabaseImportJsonClick(Sender: TObject);
+var
+  LSuccess: Boolean;
+  LList: TParameterList;
+  I: Integer;
+  LParam: TParameter;
+  LParamSuccess: Boolean;
+  LFilePath: string;
+begin
+  if not Assigned(FParameters) then
+  begin
+    ShowMessage('Configure o sistema de parâmetros primeiro.');
+    Exit;
+  end;
+  
+  try
+    // Solicita ao usuário selecionar o arquivo JSON para importar
+    if not Assigned(dlgJsonObjectOpen) then
+    begin
+      ShowStatus('Diálogo de seleção de arquivo não configurado.', True);
+      Exit;
+    end;
+    
+    dlgJsonObjectOpen.Filter := 'JSON Files (*.json)|*.json|All Files (*.*)|*.*';
+    dlgJsonObjectOpen.FilterIndex := 1;
+    dlgJsonObjectOpen.Title := 'Importar do JSON para Database - Selecionar arquivo';
+    dlgJsonObjectOpen.Options := dlgJsonObjectOpen.Options + [ofFileMustExist];
+    
+    // Se já houver um caminho configurado no campo, usa como padrão
+    if Trim(edtJsonObjectFilePath.Text) <> '' then
+      dlgJsonObjectOpen.FileName := edtJsonObjectFilePath.Text;
+    
+    if not dlgJsonObjectOpen.Execute then
+    begin
+      ShowStatus('Importação cancelada pelo usuário.');
+      Exit;
+    end;
+    
+    LFilePath := dlgJsonObjectOpen.FileName;
+    
+    // IMPORTANTE: Configura o FilePath ANTES de carregar o arquivo
+    // Isso garante que o JsonObject saiba qual arquivo está usando
+    FParameters.JsonObject.FilePath(LFilePath);
+    
+    // Carrega o arquivo JSON antes de importar
+    FParameters.JsonObject.LoadFromFile(LFilePath, LSuccess);
+    if not LSuccess then
+    begin
+      ShowStatus('Erro ao carregar arquivo JSON.', True);
+      ShowMessage('Erro ao carregar arquivo JSON.'#13#10#13#10'Verifique se o arquivo existe e está acessível.');
+      Exit;
+    end;
+    
+    // IMPORTANTE: Configura ContratoID e ProdutoID como 0 para não filtrar
+    // Isso permite que todos os parâmetros sejam importados, independente do Contrato/Produto
+    FParameters.JsonObject.ContratoID(0).ProdutoID(0);
+    
+    // Verifica se o JSON foi carregado corretamente
+    try
+      // Tenta obter o JSON para verificar se está válido
+      if not Assigned(FParameters.JsonObject.JsonObject) then
+      begin
+        ShowStatus('Erro: JSON não foi carregado corretamente.', True);
+        ShowMessage('O arquivo JSON foi carregado, mas o objeto JSON está vazio ou inválido.'#13#10#13#10'Verifique se o arquivo está no formato JSON válido.');
+        Exit;
+      end;
+    except
+      on E: Exception do
+      begin
+        ShowStatus('Erro ao verificar JSON: ' + E.Message, True);
+        ShowMessage('Erro ao verificar JSON carregado: ' + E.Message);
+        Exit;
+      end;
+    end;
+    
+    // Configura filtros se necessário
+    if (FFiltroContrato > 0) or (FFiltroProduto > 0) then
+    begin
+      FParameters.JsonObject.ContratoID(FFiltroContrato).ProdutoID(FFiltroProduto);
+    end;
+    
+    // Importa do JSON para o Database usando interface unificada
+    // O List() lê do FJsonObject que foi carregado pelo LoadFromFile
+    try
+      LList := FParameters.JsonObject.List;
+    except
+      on E: Exception do
+      begin
+        ShowStatus('Erro ao listar parâmetros do JSON: ' + E.Message, True);
+        ShowMessage(Format('Erro ao processar arquivo JSON:'#13#10'%s'#13#10#13#10'Verifique se o arquivo está no formato correto.'#13#10#13#10'Formato esperado:'#13#10'{'#13#10'  "Contrato": {"Contrato_ID": 1, "Produto_ID": 1},'#13#10'  "Titulo1": {'#13#10'    "chave1": {"valor": "valor1", "descricao": "desc1", "ativo": true, "ordem": 1}'#13#10'  }'#13#10'}', [E.Message]));
+        Exit;
+      end;
+    end;
+    
+    try
+      // Verifica se há dados para importar
+      if LList.Count = 0 then
+      begin
+        // Tenta obter informações sobre o JSON carregado para debug
+        try
+          // Verifica se há objetos no JSON (exceto Contrato)
+          ShowStatus('Nenhum parâmetro encontrado no arquivo JSON para importar.', True);
+          ShowMessage(Format('O arquivo JSON não contém parâmetros para importar.'#13#10#13#10'Arquivo: %s'#13#10#13#10'Formato esperado:'#13#10'{'#13#10'  "Contrato": {"Contrato_ID": 1, "Produto_ID": 1},'#13#10'  "Titulo1": {'#13#10'    "chave1": {"valor": "valor1", "descricao": "desc1", "ativo": true, "ordem": 1},'#13#10'    "chave2": {"valor": "valor2", "descricao": "desc2", "ativo": true, "ordem": 2}'#13#10'  }'#13#10'}'#13#10#13#10'Onde:'#13#10'- "Contrato" é opcional (pode usar filtros)'#13#10'- Cada "Titulo" é um objeto JSON'#13#10'- Cada "chave" dentro do título é um objeto com: valor, descricao, ativo, ordem', [LFilePath]));
+        except
+          on E: Exception do
+            ShowMessage('O arquivo JSON não contém parâmetros para importar.'#13#10#13#10'Erro ao verificar estrutura: ' + E.Message);
+        end;
+        Exit;
+      end;
+      
+      LSuccess := False;
+      for I := 0 to LList.Count - 1 do
+      begin
+        LParam := LList[I];
+        // Tenta inserir primeiro usando a interface unificada
+        FParameters.Insert(LParam, LParamSuccess);
+        // Se não conseguiu inserir (já existe), tenta atualizar
+        if not LParamSuccess then
+        begin
+          FParameters.Update(LParam, LParamSuccess);
+        end;
+        
+        // Se pelo menos um parâmetro foi importado com sucesso, marca como sucesso
+        if LParamSuccess then
+          LSuccess := True;
+      end;
+    finally
+      LList.ClearAll;
+      LList.Free;
+    end;
+    
+    if LSuccess then
+    begin
+      ShowStatus(Format('Importação do JSON para Database concluída com sucesso! Arquivo: %s', [LFilePath]));
+      LoadDataToListView;
+      ShowMessage(Format('Parâmetros importados do JSON para o Database com sucesso!'#13#10#13#10'Arquivo importado:'#13#10'%s', [LFilePath]));
+    end
+    else
+    begin
+      ShowStatus('Erro ao importar do JSON.', True);
+      ShowMessage('Erro ao importar parâmetros do JSON.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao importar do JSON: ' + E.Message, True);
+      ShowMessage('Erro ao importar parâmetros do JSON: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnDatabaseExportIniClick(Sender: TObject);
+var
+  LSuccess: Boolean;
+  LFilePath: string;
+begin
+  if not Assigned(FParameters) then
+  begin
+    ShowMessage('Conecte-se ao banco de dados primeiro.');
+    Exit;
+  end;
+  
+  try
+    // Configura filtros se necessário
+    if (FFiltroContrato > 0) or (FFiltroProduto > 0) then
+    begin
+      FParameters.Database.ContratoID(FFiltroContrato).ProdutoID(FFiltroProduto);
+      FParameters.Inifiles.ContratoID(FFiltroContrato).ProdutoID(FFiltroProduto);
+    end;
+    
+    // Importa do Database para o INI (em memória)
+    FParameters.Inifiles.ImportFromDatabase(FParameters.Database, LSuccess);
+    
+    if not LSuccess then
+    begin
+      ShowStatus('Erro ao importar dados do Database para INI.', True);
+      ShowMessage('Erro ao importar parâmetros do Database para INI.');
+      Exit;
+    end;
+    
+    // Solicita ao usuário onde salvar o arquivo INI
+    if not Assigned(dlgInifilesSave) then
+    begin
+      ShowStatus('Diálogo de salvamento não configurado.', True);
+      Exit;
+    end;
+    
+    dlgInifilesSave.Filter := 'INI Files (*.ini)|*.ini|All Files (*.*)|*.*';
+    dlgInifilesSave.FilterIndex := 1;
+    dlgInifilesSave.Title := 'Salvar arquivo INI - Exportar do Database';
+    dlgInifilesSave.DefaultExt := 'ini';
+    
+    // Se já houver um caminho configurado no campo, usa como padrão
+    if Trim(edtInifilesFilePath.Text) <> '' then
+      dlgInifilesSave.FileName := edtInifilesFilePath.Text
+    else
+      dlgInifilesSave.FileName := 'config_export.ini'; // Nome padrão
+    
+    if dlgInifilesSave.Execute then
+    begin
+      LFilePath := dlgInifilesSave.FileName;
+      
+      // Configura o caminho ANTES de importar (para que os dados sejam salvos no arquivo correto)
+      FParameters.Inifiles.FilePath(LFilePath);
+      
+      // Re-importa para garantir que os dados sejam salvos no novo arquivo
+      FParameters.Inifiles.ImportFromDatabase(FParameters.Database, LSuccess);
+      
+      if LSuccess then
+      begin
+        // Atualiza o campo com o caminho salvo
+        edtInifilesFilePath.Text := LFilePath;
+        ShowStatus(Format('Exportação concluída! Arquivo salvo em: %s', [LFilePath]));
+        ShowMessage(Format('Parâmetros exportados do Database para o INI com sucesso!'#13#10#13#10'Arquivo salvo em:'#13#10'%s', [LFilePath]));
+      end
+      else
+      begin
+        ShowStatus('Erro ao salvar arquivo INI.', True);
+        ShowMessage('Erro ao salvar arquivo INI.');
+      end;
+    end
+    else
+    begin
+      ShowStatus('Exportação cancelada pelo usuário.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao exportar para INI: ' + E.Message, True);
+      ShowMessage('Erro ao exportar parâmetros para INI: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnDatabaseExportJsonClick(Sender: TObject);
+var
+  LSuccess: Boolean;
+  LFilePath: string;
+begin
+  if not Assigned(FParameters) then
+  begin
+    ShowMessage('Conecte-se ao banco de dados primeiro.');
+    Exit;
+  end;
+  
+  try
+    // Configura filtros se necessário
+    if (FFiltroContrato > 0) or (FFiltroProduto > 0) then
+    begin
+      FParameters.Database.ContratoID(FFiltroContrato).ProdutoID(FFiltroProduto);
+      FParameters.JsonObject.ContratoID(FFiltroContrato).ProdutoID(FFiltroProduto);
+    end;
+    
+    // Importa do Database para o JSON (em memória)
+    FParameters.JsonObject.ImportFromDatabase(FParameters.Database, LSuccess);
+    
+    if not LSuccess then
+    begin
+      ShowStatus('Erro ao importar dados do Database para JSON.', True);
+      ShowMessage('Erro ao importar parâmetros do Database para JSON.');
+      Exit;
+    end;
+    
+    // Solicita ao usuário onde salvar o arquivo JSON
+    if not Assigned(dlgJsonObjectSave) then
+    begin
+      ShowStatus('Diálogo de salvamento não configurado.', True);
+      Exit;
+    end;
+    
+    dlgJsonObjectSave.Filter := 'JSON Files (*.json)|*.json|All Files (*.*)|*.*';
+    dlgJsonObjectSave.FilterIndex := 1;
+    dlgJsonObjectSave.Title := 'Salvar arquivo JSON - Exportar do Database';
+    dlgJsonObjectSave.DefaultExt := 'json';
+    
+    // Se já houver um caminho configurado no campo, usa como padrão
+    if Trim(edtJsonObjectFilePath.Text) <> '' then
+      dlgJsonObjectSave.FileName := edtJsonObjectFilePath.Text
+    else
+      dlgJsonObjectSave.FileName := 'config_export.json'; // Nome padrão
+    
+    if dlgJsonObjectSave.Execute then
+    begin
+      LFilePath := dlgJsonObjectSave.FileName;
+      
+      // Salva o arquivo JSON no caminho escolhido
+      FParameters.JsonObject.SaveToFile(LFilePath, LSuccess);
+      
+      if LSuccess then
+      begin
+        // Atualiza o campo com o caminho salvo
+        edtJsonObjectFilePath.Text := LFilePath;
+        ShowStatus(Format('Exportação concluída! Arquivo salvo em: %s', [LFilePath]));
+        ShowMessage(Format('Parâmetros exportados do Database para o JSON com sucesso!'#13#10#13#10'Arquivo salvo em:'#13#10'%s', [LFilePath]));
+      end
+      else
+      begin
+        ShowStatus('Erro ao salvar arquivo JSON.', True);
+        ShowMessage('Erro ao salvar arquivo JSON.');
+      end;
+    end
+    else
+    begin
+      ShowStatus('Exportação cancelada pelo usuário.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao exportar para JSON: ' + E.Message, True);
+      ShowMessage('Erro ao exportar parâmetros para JSON: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnInsertClick(Sender: TObject);
+var
+  LParameter: TParameter;
+  LSuccess: Boolean;
+begin
+  if not ValidateFields then
+    Exit;
+    
+  try
+    LParameter := GetParameterFromFields;
+    
+    try
+      // Usa versão fluente do Insert
+      FParameters.Insert(LParameter, LSuccess).Refresh; // Renova dados após inserção
+      
+      if LSuccess then
+      begin
+        ShowStatus('Registro inserido com sucesso!');
+        ClearFields;
+        LoadDataToListView(FFiltroTexto, FFiltroContrato, FFiltroProduto); // Mantém filtros ativos
+        ShowMessage('Registro inserido com sucesso!');
+      end
+      else
+      begin
+        ShowStatus('Erro ao inserir registro. Verifique se a chave já existe.', True);
+        ShowMessage('Erro ao inserir registro. Verifique se a chave já existe.');
+      end;
+    finally
+      LParameter.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao inserir: ' + E.Message, True);
+      ShowMessage('Erro ao inserir registro: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnUpdateClick(Sender: TObject);
+var
+  LParameter: TParameter;
+  LSuccess: Boolean;
+begin
+  if Trim(edtChave.Text) = '' then
+  begin
+    ShowMessage('Selecione um registro para atualizar.');
+    Exit;
+  end;
+    
+  if not ValidateFields then
+    Exit;
+    
+  try
+    LParameter := GetParameterFromFields;
+    
+    try
+      // Usa versão fluente do Update
+      FParameters.Update(LParameter, LSuccess).Refresh; // Renova dados após atualização
+      
+      if LSuccess then
+      begin
+        ShowStatus('Registro atualizado com sucesso!');
+        LoadDataToListView(FFiltroTexto, FFiltroContrato, FFiltroProduto); // Mantém filtros ativos
+        ShowMessage('Registro atualizado com sucesso!');
+      end
+      else
+      begin
+        ShowStatus('Erro ao atualizar registro. Verifique se o registro existe.', True);
+        ShowMessage('Erro ao atualizar registro. Verifique se o registro existe.');
+      end;
+    finally
+      LParameter.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao atualizar: ' + E.Message, True);
+      ShowMessage('Erro ao atualizar registro: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnDeleteClick(Sender: TObject);
+var
+  LChave: string;
+  LSuccess: Boolean;
+begin
+  if Trim(edtChave.Text) = '' then
+  begin
+    ShowMessage('Selecione um registro para deletar.');
+    Exit;
+  end;
+    
+  LChave := Trim(edtChave.Text);
+  
+  if MessageDlg(Format('Deseja realmente deletar o registro com chave "%s"?', [LChave]),
+                mtConfirmation, [mbYes, mbNo], 0) = mrNo then
+    Exit;
+    
+  try
+    // Usa versão fluente do Delete
+    FParameters.Delete(LChave, LSuccess).Refresh; // Renova dados após deleção
+    
+    if LSuccess then
+    begin
+      ShowStatus('Registro deletado com sucesso!');
+      ClearFields;
+      LoadDataToListView(FFiltroTexto, FFiltroContrato, FFiltroProduto); // Mantém filtros ativos
+      ShowMessage('Registro deletado com sucesso!');
+    end
+    else
+    begin
+      ShowStatus('Erro ao deletar registro.', True);
+      ShowMessage('Erro ao deletar registro.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao deletar: ' + E.Message, True);
+      ShowMessage('Erro ao deletar registro: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnRefreshClick(Sender: TObject);
+begin
+  try
+    // Usa o método Refresh do módulo para renovar dados do banco
+    FParameters.Refresh;
+    
+    // Recarrega a lista após refresh mantendo os filtros
+    LoadDataToListView(FFiltroTexto, FFiltroContrato, FFiltroProduto);
+    ShowStatus('Dados renovados do banco de dados com sucesso!');
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao renovar dados: ' + E.Message, True);
+      ShowMessage('Erro ao renovar dados: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnGetClick(Sender: TObject);
+var
+  LChave: string;
+  LParameter: TParameter;
+begin
+  LChave := Trim(edtChave.Text);
+  
+  if LChave = '' then
+  begin
+    ShowMessage('Informe a chave para buscar.');
+    edtChave.SetFocus;
+    Exit;
+  end;
+  
+  try
+    // Busca o parâmetro usando Database
+    FParameters.Database.Get(LChave, LParameter);
+    
+    if Assigned(LParameter) and (LParameter.Name <> '') then
+    begin
+      LoadFieldsFromParameter(LParameter);
+      ShowStatus(Format('Parâmetro "%s" encontrado!', [LChave]));
+    end
+    else
+    begin
+      ShowStatus(Format('Parâmetro "%s" não encontrado.', [LChave]), True);
+      ShowMessage(Format('Parâmetro "%s" não encontrado.', [LChave]));
+    end;
+    
+    if Assigned(LParameter) then
+    begin
+      LParameter.Free;
+      LParameter := nil;
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao buscar: ' + E.Message, True);
+      ShowMessage('Erro ao buscar parâmetro: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnClearClick(Sender: TObject);
+begin
+  ClearFields;
+  ShowStatus('Campos limpos.');
+end;
+
+procedure TfrmConfigCRUD.lvConfigSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+var
+  LChave: string;
+  LParameter: TParameter;
+begin
+  if not Selected or (Item = nil) then
+    Exit;
+    
+  LParameter := nil;
+  try
+    // Obtém a chave do item selecionado
+    // Caption = ID, SubItems[4] = Chave (conforme ordem do banco)
+    if Item.SubItems.Count > 4 then
+      LChave := Item.SubItems[4]  // Coluna 5: Chave
+    else
+    begin
+      ShowStatus('Erro: Item sem dados de chave.', True);
+      Exit;
+    end;
+    
+    // Busca o parâmetro completo usando Database (versão com out parameter)
+    FParameters.Database.Get(LChave, LParameter);
+    
+    if Assigned(LParameter) and (LParameter.Name <> '') then
+    begin
+      // LoadFieldsFromParameter cria uma cópia, então podemos liberar o original
+      LoadFieldsFromParameter(LParameter);
+      ShowStatus(Format('Registro carregado: %s (ID: %s)', [LChave, Item.Caption]));
+    end
+    else
+    begin
+      ShowStatus('Registro não encontrado.', True);
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao carregar registro: ' + E.Message, True);
+    end;
+  end;
+  
+  // Libera o parâmetro retornado pelo Get (LoadFieldsFromParameter criou uma cópia)
+  if Assigned(LParameter) then
+  begin
+    LParameter.Free;
+    LParameter := nil;
+  end;
+end;
+
+procedure TfrmConfigCRUD.LoadDataToListView(const AFiltroTexto: string = ''; AFiltroContrato: Integer = 0; AFiltroProduto: Integer = 0);
+var
+  LList: TParameterList;
+  LItem: TListItem;
+  LParameter: TParameter;
+  I: Integer;
+  LValue: string;
+  LFiltroUpper: string;
+  LMostraItem: Boolean;
+begin
+  lvConfig.Items.BeginUpdate;
+  try
+    try
+      lvConfig.Items.Clear;
+      
+      // Lista todos os parâmetros APENAS do Database (não mescla com INI/JSON)
+      // IMPORTANTE: Na aba Database, queremos ver apenas dados do banco, não dados mesclados
+      LList := FParameters.Database.List;
+      LFiltroUpper := UpperCase(Trim(AFiltroTexto));
+      
+      try
+        for I := 0 to LList.Count - 1 do
+        begin
+          LParameter := LList[I];
+          
+          // Aplica filtros se houver (combinação com AND)
+          LMostraItem := True;
+          
+          // Filtro de texto (busca em múltiplos campos)
+          if LFiltroUpper <> '' then
+          begin
+            LMostraItem := (Pos(LFiltroUpper, UpperCase(LParameter.Name)) > 0) or
+                          (Pos(LFiltroUpper, UpperCase(LParameter.Titulo)) > 0) or
+                          (Pos(LFiltroUpper, UpperCase(LParameter.Value)) > 0) or
+                          (Pos(LFiltroUpper, UpperCase(LParameter.Description)) > 0);
+          end;
+          
+          // Filtro de Contrato (AND com filtro de texto)
+          if LMostraItem and (AFiltroContrato > 0) then
+          begin
+            LMostraItem := (LParameter.ContratoID = AFiltroContrato);
+          end;
+          
+          // Filtro de Produto (AND com filtros anteriores)
+          if LMostraItem and (AFiltroProduto > 0) then
+          begin
+            LMostraItem := (LParameter.ProdutoID = AFiltroProduto);
+          end;
+          
+          if LMostraItem then
+          begin
+            LValue := LParameter.Value;
+            if Length(LValue) > 50 then
+              LValue := Copy(LValue, 1, 50) + '...';
+            
+            LItem := lvConfig.Items.Add;
+            LItem.Caption := IntToStr(LParameter.ID); // Coluna 0: ID (config_id)
+            LItem.SubItems.Add(IntToStr(LParameter.ContratoID)); // Coluna 1: Contrato
+            LItem.SubItems.Add(IntToStr(LParameter.ProdutoID)); // Coluna 2: Produto
+            LItem.SubItems.Add(IntToStr(LParameter.Ordem)); // Coluna 3: Ordem
+            LItem.SubItems.Add(LParameter.Titulo); // Coluna 4: Título
+            LItem.SubItems.Add(LParameter.Name); // Coluna 5: Chave
+            LItem.SubItems.Add(LValue); // Coluna 6: Valor (truncado se necessário)
+            LItem.SubItems.Add(LParameter.Description); // Coluna 7: Descrição
+            LItem.SubItems.Add(IfThen(LParameter.Ativo, 'Sim', 'Não')); // Coluna 8: Ativo
+            LItem.Data := Pointer(I); // Índice na lista para referência rápida
+          end;
+        end;
+      finally
+        LList.ClearAll;
+        LList.Free;
+      end;
+      
+      // Aplica ordenação após carregar dados
+      // Se houver coluna selecionada pelo usuário, usa ela; senão aplica ordenação padrão
+      if FSortColumn >= 0 then
+      begin
+        SortListView(FSortColumn); // Ordenação definida pelo usuário
+      end
+      else
+      begin
+        SortListViewDefault; // Ordenação padrão: Contrato → Produto → Título → Ordem
+      end;
+    except
+      on E: Exception do
+      begin
+        ShowStatus('Erro ao carregar lista: ' + E.Message, True);
+        raise;
+      end;
+    end;
+  finally
+    lvConfig.Items.EndUpdate;
+  end;
+end;
+
+procedure TfrmConfigCRUD.ClearFields;
+begin
+  edtContratoID.Text := '1';
+  edtProdutoID.Text := '1';
+  edtOrdem.Text := '1';
+  edtTitulo.Text := '';
+  edtChave.Text := '';
+  memoValor.Clear;
+  memoDescricao.Clear;
+  chkAtivo.Checked := True;
+  if Assigned(FCurrentParameter) then
+    FCurrentParameter.Free;
+  FCurrentParameter := TParameter.Create;
+end;
+
+procedure TfrmConfigCRUD.LoadFieldsFromParameter(const AParameter: TParameter);
+begin
+  if not Assigned(AParameter) then
+    Exit;
+    
+  // Libera o parâmetro atual se existir
+  if Assigned(FCurrentParameter) then
+  begin
+    FCurrentParameter.Free;
+    FCurrentParameter := nil;
+  end;
+  
+  // Cria uma cópia do parâmetro para gerenciar localmente
+  FCurrentParameter := TParameter.Create;
+  FCurrentParameter.ID := AParameter.ID;
+  FCurrentParameter.Name := AParameter.Name;
+  FCurrentParameter.Value := AParameter.Value;
+  FCurrentParameter.ValueType := AParameter.ValueType;
+  FCurrentParameter.Description := AParameter.Description;
+  FCurrentParameter.ContratoID := AParameter.ContratoID;
+  FCurrentParameter.ProdutoID := AParameter.ProdutoID;
+  FCurrentParameter.Ordem := AParameter.Ordem;
+  FCurrentParameter.Titulo := AParameter.Titulo;
+  FCurrentParameter.Ativo := AParameter.Ativo;
+  FCurrentParameter.CreatedAt := AParameter.CreatedAt;
+  FCurrentParameter.UpdatedAt := AParameter.UpdatedAt;
+  
+  // Preenche os campos do formulário
+  edtContratoID.Text := IntToStr(AParameter.ContratoID);
+  edtProdutoID.Text := IntToStr(AParameter.ProdutoID);
+  edtOrdem.Text := IntToStr(AParameter.Ordem);
+  edtTitulo.Text := AParameter.Titulo;
+  edtChave.Text := AParameter.Name;
+  memoValor.Text := AParameter.Value;
+  memoDescricao.Text := AParameter.Description;
+  chkAtivo.Checked := AParameter.Ativo;
+end;
+
+function TfrmConfigCRUD.GetParameterFromFields: TParameter;
+begin
+  Result := TParameter.Create;
+  Result.ContratoID := StrToIntDef(edtContratoID.Text, 1);
+  Result.ProdutoID := StrToIntDef(edtProdutoID.Text, 1);
+  Result.Ordem := StrToIntDef(edtOrdem.Text, 0);
+  Result.Titulo := Trim(edtTitulo.Text);
+  Result.Name := Trim(edtChave.Text);
+  Result.Value := memoValor.Text;
+  Result.Description := memoDescricao.Text;
+  Result.Ativo := chkAtivo.Checked;
+  Result.ValueType := pvtString; // Tipo padrão
+end;
+
+function TfrmConfigCRUD.ValidateFields: Boolean;
+begin
+  Result := False;
+  
+  if Trim(edtContratoID.Text) = '' then
+  begin
+    ShowMessage('O campo "Contrato ID" é obrigatório.');
+    edtContratoID.SetFocus;
+    Exit;
+  end;
+  
+  if Trim(edtProdutoID.Text) = '' then
+  begin
+    ShowMessage('O campo "Produto ID" é obrigatório.');
+    edtProdutoID.SetFocus;
+    Exit;
+  end;
+  
+  if Trim(edtChave.Text) = '' then
+  begin
+    ShowMessage('O campo "Chave" é obrigatório.');
+    edtChave.SetFocus;
+    Exit;
+  end;
+  
+  Result := True;
+end;
+
+procedure TfrmConfigCRUD.ShowStatus(const AMessage: string; AIsError: Boolean);
+begin
+  lblStatus.Caption := AMessage;
+  if AIsError then
+    lblStatus.Font.Color := clRed
+  else
+    lblStatus.Font.Color := clGreen;
+end;
+
+procedure TfrmConfigCRUD.lvConfigColumnClick(Sender: TObject; Column: TListColumn);
+begin
+  // Alterna entre ascendente e descendente se clicar na mesma coluna
+  if FSortColumn = Column.Index then
+    FSortAscending := not FSortAscending
+  else
+  begin
+    FSortColumn := Column.Index;
+    FSortAscending := True;
+  end;
+  
+  SortListView(FSortColumn);
+  
+  // Feedback visual no status (ordenação hierárquica conforme ordem do banco)
+  ShowStatus(Format('Ordenado por "%s" (%s) → Contrato → Produto → Ordem → Título → Chave', 
+                   [Column.Caption, 
+                    IfThen(FSortAscending, 'Crescente', 'Decrescente')]));
+end;
+
+procedure TfrmConfigCRUD.SortListView(AColumn: Integer);
+var
+  I, J: Integer;
+  LItem1, LItem2: TListItem;
+  LNeedSwap: Boolean;
+  LVal1: string;
+  
+  // Função auxiliar para comparar dois itens com ordenação hierárquica
+  function CompareItems(AItem1, AItem2: TListItem; APrimaryColumn: Integer): Integer;
+  var
+    LVal1, LVal2: string;
+    LInt1, LInt2: Integer;
+    LCompareResult: Integer;
+    
+    // Função para obter valor de uma coluna
+    function GetColumnValue(AItem: TListItem; ACol: Integer): string;
+    begin
+      if ACol = 0 then
+        Result := AItem.Caption
+      else
+        Result := AItem.SubItems[ACol - 1];
+    end;
+    
+    // Função para comparar uma coluna específica
+    function CompareColumn(ACol: Integer): Integer;
+    begin
+      LVal1 := GetColumnValue(AItem1, ACol);
+      LVal2 := GetColumnValue(AItem2, ACol);
+      
+      // Comparação baseada no tipo da coluna
+      case ACol of
+        0, 1, 2, 3:  // ID (0), Contrato (1), Produto (2), Ordem (3) - numéricos
+          begin
+            LInt1 := StrToIntDef(LVal1, 0);
+            LInt2 := StrToIntDef(LVal2, 0);
+            if LInt1 < LInt2 then
+              Result := -1
+            else if LInt1 > LInt2 then
+              Result := 1
+            else
+              Result := 0;
+          end;
+      else  // 4, 5, 6, 7, 8: Título, Chave, Valor, Descrição, Ativo (texto)
+        Result := CompareText(LVal1, LVal2);
+      end;
+    end;
+    
+  begin
+    // Ordenação hierárquica conforme ordem do banco:
+    // Contrato (col 1) → Produto (col 2) → Ordem (col 3) → Título (col 4) → Chave (col 5)
+    
+    // 1º Critério: Coluna clicada (primária)
+    LCompareResult := CompareColumn(APrimaryColumn);
+    if LCompareResult <> 0 then
+    begin
+      Result := LCompareResult;
+      Exit;
+    end;
+    
+    // 2º Critério: Contrato (se não for a coluna primária)
+    if APrimaryColumn <> 1 then  // Coluna 1 = Contrato
+    begin
+      LCompareResult := CompareColumn(1);
+      if LCompareResult <> 0 then
+      begin
+        Result := LCompareResult;
+        Exit;
+      end;
+    end;
+    
+    // 3º Critério: Produto (se não for a coluna primária)
+    if APrimaryColumn <> 2 then  // Coluna 2 = Produto
+    begin
+      LCompareResult := CompareColumn(2);
+      if LCompareResult <> 0 then
+      begin
+        Result := LCompareResult;
+        Exit;
+      end;
+    end;
+    
+    // 4º Critério: Ordem (se não for a coluna primária)
+    if APrimaryColumn <> 3 then  // Coluna 3 = Ordem
+    begin
+      LCompareResult := CompareColumn(3);
+      if LCompareResult <> 0 then
+      begin
+        Result := LCompareResult;
+        Exit;
+      end;
+    end;
+    
+    // 5º Critério: Título (se não for a coluna primária)
+    if APrimaryColumn <> 4 then  // Coluna 4 = Título
+    begin
+      LCompareResult := CompareColumn(4);
+      if LCompareResult <> 0 then
+      begin
+        Result := LCompareResult;
+        Exit;
+      end;
+    end;
+    
+    // 6º Critério: Chave (se não for a coluna primária)
+    if APrimaryColumn <> 5 then  // Coluna 5 = Chave
+    begin
+      LCompareResult := CompareColumn(5);
+      if LCompareResult <> 0 then
+      begin
+        Result := LCompareResult;
+        Exit;
+      end;
+    end;
+    
+    // Se tudo for igual, mantém ordem atual
+    Result := 0;
+  end;
+  
+begin
+  if lvConfig.Items.Count < 2 then
+    Exit;
+    
+  lvConfig.Items.BeginUpdate;
+  try
+    // Bubble Sort com comparação hierárquica
+    for I := 0 to lvConfig.Items.Count - 2 do
+    begin
+      for J := I + 1 to lvConfig.Items.Count - 1 do
+      begin
+        LItem1 := lvConfig.Items[I];
+        LItem2 := lvConfig.Items[J];
+        
+        // Compara usando ordenação hierárquica
+        if FSortAscending then
+          LNeedSwap := CompareItems(LItem1, LItem2, AColumn) > 0
+        else
+          LNeedSwap := CompareItems(LItem1, LItem2, AColumn) < 0;
+        
+        // Troca os itens se necessário
+        if LNeedSwap then
+        begin
+          // Troca Caption
+          LVal1 := LItem1.Caption;
+          LItem1.Caption := LItem2.Caption;
+          LItem2.Caption := LVal1;
+          
+          // Troca SubItems
+          LVal1 := LItem1.SubItems.DelimitedText;
+          LItem1.SubItems.DelimitedText := LItem2.SubItems.DelimitedText;
+          LItem2.SubItems.DelimitedText := LVal1;
+          
+          // Troca Data (ponteiro para índice)
+          LVal1 := IntToStr(Integer(LItem1.Data));
+          LItem1.Data := LItem2.Data;
+          LItem2.Data := Pointer(StrToIntDef(LVal1, 0));
+        end;
+      end;
+    end;
+  finally
+    lvConfig.Items.EndUpdate;
+  end;
+end;
+
+procedure TfrmConfigCRUD.SortListViewDefault;
+var
+  I, J: Integer;
+  LItem1, LItem2: TListItem;
+  LNeedSwap: Boolean;
+  LVal1: string;
+  
+  // Função auxiliar para comparar dois itens com ordenação padrão: Contrato → Produto → Título → Ordem
+  function CompareItemsDefault(AItem1, AItem2: TListItem): Integer;
+  var
+    LVal1, LVal2: string;
+    LInt1, LInt2: Integer;
+    LCompareResult: Integer;
+    
+    // Função para obter valor de uma coluna
+    function GetColumnValue(AItem: TListItem; ACol: Integer): string;
+    begin
+      if ACol = 0 then
+        Result := AItem.Caption
+      else
+        Result := AItem.SubItems[ACol - 1];
+    end;
+    
+    // Função para comparar uma coluna específica
+    function CompareColumn(ACol: Integer): Integer;
+    begin
+      LVal1 := GetColumnValue(AItem1, ACol);
+      LVal2 := GetColumnValue(AItem2, ACol);
+      
+      // Comparação baseada no tipo da coluna
+      case ACol of
+        0, 1, 2, 3:  // ID (0), Contrato (1), Produto (2), Ordem (3) - numéricos
+          begin
+            LInt1 := StrToIntDef(LVal1, 0);
+            LInt2 := StrToIntDef(LVal2, 0);
+            if LInt1 < LInt2 then
+              Result := -1
+            else if LInt1 > LInt2 then
+              Result := 1
+            else
+              Result := 0;
+          end;
+      else  // 4, 5, 6, 7, 8: Título, Chave, Valor, Descrição, Ativo (texto)
+        Result := CompareText(LVal1, LVal2);
+      end;
+    end;
+    
+  begin
+    // Ordenação padrão: Contrato → Produto → Título → Ordem
+    
+    // 1º Critério: Contrato (col 1)
+    LCompareResult := CompareColumn(1);
+    if LCompareResult <> 0 then
+    begin
+      Result := LCompareResult;
+      Exit;
+    end;
+    
+    // 2º Critério: Produto (col 2)
+    LCompareResult := CompareColumn(2);
+    if LCompareResult <> 0 then
+    begin
+      Result := LCompareResult;
+      Exit;
+    end;
+    
+    // 3º Critério: Título (col 4)
+    LCompareResult := CompareColumn(4);
+    if LCompareResult <> 0 then
+    begin
+      Result := LCompareResult;
+      Exit;
+    end;
+    
+    // 4º Critério: Ordem (col 3)
+    LCompareResult := CompareColumn(3);
+    if LCompareResult <> 0 then
+    begin
+      Result := LCompareResult;
+      Exit;
+    end;
+    
+    // Se tudo for igual, mantém ordem atual
+    Result := 0;
+  end;
+  
+begin
+  if lvConfig.Items.Count < 2 then
+    Exit;
+    
+  lvConfig.Items.BeginUpdate;
+  try
+    // Bubble Sort com ordenação padrão: Contrato → Produto → Título → Ordem
+    for I := 0 to lvConfig.Items.Count - 2 do
+    begin
+      for J := I + 1 to lvConfig.Items.Count - 1 do
+      begin
+        LItem1 := lvConfig.Items[I];
+        LItem2 := lvConfig.Items[J];
+        
+        // Compara usando ordenação padrão (sempre crescente)
+        LNeedSwap := CompareItemsDefault(LItem1, LItem2) > 0;
+        
+        // Troca os itens se necessário
+        if LNeedSwap then
+        begin
+          // Troca Caption
+          LVal1 := LItem1.Caption;
+          LItem1.Caption := LItem2.Caption;
+          LItem2.Caption := LVal1;
+          
+          // Troca SubItems
+          LVal1 := LItem1.SubItems.DelimitedText;
+          LItem1.SubItems.DelimitedText := LItem2.SubItems.DelimitedText;
+          LItem2.SubItems.DelimitedText := LVal1;
+          
+          // Troca Data (ponteiro para índice)
+          LVal1 := IntToStr(Integer(LItem1.Data));
+          LItem1.Data := LItem2.Data;
+          LItem2.Data := Pointer(StrToIntDef(LVal1, 0));
+        end;
+      end;
+    end;
+    
+    // Atualiza status
+    ShowStatus('Ordenação padrão aplicada: Contrato → Produto → Título → Ordem');
+  finally
+    lvConfig.Items.EndUpdate;
+  end;
+end;
+
+procedure TfrmConfigCRUD.UpdateConnectionInfo;
+var
+  LEngine: string;
+  LDatabaseType: string;
+  LHost: string;
+  LDatabase: string;
+  LSchema: string;
+  LTableName: string;
+  LPort: Integer;
+  LUsername: string;
+  LInfo: string;
+  LIsCustom: Boolean;
+  LIsConnected: Boolean;
+  LDatabaseInterface: IParametersDatabase;
+begin
+  if not Assigned(FParameters) then
+  begin
+    lblConexaoInfo.Caption := 'Conexão não inicializada';
+    lblConexaoTipo.Caption := '';
+    btnConectar.Enabled := True;
+    btnDesconectar.Enabled := False;
+    Exit;
+  end;
+  
+  try
+    // Obtém referência direta ao Database para melhor resolução de tipos
+    LDatabaseInterface := FParameters.Database;
+    
+    // Verifica se está conectado
+    LDatabaseInterface.IsConnected(LIsConnected);
+    
+    // Obtém informações da conexão
+    LEngine := LDatabaseInterface.Engine;
+    LDatabaseType := LDatabaseInterface.DatabaseType;
+    LHost := LDatabaseInterface.Host;
+    LPort := LDatabaseInterface.Port;
+    LUsername := LDatabaseInterface.Username;
+    LDatabase := LDatabaseInterface.Database;
+    LSchema := LDatabaseInterface.Schema;
+    LTableName := LDatabaseInterface.TableName;
+    
+    // Verifica se é conexão customizada (não usa valores padrão)
+    // Valores padrão típicos seriam vazios ou valores genéricos
+    LIsCustom := (LHost <> '') and (LDatabase <> '') and (LUsername <> '');
+    
+    // Monta string de informações
+    if LIsConnected then
+      LInfo := Format('[CONECTADO] Engine: %s | Database: %s | Host: %s', [LEngine, LDatabaseType, LHost])
+    else
+      LInfo := Format('[DESCONECTADO] Engine: %s | Database: %s | Host: %s', [LEngine, LDatabaseType, LHost]);
+    
+    if LPort > 0 then
+      LInfo := LInfo + Format(':%d', [LPort]);
+    
+    LInfo := LInfo + Format(' | User: %s | DB: %s', [LUsername, LDatabase]);
+    
+    if LSchema <> '' then
+      LInfo := LInfo + Format(' | Schema: %s', [LSchema]);
+    
+    if LTableName <> '' then
+      LInfo := LInfo + Format(' | Table: %s', [LTableName]);
+    
+    // Atualiza labels
+    lblConexaoInfo.Caption := LInfo;
+    
+    if LIsCustom then
+      lblConexaoTipo.Caption := '✓ Conexão Customizada (Configuração Manual)'
+    else
+      lblConexaoTipo.Caption := '⚠ Conexão Padrão (Usando Valores Default)';
+    
+    // Atualiza caminho da DLL (se aplicável)
+    lblDLLPath.Caption := GetDLLPath;
+    
+    // Atualiza estado dos botões
+    btnConectar.Enabled := not LIsConnected;
+    btnDesconectar.Enabled := LIsConnected;
+      
+  except
+    on E: Exception do
+    begin
+      lblConexaoInfo.Caption := 'Erro ao obter informações de conexão: ' + E.Message;
+      lblConexaoTipo.Caption := '';
+      lblDLLPath.Caption := '';
+      btnConectar.Enabled := True;
+      btnDesconectar.Enabled := False;
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.PopulateDatabaseTypeCombo;
+var
+  I: TParameterDatabaseTypes;
+begin
+  cmbDatabaseType.Items.Clear;
+  
+  // Popula usando as constantes de Parameters.Consts.pas
+  // Pula pdtNone (primeiro item)
+  for I := Succ(Low(TParameterDatabaseTypes)) to High(TParameterDatabaseTypes) do
+  begin
+    cmbDatabaseType.Items.Add(TDatabaseTypeNames[I]);
+  end;
+  
+  // Define PostgreSQL como padrão
+  cmbDatabaseType.ItemIndex := cmbDatabaseType.Items.IndexOf('PostgreSQL');
+  
+  // Popula ComboBox de tipos ODBC
+  PopulateODBCDatabaseTypeCombo;
+  
+  // Ajusta campos conforme o tipo padrão
+  AdjustFieldsByDatabaseType;
+end;
+
+procedure TfrmConfigCRUD.LoadConnectionFields;
+var
+  LDatabaseType: string;
+  I: Integer;
+  LDatabase: IParametersDatabase;
+begin
+  if not Assigned(FParameters) then
+    Exit;
+  
+  try
+    // Obtém referência direta ao Database para melhor resolução de tipos
+    LDatabase := FParameters.Database;
+    
+    // Carrega valores atuais da conexão nos campos
+    // edtEngine é atualizado automaticamente baseado nas diretivas de compilação
+    // Não precisa atualizar aqui, pois já foi definido no InitializeParameters
+    // edtEngine.Text := LDatabase.Engine;
+    LDatabaseType := LDatabase.DatabaseType;
+    
+    // Seleciona o item no ComboBox
+    cmbDatabaseType.ItemIndex := -1;
+    for I := 0 to cmbDatabaseType.Items.Count - 1 do
+    begin
+      if SameText(cmbDatabaseType.Items[I], LDatabaseType) then
+      begin
+        cmbDatabaseType.ItemIndex := I;
+        Break;
+      end;
+    end;
+    
+    // Se não encontrou, define o texto diretamente (fallback)
+    if cmbDatabaseType.ItemIndex = -1 then
+      cmbDatabaseType.Text := LDatabaseType;
+    
+    edtHost.Text := LDatabase.Host;
+    edtPort.Text := IntToStr(LDatabase.Port);
+    edtUsername.Text := LDatabase.Username;
+    edtPassword.Text := LDatabase.Password;
+    
+    // Para ODBC, usa ComboBox; para outros, usa Edit
+    // IMPORTANTE: Não sobrescreve o campo se o usuário já digitou algo
+    // Apenas carrega se o campo estiver vazio
+    if SameText(LDatabaseType, 'ODBC') then
+    begin
+      if Trim(cmbODBCDSN.Text) = '' then
+        cmbODBCDSN.Text := LDatabase.Database;
+    end
+    else
+    begin
+      // Só carrega o valor se o campo estiver vazio (não sobrescreve o que o usuário digitou)
+      if Trim(edtDatabase.Text) = '' then
+        edtDatabase.Text := LDatabase.Database;
+    end;
+    edtSchema.Text := LDatabase.Schema;
+    edtTableName.Text := LDatabase.TableName; // Usa exatamente o valor do TableName
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao carregar campos de conexão: ' + E.Message, True);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnConectarClick(Sender: TObject);
+var
+  LDatabases: TStringList;
+  LSelectedDatabase: string;
+  LEngine: string;
+  LEngineEnum: TParameterDatabaseEngine;
+  LDatabaseType: string;
+  LHost: string;
+  LPort: Integer;
+  LUsername: string;
+  LPassword: string;
+  LDatabase: string;
+  LSchema: string;
+  LTableName: string;
+  LIsConnected: Boolean;
+  LIsFileBased: Boolean;
+  LIsFireBird: Boolean;
+  LIsFireBirdLocal: Boolean;
+  LIsODBC: Boolean;
+  LSuccess: Boolean;
+begin
+  try
+    // Valida campos obrigatórios
+    // edtEngine é preenchido automaticamente baseado nas diretivas, não precisa validar
+    // if Trim(edtEngine.Text) = '' then
+    // begin
+    //   ShowMessage('O campo Engine é obrigatório.');
+    //   edtEngine.SetFocus;
+    //   Exit;
+    // end;
+    
+    if cmbDatabaseType.ItemIndex < 0 then
+    begin
+      ShowMessage('Selecione um Database Type.');
+      cmbDatabaseType.SetFocus;
+      Exit;
+    end;
+    
+    // DETECÇÃO AUTOMÁTICA DE ENGINE
+    // Atualiza o campo edtEngine automaticamente usando o módulo Parameters
+    UpdateEngineField;
+    
+    // Obtém valores dos campos
+    // LEngine é obtido automaticamente pelo módulo Parameters
+    LEngineEnum := TParameters.DetectEngine;
+    LEngine := TParameters.DetectEngineName;
+    LDatabaseType := cmbDatabaseType.Text;
+    LDatabase := Trim(edtDatabase.Text);
+    LSchema := Trim(edtSchema.Text);
+    LTableName := Trim(edtTableName.Text);
+    
+    // Determina se é banco baseado em arquivo (SQLite e Access sempre são arquivos)
+    LIsFileBased := SameText(LDatabaseType, 'SQLite') or
+                   SameText(LDatabaseType, 'Access');
+    
+    // Determina se é FireBird (pode ser local ou remoto)
+    LIsFireBird := SameText(LDatabaseType, 'FireBird') or 
+                   SameText(LDatabaseType, 'Firebird');
+    
+    // Determina se é ODBC
+    LIsODBC := SameText(LDatabaseType, 'ODBC');
+    
+    // Validações conforme o tipo de banco
+    if LIsODBC then
+    begin
+      // ODBC: valida DSN e tipo de banco ODBC
+      if Trim(cmbODBCDSN.Text) = '' then
+      begin
+        ShowMessage('Selecione ou informe um ODBC DSN.');
+        cmbODBCDSN.SetFocus;
+        Exit;
+      end;
+      
+      // Usa o DSN do ComboBox
+      LDatabase := Trim(cmbODBCDSN.Text);
+      
+      if cmbODBCDatabaseType.ItemIndex < 0 then
+      begin
+        ShowMessage('Selecione o tipo de banco de dados para ODBC.');
+        cmbODBCDatabaseType.SetFocus;
+        Exit;
+      end;
+      
+      // ODBC usa DSN, não Host/Port
+      // Username/Password podem estar no DSN ou podem ser informados opcionalmente
+      LHost := '';
+      LPort := 0;
+      // Para ODBC, Username/Password são opcionais (podem estar no DSN)
+      // Como os campos estão ocultos para ODBC, deixa vazio (configurado no DSN)
+      LUsername := '';
+      LPassword := '';
+    end
+    else if LIsFireBird then
+    begin
+      // FireBird: pode ser local (arquivo) ou remoto (Host/Port)
+      // Detecta se é local (Database contém caminho de arquivo) ou remoto (Host preenchido)
+      LIsFireBirdLocal := ((Trim(edtHost.Text) = '') and (Pos('\', Trim(edtDatabase.Text)) > 0)) or 
+                          ((Trim(edtHost.Text) = '') and (Pos('/', Trim(edtDatabase.Text)) > 0)) or
+                          ((Trim(edtHost.Text) = '') and (Pos(':', Trim(edtDatabase.Text)) = 2)); // Drive Windows (C:)
+      
+      if LIsFireBirdLocal then
+      begin
+      // FireBird local: valida arquivo
+      if Trim(edtDatabase.Text) = '' then
+      begin
+        // Abre diálogo de seleção de arquivo FireBird
+        if not Assigned(dlgOpenDatabase) then
+        begin
+          ShowMessage('Diálogo de seleção de arquivo não configurado.');
+          Exit;
+        end;
+        
+        dlgOpenDatabase.Filter := 'FireBird Database (*.fdb)|*.fdb|All Files (*.*)|*.*';
+        dlgOpenDatabase.FilterIndex := 1;
+        dlgOpenDatabase.Title := 'Selecionar arquivo FireBird';
+        dlgOpenDatabase.Options := dlgOpenDatabase.Options - [ofAllowMultiSelect];
+        
+        if dlgOpenDatabase.Execute then
+        begin
+          edtDatabase.Text := dlgOpenDatabase.FileName;
+          LDatabase := dlgOpenDatabase.FileName;
+        end
+        else
+        begin
+          ShowStatus('Seleção de arquivo cancelada.');
+          Exit;
+        end;
+      end
+      else
+      begin
+        LDatabase := Trim(edtDatabase.Text);
+      end;
+        
+        LHost := '';
+        LPort := 0;
+      end
+      else
+      begin
+        // FireBird remoto: valida Host, Port e Database
+        if Trim(edtHost.Text) = '' then
+        begin
+          ShowMessage('O campo Host é obrigatório para FireBird remoto.');
+          edtHost.SetFocus;
+          Exit;
+        end;
+        
+        if Trim(edtDatabase.Text) = '' then
+        begin
+          ShowMessage('O campo Database é obrigatório.');
+          edtDatabase.SetFocus;
+          Exit;
+        end;
+        
+        LHost := Trim(edtHost.Text);
+        LPort := StrToIntDef(Trim(edtPort.Text), 3050); // Porta padrão FireBird
+      end;
+      
+      // FireBird sempre pode ter Username/Password
+      LUsername := Trim(edtUsername.Text);
+      LPassword := Trim(edtPassword.Text);
+    end
+    else if LIsFileBased then
+    begin
+      // SQLite e Access: sempre arquivo local
+      if Trim(edtDatabase.Text) = '' then
+      begin
+        ShowMessage('Selecione o arquivo do banco de dados.');
+        edtDatabase.SetFocus;
+        Exit;
+      end;
+      
+      // SQLite e Access geralmente não precisam de usuário/senha
+      LUsername := '';
+      LPassword := '';
+      LHost := '';
+      LPort := 0;
+    end
+    else
+    begin
+      // Bancos de rede: valida Host, Port, Username, Database
+      if Trim(edtHost.Text) = '' then
+      begin
+        ShowMessage('O campo Host é obrigatório.');
+        edtHost.SetFocus;
+        Exit;
+      end;
+      
+      if Trim(edtUsername.Text) = '' then
+      begin
+        ShowMessage('O campo Username é obrigatório.');
+        edtUsername.SetFocus;
+        Exit;
+      end;
+      
+      LHost := Trim(edtHost.Text);
+      LPort := StrToIntDef(Trim(edtPort.Text), 5432);
+      LUsername := Trim(edtUsername.Text);
+      LPassword := Trim(edtPassword.Text);
+      
+      // Se Database estiver vazio, tenta listar bancos disponíveis
+      if Trim(edtDatabase.Text) = '' then
+      begin
+        // Verifica se já está conectado
+        FParameters.Database.IsConnected(LIsConnected);
+        if LIsConnected then
+        begin
+          // Desconecta antes de reconfigurar
+          FParameters.Database.Disconnect;
+        end;
+        
+        // Aplica configurações temporárias para testar conexão
+        // IMPORTANTE: Limpa o Database antes de configurar para garantir que não use valor antigo
+        FParameters.Database
+          .Engine(LEngineEnum)
+          .DatabaseType(LDatabaseType)
+          .Host(LHost)
+          .Port(LPort)
+          .Username(LUsername)
+          .Password(LPassword)
+          .Database(''); // Limpa o database para permitir listagem
+        
+        // Tenta listar bancos disponíveis
+        LDatabases := nil;
+        try
+          LDatabases := FParameters.Database.ListAvailableDatabases;
+          try
+            if (Assigned(LDatabases)) and (LDatabases.Count > 0) then
+            begin
+              // Mostra diálogo de seleção de banco
+              LSelectedDatabase := SelectDatabaseFromList(LDatabases);
+              if LSelectedDatabase <> '' then
+              begin
+                edtDatabase.Text := LSelectedDatabase;
+                LDatabase := LSelectedDatabase;
+              end
+              else
+              begin
+                ShowStatus('Seleção de banco de dados cancelada.');
+                Exit;
+              end;
+            end
+            else
+            begin
+              ShowMessage('Nenhum banco de dados disponível encontrado.'#13#10#13#10'Possíveis causas:'#13#10 +
+                          '1. Credenciais de conexão incorretas'#13#10 +
+                          '2. Servidor MySQL não está acessível'#13#10 +
+                          '3. Usuário não tem permissão para listar bancos'#13#10#13#10 +
+                          'Verifique as credenciais e tente novamente.');
+              Exit;
+            end;
+          finally
+            if Assigned(LDatabases) then
+              LDatabases.Free;
+          end;
+        except
+          on E: Exception do
+          begin
+            ShowMessage(Format('Erro ao listar bancos disponíveis:'#13#10'%s'#13#10#13#10'Verifique:'#13#10'1. Se o servidor MySQL está acessível'#13#10'2. Se as credenciais estão corretas'#13#10'3. Se o usuário tem permissão para listar bancos', [E.Message]));
+            Exit;
+          end;
+        end;
+      end
+      else
+      begin
+        LDatabase := Trim(edtDatabase.Text);
+      end;
+    end;
+    
+    // Usa exatamente o que o usuário digitou no campo Table Name
+    // Não tenta separar ou modificar o valor
+    
+    // Verifica se já está conectado
+    FParameters.Database.IsConnected(LIsConnected);
+    if LIsConnected then
+    begin
+      // Desconecta antes de reconfigurar
+      FParameters.Database.Disconnect;
+    end;
+    
+    // Aplica novas configurações
+    FParameters.Database
+      .Engine(LEngineEnum)
+      .DatabaseType(LDatabaseType);
+    
+    // Configura campos conforme o tipo de banco
+    if LIsODBC then
+    begin
+      // ODBC: não usa Host/Port, usa DSN
+      // O tipo de banco ODBC já está em LDatabaseType ('ODBC')
+      // O tipo real do banco está em cmbODBCDatabaseType
+      // Nota: O módulo Parameters pode precisar do tipo real do banco para ODBC
+      // Por enquanto, apenas configura o DSN
+    end
+    else if LIsFireBird then
+    begin
+      // FireBird: configura Host/Port se for remoto, senão deixa vazio (local)
+      if (LHost <> '') and (LPort > 0) then
+      begin
+        // FireBird remoto
+        FParameters.Database
+          .Host(LHost)
+          .Port(LPort);
+      end;
+      // Se for local, Host e Port ficam vazios
+    end
+    else if not LIsFileBased then
+    begin
+      // Bancos de rede (PostgreSQL, MySQL, SQL Server): configura Host e Port
+      FParameters.Database
+        .Host(LHost)
+        .Port(LPort);
+    end;
+    
+    // IMPORTANTE: Define TableName ANTES de Database para SQLite
+    // Isso garante que quando ConnectConnection verificar se é pasta,
+    // o FTableName já estará definido para criar o arquivo com o nome correto
+    if LTableName <> '' then
+      FParameters.Database.TableName(LTableName);
+    
+    // Define Database apenas se não estiver vazio
+    // Se estiver vazio, não define (permite que o sistema liste bancos disponíveis)
+    if Trim(LDatabase) <> '' then
+      FParameters.Database.Database(LDatabase)
+    else
+      FParameters.Database.Database(''); // Limpa o database para permitir listagem
+    
+    // Para ODBC, Username/Password podem estar no DSN, então são opcionais aqui
+    // Para outros bancos, configura normalmente
+    if not LIsODBC then
+    begin
+      if LUsername <> '' then
+        FParameters.Database.Username(LUsername);
+        
+      if LPassword <> '' then
+        FParameters.Database.Password(LPassword);
+    end;
+    
+    // Para SQLite, MySQL, Access e FireBird, não usa Schema
+    // Limpa o Schema se estiver preenchido para esses bancos
+    if SameText(LDatabaseType, 'SQLite') or 
+       SameText(LDatabaseType, 'MySQL') or 
+       SameText(LDatabaseType, 'MariaDB') or 
+       SameText(LDatabaseType, 'Access') or 
+       (SameText(LDatabaseType, 'FireBird') or SameText(LDatabaseType, 'Firebird')) then
+    begin
+      // Limpa o Schema para bancos que não suportam
+      FParameters.Database.Schema('');
+    end
+    else if LSchema <> '' then
+    begin
+      // Aplica Schema apenas para bancos que suportam (PostgreSQL, SQL Server)
+      FParameters.Database.Schema(LSchema);
+    end;
+    
+    // Conecta
+    try
+      FParameters.Database.Connect;
+    except
+      on EConn: Exception do
+      begin
+        // Se o erro for "Unknown database", tenta listar bancos disponíveis
+        if (Pos('Unknown database', EConn.Message) > 0) or 
+           (Pos('database', LowerCase(EConn.Message)) > 0) and 
+           (Pos('not exist', LowerCase(EConn.Message)) > 0) or
+           (Pos('does not exist', LowerCase(EConn.Message)) > 0) then
+        begin
+          // Banco não existe - tenta listar bancos disponíveis
+          if not LIsFileBased and not LIsODBC and (LDatabaseType <> 'FireBird') then
+          begin
+            try
+              // Desconecta se estiver conectado
+              FParameters.Database.Disconnect;
+              
+              // Aplica configurações temporárias para testar conexão
+              FParameters.Database
+                .Engine(LEngineEnum)
+                .DatabaseType(LDatabaseType)
+                .Host(LHost)
+                .Port(LPort)
+                .Username(LUsername)
+                .Password(LPassword);
+              
+              // Tenta listar bancos disponíveis
+              LDatabases := nil;
+              try
+                LDatabases := FParameters.Database.ListAvailableDatabases;
+                if (Assigned(LDatabases)) and (LDatabases.Count > 0) then
+                begin
+                  // Mostra diálogo de seleção de banco
+                  LSelectedDatabase := SelectDatabaseFromList(LDatabases);
+                  if LSelectedDatabase <> '' then
+                  begin
+                    // Atualiza o campo e reconecta com o banco selecionado
+                    edtDatabase.Text := LSelectedDatabase;
+                    LDatabase := LSelectedDatabase;
+                    FParameters.Database.Database(LDatabase);
+                    FParameters.Database.Connect;
+                    
+                    // Verifica se deve apagar a tabela antes de continuar
+                    if cbApagar.Checked then
+                    begin
+                      try
+                        // Verifica se a tabela existe
+                        if FParameters.Database.TableExists then
+                        begin
+                          // Apaga a tabela
+                          FParameters.Database.DropTable(LSuccess);
+                          
+                          if LSuccess then
+                          begin
+                            ShowStatus('Tabela apagada com sucesso antes de conectar.');
+                          end
+                          else
+                          begin
+                            ShowStatus('Aviso: Não foi possível apagar a tabela.', True);
+                          end;
+                        end;
+                        
+                        // Desmarca o checkbox após apagar
+                        cbApagar.Checked := False;
+                      except
+                        on E: Exception do
+                        begin
+                          ShowStatus('Erro ao apagar tabela: ' + E.Message, True);
+                          ShowMessage('Erro ao apagar tabela: ' + E.Message);
+                          cbApagar.Checked := False;
+                        end;
+                      end;
+                    end;
+                  end
+                  else
+                  begin
+                    ShowStatus('Seleção de banco de dados cancelada.');
+                    Exit;
+                  end;
+                end
+                else
+                begin
+                  ShowMessage(Format('Banco de dados "%s" não existe e não foi possível listar bancos disponíveis.'#13#10#13#10'Erro original: %s', [LDatabase, EConn.Message]));
+                  Exit;
+                end;
+              finally
+                if Assigned(LDatabases) then
+                  LDatabases.Free;
+              end;
+            except
+              on EList: Exception do
+              begin
+                ShowMessage(Format('Banco de dados "%s" não existe.'#13#10'Erro ao listar bancos disponíveis: %s'#13#10#13#10'Erro original: %s', 
+                  [LDatabase, EList.Message, EConn.Message]));
+                Exit;
+              end;
+            end;
+          end
+          else
+          begin
+            // Para bancos baseados em arquivo, apenas mostra erro
+            raise;
+          end;
+        end
+        else
+        begin
+          // Outro tipo de erro - re-lança
+          raise;
+        end;
+      end;
+    end;
+    
+    // Verifica se deve apagar a tabela antes de continuar
+    if cbApagar.Checked then
+    begin
+      try
+        // Verifica se a tabela existe
+        if FParameters.Database.TableExists then
+        begin
+          // Apaga a tabela
+          FParameters.Database.DropTable(LSuccess);
+          
+          if LSuccess then
+          begin
+            ShowStatus('Tabela apagada com sucesso antes de conectar.');
+          end
+          else
+          begin
+            ShowStatus('Aviso: Não foi possível apagar a tabela.', True);
+          end;
+        end;
+        
+        // Desmarca o checkbox após apagar
+        cbApagar.Checked := False;
+      except
+        on E: Exception do
+        begin
+          ShowStatus('Erro ao apagar tabela: ' + E.Message, True);
+          ShowMessage('Erro ao apagar tabela: ' + E.Message);
+          cbApagar.Checked := False;
+        end;
+      end;
+    end;
+    
+    // Atualiza informações
+    UpdateConnectionInfo;
+    
+    // Atualiza estado dos botões
+    btnConectar.Enabled := False;
+    btnDesconectar.Enabled := True;
+    
+    // Limpa e recarrega dados
+    ClearFields;
+    LoadDataToListView;
+    
+    ShowStatus('Conectado ao banco de dados com sucesso!');
+    ShowMessage('Conectado ao banco de dados com sucesso!');
+    
+  except
+    on E: EParametersSQLException do
+    begin
+      // Verifica se é erro de tabela não existente
+      if E.ErrorCode = ERR_SQL_TABLE_NOT_EXISTS then
+      begin
+        if HandleTableNotExists('conectar') then
+        begin
+          // Tabela foi criada, atualiza informações
+          UpdateConnectionInfo;
+          ShowStatus('Conectado ao banco de dados com sucesso!');
+        end
+        else
+        begin
+          btnConectar.Enabled := True;
+          btnDesconectar.Enabled := False;
+        end;
+      end
+      else
+      begin
+        ShowStatus('Erro ao conectar: ' + E.Message, True);
+        ShowMessage('Erro ao conectar ao banco de dados: ' + E.Message);
+        btnConectar.Enabled := True;
+        btnDesconectar.Enabled := False;
+      end;
+    end;
+    on E: Exception do
+    begin
+      // Verifica se é erro de banco não existente (MySQL, PostgreSQL, SQL Server)
+      if (Pos('Unknown database', E.Message) > 0) or 
+         (Pos('database', LowerCase(E.Message)) > 0) and 
+         ((Pos('not exist', LowerCase(E.Message)) > 0) or
+          (Pos('does not exist', LowerCase(E.Message)) > 0) or
+          (Pos('doesn''t exist', LowerCase(E.Message)) > 0)) then
+      begin
+        // Banco não existe - tenta listar bancos disponíveis
+        if not LIsFileBased and not LIsODBC and (LDatabaseType <> 'FireBird') then
+        begin
+          try
+            // Desconecta se estiver conectado
+            try
+              FParameters.Database.Disconnect;
+            except
+              // Ignora erros de desconexão
+            end;
+            
+            // Aplica configurações temporárias para testar conexão
+            FParameters.Database
+              .Engine(LEngineEnum)
+              .DatabaseType(LDatabaseType)
+              .Host(LHost)
+              .Port(LPort)
+              .Username(LUsername)
+              .Password(LPassword);
+            
+            // Tenta listar bancos disponíveis
+            LDatabases := nil;
+            try
+              LDatabases := FParameters.Database.ListAvailableDatabases;
+              if (Assigned(LDatabases)) and (LDatabases.Count > 0) then
+              begin
+                // Mostra diálogo de seleção de banco
+                LSelectedDatabase := SelectDatabaseFromList(LDatabases);
+                if LSelectedDatabase <> '' then
+                begin
+                  // Atualiza o campo e reconecta com o banco selecionado
+                  edtDatabase.Text := LSelectedDatabase;
+                  LDatabase := LSelectedDatabase;
+                  FParameters.Database.Database(LDatabase);
+                  FParameters.Database.Connect;
+                  
+                  // Verifica se deve apagar a tabela antes de continuar
+                  if cbApagar.Checked then
+                  begin
+                    try
+                      // Verifica se a tabela existe
+                      if FParameters.Database.TableExists then
+                      begin
+                        // Apaga a tabela
+                        FParameters.Database.DropTable(LSuccess);
+                        
+                        if LSuccess then
+                        begin
+                          ShowStatus('Tabela apagada com sucesso antes de conectar.');
+                        end
+                        else
+                        begin
+                          ShowStatus('Aviso: Não foi possível apagar a tabela.', True);
+                        end;
+                      end;
+                      
+                      // Desmarca o checkbox após apagar
+                      cbApagar.Checked := False;
+                    except
+                      on E: Exception do
+                      begin
+                        ShowStatus('Erro ao apagar tabela: ' + E.Message, True);
+                        ShowMessage('Erro ao apagar tabela: ' + E.Message);
+                        cbApagar.Checked := False;
+                      end;
+                    end;
+                  end;
+                  
+                  // Atualiza informações
+                  UpdateConnectionInfo;
+                  btnConectar.Enabled := False;
+                  btnDesconectar.Enabled := True;
+                  ClearFields;
+                  LoadDataToListView;
+                  ShowStatus('Conectado ao banco de dados com sucesso!');
+                  ShowMessage('Conectado ao banco de dados com sucesso!');
+                  Exit; // Sai do tratamento de exceção
+                end
+                else
+                begin
+                  ShowStatus('Seleção de banco de dados cancelada.');
+                  btnConectar.Enabled := True;
+                  btnDesconectar.Enabled := False;
+                  Exit;
+                end;
+              end
+              else
+              begin
+                ShowMessage(Format('Banco de dados "%s" não existe e não foi possível listar bancos disponíveis.'#13#10#13#10'Erro original: %s', [LDatabase, E.Message]));
+                btnConectar.Enabled := True;
+                btnDesconectar.Enabled := False;
+                Exit;
+              end;
+            finally
+              if Assigned(LDatabases) then
+                LDatabases.Free;
+            end;
+          except
+            on EList: Exception do
+            begin
+              ShowMessage(Format('Banco de dados "%s" não existe.'#13#10'Erro ao listar bancos disponíveis: %s'#13#10#13#10'Erro original: %s', 
+                [LDatabase, EList.Message, E.Message]));
+              btnConectar.Enabled := True;
+              btnDesconectar.Enabled := False;
+              Exit;
+            end;
+          end;
+        end
+        else
+        begin
+          // Para bancos baseados em arquivo, apenas mostra erro
+          ShowStatus(Format('Erro: Banco de dados "%s" não existe. %s', [LDatabase, E.Message]), True);
+          ShowMessage(Format('Erro: Banco de dados "%s" não existe.'#13#10#13#10'%s', [LDatabase, E.Message]));
+          btnConectar.Enabled := True;
+          btnDesconectar.Enabled := False;
+          Exit;
+        end;
+      end;
+      
+      // Tratamento especial para SQLite
+      if SameText(LDatabaseType, 'SQLite') and (Pos('unable to open database file', LowerCase(E.Message)) > 0) then
+      begin
+        ShowStatus('Erro ao conectar ao SQLite: ' + E.Message + sLineBreak + 
+                   'Verifique se o caminho do arquivo está correto e se há permissões para criar/acessar o arquivo.', True);
+        ShowMessage('Erro ao conectar ao SQLite:' + sLineBreak + E.Message + sLineBreak + sLineBreak +
+                    'Verifique:' + sLineBreak +
+                    '1. Se o caminho do arquivo está correto' + sLineBreak +
+                    '2. Se há permissões para criar/acessar o arquivo' + sLineBreak +
+                    '3. Se o diretório existe');
+      end
+      else
+      begin
+        ShowStatus('Erro ao conectar: ' + E.Message, True);
+        ShowMessage('Erro ao conectar ao banco de dados: ' + E.Message);
+      end;
+      btnConectar.Enabled := True;
+      btnDesconectar.Enabled := False;
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnDesconectarClick(Sender: TObject);
+begin
+  try
+    if not Assigned(FParameters) then
+      Exit;
+    
+    // Desconecta
+    FParameters.Database.Disconnect;
+    
+    // Atualiza informações
+    UpdateConnectionInfo;
+    
+    // Atualiza estado dos botões
+    btnConectar.Enabled := True;
+    btnDesconectar.Enabled := False;
+    
+    // Limpa dados
+    ClearFields;
+    lvConfig.Items.Clear;
+    
+    ShowStatus('Desconectado do banco de dados.');
+    ShowMessage('Desconectado do banco de dados.');
+    
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao desconectar: ' + E.Message, True);
+      ShowMessage('Erro ao desconectar: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.cbApagarClick(Sender: TObject);
+var
+  LTableName: string;
+  LResult: Integer;
+  LSuccess: Boolean;
+  LDatabaseInterface: IParametersDatabase;
+begin
+  if not Assigned(FParameters) then
+    Exit;
+  
+  // Se checkbox foi desmarcado, não faz nada
+  if not cbApagar.Checked then
+    Exit;
+  
+  try
+    // Obtém referência direta ao Database
+    LDatabaseInterface := FParameters.Database;
+    
+    // Verifica se a tabela existe
+    if not LDatabaseInterface.TableExists then
+    begin
+      ShowMessage('A tabela não existe. Não há nada para apagar.');
+      cbApagar.Checked := False;
+      Exit;
+    end;
+    
+    // Obtém nome da tabela para exibição
+    LTableName := LDatabaseInterface.TableName;
+    if LDatabaseInterface.Schema <> '' then
+      LTableName := Format('%s.%s', [LDatabaseInterface.Schema, LTableName]);
+    
+    // Confirma com o usuário
+    LResult := MessageDlg(
+      Format('ATENÇÃO: Esta operação é IRREVERSÍVEL!'#13#10#13#10 +
+             'Deseja realmente APAGAR a tabela "%s"?'#13#10 +
+             'Todos os dados serão perdidos permanentemente!', [LTableName]),
+      mtWarning,
+      [mbYes, mbNo],
+      0,
+      mbNo
+    );
+    
+    if LResult = mrYes then
+    begin
+      // IMPORTANTE: Precisa estar conectado para dropar a tabela
+      // Se não estiver conectado, conecta primeiro
+      if not LDatabaseInterface.IsConnected then
+      begin
+        try
+          LDatabaseInterface.Connect;
+        except
+          on E: Exception do
+          begin
+            ShowMessage(Format('Erro ao conectar para apagar tabela: %s', [E.Message]));
+            cbApagar.Checked := False;
+            Exit;
+          end;
+        end;
+      end;
+      
+      // Dropar a tabela (precisa estar conectado)
+      LDatabaseInterface.DropTable(LSuccess);
+      
+      if LSuccess then
+      begin
+        ShowStatus(Format('Tabela "%s" apagada com sucesso!', [LTableName]));
+        ShowMessage(Format('Tabela "%s" apagada com sucesso!', [LTableName]));
+        
+        // Desmarca o checkbox
+        cbApagar.Checked := False;
+        
+        // Limpa campos
+        ClearFields;
+        lvConfig.Items.Clear;
+        
+        // Atualiza informações de conexão
+        UpdateConnectionInfo;
+      end
+      else
+      begin
+        ShowStatus('Erro ao apagar a tabela.', True);
+        ShowMessage('Erro ao apagar a tabela.');
+        cbApagar.Checked := False;
+      end;
+    end
+    else
+    begin
+      // Usuário cancelou, desmarca o checkbox
+      cbApagar.Checked := False;
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao apagar tabela: ' + E.Message, True);
+      ShowMessage('Erro ao apagar tabela: ' + E.Message);
+      cbApagar.Checked := False;
+    end;
+  end;
+end;
+
+function TfrmConfigCRUD.HandleTableNotExists(const AOperation: string): Boolean;
+var
+  LTableName: string;
+  LResult: Integer;
+  LSuccess: Boolean;
+  LDatabaseType: string;
+  LDatabaseInterface: IParametersDatabase;
+begin
+  Result := False;
+  
+  if not Assigned(FParameters) then
+    Exit;
+  
+  try
+    // Obtém referência direta ao Database para melhor resolução de tipos
+    LDatabaseInterface := FParameters.Database;
+    
+    // Usa exatamente o nome da tabela como foi informado
+    // Formata conforme o tipo de banco
+    LDatabaseType := LDatabaseInterface.DatabaseType;
+    
+    // SQLite não usa schema - usa apenas o nome da tabela
+    if SameText(LDatabaseType, 'SQLite') then
+    begin
+      LTableName := LDatabaseInterface.TableName;
+    end
+    // FireBird: usa exatamente o nome da tabela (pode já conter schema como prefixo)
+    else if (SameText(LDatabaseType, 'FireBird') or SameText(LDatabaseType, 'Firebird')) then
+    begin
+      LTableName := LDatabaseInterface.TableName;
+    end
+    // MySQL não usa schema - usa apenas o nome da tabela
+    else if SameText(LDatabaseType, 'MySQL') or SameText(LDatabaseType, 'MariaDB') then
+    begin
+      LTableName := LDatabaseInterface.TableName;
+    end
+    // Outros bancos (PostgreSQL, SQL Server): usa schema.table se houver schema
+    else
+    begin
+      if LDatabaseInterface.Schema <> '' then
+        LTableName := Format('%s.%s', [LDatabaseInterface.Schema, LDatabaseInterface.TableName])
+      else
+        LTableName := LDatabaseInterface.TableName;
+    end;
+    
+    // Pergunta ao usuário se deseja criar a tabela
+    LResult := MessageDlg(
+      Format('A tabela "%s" não existe no banco de dados.'#13#10 +
+             'Deseja criar a tabela agora?', [LTableName]),
+      mtConfirmation,
+      [mbYes, mbNo],
+      0,
+      mbNo
+    );
+    
+    if LResult = mrYes then
+    begin
+      // Cria a tabela
+      LDatabaseInterface.CreateTable(LSuccess);
+      
+      if LSuccess then
+      begin
+        ShowStatus(Format('Tabela "%s" criada com sucesso!', [LTableName]));
+        ShowMessage(Format('Tabela "%s" criada com sucesso!', [LTableName]));
+        Result := True;
+      end
+      else
+      begin
+        ShowStatus('Erro ao criar a tabela.', True);
+        ShowMessage('Erro ao criar a tabela.');
+        Result := False;
+      end;
+    end
+    else
+    begin
+      ShowStatus(Format('Operação "%s" cancelada: tabela não existe.', [AOperation]));
+      Result := False;
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowStatus('Erro ao criar tabela: ' + E.Message, True);
+      ShowMessage('Erro ao criar tabela: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.cmbDatabaseTypeChange(Sender: TObject);
+begin
+  // Ajusta campos conforme o tipo de banco selecionado
+  AdjustFieldsByDatabaseType;
+end;
+
+procedure TfrmConfigCRUD.btnSelectDatabaseClick(Sender: TObject);
+var
+  LDatabaseType: string;
+  LFilter: string;
+  LSelectedPath: string;
+  LFileName: string;
+  LDirectory: string;
+  LResult: Integer;
+begin
+  if not Assigned(dlgOpenDatabase) then
+    Exit;
+    
+  LDatabaseType := cmbDatabaseType.Text;
+  
+  // Para SQLite, permite selecionar pasta ou arquivo
+  if SameText(LDatabaseType, 'SQLite') then
+  begin
+    // Primeiro pergunta se quer selecionar pasta ou arquivo
+    LResult := MessageDlg(
+      'SQLite: Selecionar pasta ou arquivo?' + sLineBreak + sLineBreak +
+      'Sim = Selecionar PASTA (será criado um arquivo na pasta)' + sLineBreak +
+      'Não = Selecionar ARQUIVO (usar arquivo existente)',
+      mtConfirmation,
+      [mbYes, mbNo, mbCancel],
+      0
+    );
+    
+    if LResult = mrCancel then
+      Exit;
+    
+    if LResult = mrYes then
+    begin
+      // Seleciona pasta
+      if SelectDirectory('Selecionar pasta para criar arquivo SQLite', '', LSelectedPath) then
+      begin
+        // Se tiver nome de tabela, usa ele, senão usa 'config'
+        if Trim(edtTableName.Text) <> '' then
+          LFileName := IncludeTrailingPathDelimiter(LSelectedPath) + Trim(edtTableName.Text) + '.db'
+        else
+          LFileName := IncludeTrailingPathDelimiter(LSelectedPath) + 'config.db';
+        edtDatabase.Text := LFileName;
+      end;
+    end
+    else
+    begin
+      // Seleciona arquivo
+      dlgOpenDatabase.Filter := 'SQLite Database (*.db;*.sqlite;*.sqlite3)|*.db;*.sqlite;*.sqlite3|All Files (*.*)|*.*';
+      dlgOpenDatabase.FilterIndex := 1;
+      dlgOpenDatabase.Title := 'Selecionar arquivo SQLite';
+      dlgOpenDatabase.Options := dlgOpenDatabase.Options - [ofAllowMultiSelect];
+      
+      if dlgOpenDatabase.Execute then
+      begin
+        edtDatabase.Text := dlgOpenDatabase.FileName;
+      end;
+    end;
+  end
+  else
+  begin
+    // Para outros bancos, apenas seleciona arquivo
+    // Define filtro conforme o tipo de banco
+    if SameText(LDatabaseType, 'FireBird') or SameText(LDatabaseType, 'Firebird') then
+    begin
+      dlgOpenDatabase.Filter := 'FireBird Database (*.fdb)|*.fdb|All Files (*.*)|*.*';
+      dlgOpenDatabase.FilterIndex := 1;
+    end
+    else if SameText(LDatabaseType, 'Access') then
+    begin
+      dlgOpenDatabase.Filter := 'Access Database (*.mdb;*.accdb)|*.mdb;*.accdb|All Files (*.*)|*.*';
+      dlgOpenDatabase.FilterIndex := 1;
+    end
+    else
+    begin
+      dlgOpenDatabase.Filter := 'All Files (*.*)|*.*';
+      dlgOpenDatabase.FilterIndex := 1;
+    end;
+    
+    // Define título do diálogo
+    dlgOpenDatabase.Title := Format('Selecionar arquivo de banco de dados (%s)', [LDatabaseType]);
+    dlgOpenDatabase.Options := dlgOpenDatabase.Options - [ofAllowMultiSelect];
+    
+    // Abre diálogo
+    if dlgOpenDatabase.Execute then
+    begin
+      edtDatabase.Text := dlgOpenDatabase.FileName;
+    end;
+  end;
+end;
+
+function TfrmConfigCRUD.SelectDatabaseFromList(ADatabases: TStringList): string;
+var
+  LForm: TForm;
+  LListBox: TListBox;
+  LBtnOK, LBtnCancel: TButton;
+  LSelectedIndex: Integer;
+begin
+  Result := '';
+  
+  if (not Assigned(ADatabases)) or (ADatabases.Count = 0) then
+    Exit;
+  
+  // Cria formulário de seleção
+  LForm := TForm.Create(Self);
+  try
+    LForm.Caption := 'Selecionar Banco de Dados';
+    LForm.Width := 400;
+    LForm.Height := 400;
+    LForm.Position := poScreenCenter;
+    LForm.BorderStyle := bsDialog;
+    
+    // Cria ListBox
+    LListBox := TListBox.Create(LForm);
+    LListBox.Parent := LForm;
+    LListBox.Left := 8;
+    LListBox.Top := 8;
+    LListBox.Width := LForm.ClientWidth - 16;
+    LListBox.Height := LForm.ClientHeight - 60;
+    LListBox.Anchors := [akLeft, akTop, akRight, akBottom];
+    LListBox.Items.Assign(ADatabases);
+    LListBox.ItemIndex := 0;
+    
+    // Botão OK
+    LBtnOK := TButton.Create(LForm);
+    LBtnOK.Parent := LForm;
+    LBtnOK.Caption := 'OK';
+    LBtnOK.ModalResult := mrOK;
+    LBtnOK.Left := LForm.ClientWidth - 160;
+    LBtnOK.Top := LForm.ClientHeight - 40;
+    LBtnOK.Width := 75;
+    LBtnOK.Anchors := [akRight, akBottom];
+    LBtnOK.Default := True;
+    
+    // Botão Cancelar
+    LBtnCancel := TButton.Create(LForm);
+    LBtnCancel.Parent := LForm;
+    LBtnCancel.Caption := 'Cancelar';
+    LBtnCancel.ModalResult := mrCancel;
+    LBtnCancel.Left := LForm.ClientWidth - 80;
+    LBtnCancel.Top := LForm.ClientHeight - 40;
+    LBtnCancel.Width := 75;
+    LBtnCancel.Anchors := [akRight, akBottom];
+    LBtnCancel.Cancel := True;
+    
+    // Mostra formulário
+    if LForm.ShowModal = mrOK then
+    begin
+      LSelectedIndex := LListBox.ItemIndex;
+      if (LSelectedIndex >= 0) and (LSelectedIndex < ADatabases.Count) then
+        Result := ADatabases[LSelectedIndex];
+    end;
+  finally
+    LForm.Free;
+  end;
+end;
+
+procedure TfrmConfigCRUD.UpdateEngineField;
+begin
+  // DETECÇÃO AUTOMÁTICA DE ENGINE
+  // Atualiza o campo edtEngine automaticamente usando o módulo Parameters
+  // Este método garante que o campo sempre reflita o engine detectado
+  
+  try
+    // Usa o método do módulo Parameters para detectar o engine
+    edtEngine.Text := TParameters.DetectEngineName;
+    edtEngine.ReadOnly := True; // Torna somente leitura para evitar edição manual
+    edtEngine.Color := clBtnFace; // Visual de campo desabilitado
+    edtEngine.Hint := Format('Engine detectado automaticamente: %s' + sLineBreak + 
+                             'Baseado nas diretivas de compilação USE_UNIDAC, USE_FIREDAC ou USE_ZEOS' + sLineBreak +
+                             'Detecção realizada pelo módulo Parameters', 
+                             [TParameters.DetectEngineName]);
+    edtEngine.ShowHint := True;
+  except
+    on E: Exception do
+    begin
+      // Em caso de erro, define como "None" e permite edição manual
+      edtEngine.Text := 'None';
+      edtEngine.ReadOnly := False;
+      edtEngine.Color := clWindow;
+      edtEngine.Hint := 'Erro ao detectar engine automaticamente. Configure manualmente.';
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.AdjustFieldsByDatabaseType;
+var
+  LDatabaseType: string;
+  LIsFileBased: Boolean;
+  LIsFireBird: Boolean;
+  LIsODBC: Boolean;
+  LHasSchema: Boolean;
+  LODBCDBType: string;
+begin
+  if cmbDatabaseType.ItemIndex < 0 then
+    Exit;
+    
+  LDatabaseType := cmbDatabaseType.Text;
+  
+  // Determina se é banco baseado em arquivo (SQLite e Access sempre são arquivos)
+  LIsFileBased := SameText(LDatabaseType, 'SQLite') or
+                 SameText(LDatabaseType, 'Access');
+  
+  // Determina se é FireBird (pode ser local ou remoto)
+  LIsFireBird := SameText(LDatabaseType, 'FireBird') or 
+                 SameText(LDatabaseType, 'Firebird');
+  
+  // Determina se é ODBC
+  LIsODBC := SameText(LDatabaseType, 'ODBC');
+  
+  // Ajusta visibilidade dos campos
+  // Campos para bancos de rede (PostgreSQL, MySQL, SQL Server, FireBird remoto)
+  // ODBC não usa Host/Port (usa DSN)
+  // FireBird pode usar Host/Port (remoto) ou arquivo (local)
+  lblHost.Visible := (not LIsFileBased and not LIsODBC) or LIsFireBird;
+  edtHost.Visible := (not LIsFileBased and not LIsODBC) or LIsFireBird;
+  lblPort.Visible := (not LIsFileBased and not LIsODBC) or LIsFireBird;
+  edtPort.Visible := (not LIsFileBased and not LIsODBC) or LIsFireBird;
+  
+  // Campos para bancos baseados em arquivo (SQLite, Access, FireBird local)
+  btnSelectDatabase.Visible := LIsFileBased or LIsFireBird;
+  
+  // Campo ODBC Database Type: visível apenas quando ODBC está selecionado
+  // Posicionado ao lado do Database Type para melhor organização
+  lblODBCDatabaseType.Visible := LIsODBC;
+  cmbODBCDatabaseType.Visible := LIsODBC;
+  
+  // Para ODBC, usa ComboBox para DSN ao invés de Edit
+  if LIsODBC then
+  begin
+    edtDatabase.Visible := False;
+    cmbODBCDSN.Visible := True;
+    // Popula DSNs disponíveis
+    PopulateODBCDSNCombo;
+  end
+  else
+  begin
+    edtDatabase.Visible := True;
+    cmbODBCDSN.Visible := False;
+  end;
+  
+  // Para ODBC, oculta Username/Password (podem estar configurados no DSN)
+  // Username/Password podem ser configurados no DSN ou via string de conexão
+  if LIsODBC then
+  begin
+    lblUsername.Visible := False;
+    edtUsername.Visible := False;
+    lblPassword.Visible := False;
+    edtPassword.Visible := False;
+  end
+  else
+  begin
+    // Para outros bancos, mostra Username/Password normalmente
+    lblUsername.Visible := True;
+    edtUsername.Visible := True;
+    // Password pode ser opcional para alguns bancos, mas mostra o campo
+    lblPassword.Visible := True;
+    edtPassword.Visible := True;
+  end;
+  
+  // Campo Database: sempre visível, mas com comportamento diferente
+  // Para bancos de arquivo: mostra caminho do arquivo
+  // Para bancos de rede: mostra nome do banco
+  
+  // Schema: visível apenas para bancos que suportam schema
+  // Bancos COM schema: PostgreSQL, SQL Server
+  // Bancos SEM schema: MySQL, SQLite, Access, FireBird
+  // Para ODBC: depende do tipo de banco selecionado
+  if LIsODBC then
+  begin
+    // Para ODBC, verifica o tipo de banco selecionado
+    if cmbODBCDatabaseType.ItemIndex >= 0 then
+    begin
+      LODBCDBType := cmbODBCDatabaseType.Text;
+      // PostgreSQL e SQL Server têm schema, outros não
+      LHasSchema := SameText(LODBCDBType, 'PostgreSQL') or 
+                   SameText(LODBCDBType, 'SQL Server');
+    end
+    else
+      LHasSchema := False; // Se não selecionou tipo, não mostra schema
+  end
+  else
+  begin
+    // Para bancos diretos, verifica o tipo
+    // PostgreSQL e SQL Server têm schema
+    // MySQL, SQLite, Access, FireBird não têm schema
+    LHasSchema := SameText(LDatabaseType, 'PostgreSQL') or 
+                 SameText(LDatabaseType, 'SQL Server');
+  end;
+  
+  lblSchema.Visible := LHasSchema;
+  edtSchema.Visible := LHasSchema;
+  
+  // Ajusta labels conforme o tipo de banco
+  if LIsFileBased then
+  begin
+    // SQLite e Access: sempre arquivo
+    lblDatabase.Caption := 'Database File:';
+    edtDatabase.Width := 130; // Ajusta largura para acomodar o botão
+  end
+  else if LIsFireBird then
+  begin
+    // FireBird: pode ser arquivo local ou banco remoto
+    lblDatabase.Caption := 'Database/File:';
+    edtDatabase.Width := 130; // Ajusta largura para acomodar o botão
+  end
+  else if LIsODBC then
+  begin
+    lblDatabase.Caption := 'ODBC DSN:';
+    edtDatabase.Width := 159; // Largura original
+  end
+  else
+  begin
+    lblDatabase.Caption := 'Database:';
+    edtDatabase.Width := 159; // Largura original
+  end;
+end;
+
+procedure TfrmConfigCRUD.PopulateODBCDatabaseTypeCombo;
+var
+  I: TParameterDatabaseTypes;
+begin
+  cmbODBCDatabaseType.Items.Clear;
+  
+  // Popula com todos os tipos de banco, exceto None, ODBC e LDAP
+  for I := Succ(Low(TParameterDatabaseTypes)) to High(TParameterDatabaseTypes) do
+  begin
+    // Exclui None, ODBC e LDAP
+    if (I <> pdtNone) and (I <> pdtODBC) and (I <> pdtLDAP) then
+    begin
+      cmbODBCDatabaseType.Items.Add(TDatabaseTypeNames[I]);
+    end;
+  end;
+  
+  // Define PostgreSQL como padrão para ODBC
+  if cmbODBCDatabaseType.Items.Count > 0 then
+    cmbODBCDatabaseType.ItemIndex := cmbODBCDatabaseType.Items.IndexOf('PostgreSQL');
+end;
+
+procedure TfrmConfigCRUD.cmbODBCDatabaseTypeChange(Sender: TObject);
+begin
+  // Quando o tipo de banco ODBC muda, ajusta campos (especialmente Schema)
+  AdjustFieldsByDatabaseType;
+end;
+
+procedure TfrmConfigCRUD.PopulateODBCDSNCombo;
+var
+  LCurrentText: string;
+  LRegistry: TRegistry;
+  LValueNames: TStringList;
+  I: Integer;
+begin
+  // Salva o texto atual se houver
+  LCurrentText := cmbODBCDSN.Text;
+  
+  cmbODBCDSN.Items.Clear;
+  
+  // Usa o registro do Windows (método que funciona)
+  // A API ODBC (SQLDataSources) não funciona corretamente em alguns sistemas
+  // Testes mostraram que o registro é mais confiável
+  LRegistry := TRegistry.Create;
+  LValueNames := TStringList.Create;
+  try
+    // DSNs do sistema (HKEY_LOCAL_MACHINE)
+    LRegistry.RootKey := HKEY_LOCAL_MACHINE;
+    if LRegistry.OpenKeyReadOnly('SOFTWARE\ODBC\ODBC.INI\ODBC Data Sources') then
+    begin
+      LRegistry.GetValueNames(LValueNames);
+      for I := 0 to LValueNames.Count - 1 do
+      begin
+        if cmbODBCDSN.Items.IndexOf(LValueNames[I]) < 0 then
+          cmbODBCDSN.Items.Add(LValueNames[I]);
+      end;
+      LRegistry.CloseKey;
+    end;
+    
+    // DSNs do usuário (HKEY_CURRENT_USER)
+    LValueNames.Clear;
+    LRegistry.RootKey := HKEY_CURRENT_USER;
+    if LRegistry.OpenKeyReadOnly('SOFTWARE\ODBC\ODBC.INI\ODBC Data Sources') then
+    begin
+      LRegistry.GetValueNames(LValueNames);
+      for I := 0 to LValueNames.Count - 1 do
+      begin
+        if cmbODBCDSN.Items.IndexOf(LValueNames[I]) < 0 then
+          cmbODBCDSN.Items.Add(LValueNames[I]);
+      end;
+      LRegistry.CloseKey;
+    end;
+  except
+    // Se falhar, permite digitação manual
+  end;
+  
+  // Restaura o texto anterior se ainda existir na lista
+  if (LCurrentText <> '') and (cmbODBCDSN.Items.IndexOf(LCurrentText) >= 0) then
+    cmbODBCDSN.Text := LCurrentText
+  else if cmbODBCDSN.Items.Count > 0 then
+    cmbODBCDSN.ItemIndex := 0;
+end;
+
+function TfrmConfigCRUD.GetDLLPath: string;
+var
+  LEngine: string;
+  LDatabaseType: string;
+  LDatabaseTypeEnum: TParameterDatabaseTypes;
+  LDLLPath: string;
+  I: TParameterDatabaseTypes;
+  LDatabaseInterface: IParametersDatabase;
+begin
+  Result := '';
+  
+  if not Assigned(FParameters) then
+    Exit;
+  
+  try
+    // Obtém referência direta ao Database para melhor resolução de tipos
+    LDatabaseInterface := FParameters.Database;
+    
+    LEngine := LDatabaseInterface.Engine;
+    LDatabaseType := LDatabaseInterface.DatabaseType;
+    
+    // Converte string para enum usando TDatabaseTypeNames de Parameters.Consts
+    LDatabaseTypeEnum := pdtNone; // Valor padrão
+    for I := Low(TParameterDatabaseTypes) to High(TParameterDatabaseTypes) do
+    begin
+      if SameText(LDatabaseType, TDatabaseTypeNames[I]) then
+      begin
+        LDatabaseTypeEnum := I;
+        Break;
+      end;
+    end;
+    
+    // Apenas para FireDAC mostra o caminho da DLL
+    {$IF DEFINED(USE_FIREDAC) AND NOT DEFINED(FPC)}
+    if (LEngine = 'FireDAC') or (LEngine = 'FireDac') or (LEngine = 'firedac') then
+    begin
+      // Calcula o caminho esperado baseado no tipo de banco
+      case LDatabaseTypeEnum of
+        pdtMySQL:
+        begin
+          {$IF DEFINED(WIN64)}
+          LDLLPath := 'E:\CSL\ProvidersORM.2.0.0\dll\win64\MySql\libmysql.dll';
+          {$ELSE}
+          LDLLPath := 'E:\CSL\ProvidersORM.2.0.0\dll\win32\MySql\libmysql.dll';
+          {$ENDIF}
+        end;
+        pdtPostgreSQL:
+        begin
+          {$IF DEFINED(WIN64)}
+          LDLLPath := 'E:\CSL\ProvidersORM.2.0.0\dll\win64\PostgreSQL\lib\libpq.dll';
+          {$ELSE}
+          LDLLPath := 'E:\CSL\ProvidersORM.2.0.0\dll\win32\PostgreSQL\lib\libpq.dll';
+          {$ENDIF}
+        end;
+      else
+        Exit; // Outros tipos não usam DLL externa
+      end;
+      
+      if FileExists(LDLLPath) then
+        Result := 'DLL: ' + LDLLPath
+      else
+        Result := 'DLL: ' + LDLLPath + ' (⚠ Arquivo não encontrado)';
+    end;
+    {$ELSE}
+    // Para outros engines (UNIDAC, Zeos), não mostra caminho de DLL
+    Result := '';
+    {$ENDIF}
+  except
+    Result := '';
+  end;
+end;
+
+// ========== MÉTODOS INIFILES ==========
+
+// InitializeInifiles removido - a inicialização é automática no TParameters.New
+// Os valores padrão são configurados automaticamente no construtor TParametersImpl.Create
+
+procedure TfrmConfigCRUD.btnInifilesSelectFileClick(Sender: TObject);
+begin
+  if not Assigned(dlgInifilesSave) then
+    Exit;
+    
+  dlgInifilesSave.Filter := 'INI Files (*.ini)|*.ini|All Files (*.*)|*.*';
+  dlgInifilesSave.FilterIndex := 1;
+  dlgInifilesSave.Title := 'Selecionar ou criar arquivo INI';
+  dlgInifilesSave.Options := dlgInifilesSave.Options + [ofOverwritePrompt];
+  
+  if dlgInifilesSave.Execute then
+  begin
+    edtInifilesFilePath.Text := dlgInifilesSave.FileName;
+    FParameters.Inifiles.FilePath(edtInifilesFilePath.Text);
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnInifilesRefreshClick(Sender: TObject);
+begin
+  try
+    // Atualiza configuração
+    FParameters.Inifiles
+      .FilePath(edtInifilesFilePath.Text)
+      .Section(edtInifilesSection.Text)
+      .AutoCreateFile(chkInifilesAutoCreate.Checked)
+      .Refresh;
+    
+    ShowInifilesStatus('Arquivo INI atualizado com sucesso!');
+  except
+    on E: Exception do
+    begin
+      ShowInifilesStatus('Erro ao atualizar: ' + E.Message, True);
+      ShowMessage('Erro ao atualizar arquivo INI: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnInifilesListClick(Sender: TObject);
+begin
+  try
+    LoadInifilesDataToListView;
+    ShowInifilesStatus(Format('Listagem concluída. %d registro(s) encontrado(s).', [lvInifiles.Items.Count]));
+  except
+    on E: Exception do
+    begin
+      ShowInifilesStatus('Erro ao listar: ' + E.Message, True);
+      ShowMessage('Erro ao listar parâmetros: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnInifilesGetClick(Sender: TObject);
+var
+  LChave: string;
+  LParameter: TParameter;
+begin
+  LChave := Trim(edtInifilesChave.Text);
+  
+  if LChave = '' then
+  begin
+    ShowMessage('Informe a chave para buscar.');
+    edtInifilesChave.SetFocus;
+    Exit;
+  end;
+  
+  try
+    // Atualiza configuração antes de buscar
+    FParameters.Inifiles
+      .FilePath(edtInifilesFilePath.Text)
+      .Section(edtInifilesSection.Text)
+      .AutoCreateFile(chkInifilesAutoCreate.Checked);
+    
+    FParameters.Inifiles.Get(LChave, LParameter);
+    
+    if Assigned(LParameter) and (LParameter.Name <> '') then
+    begin
+      LoadInifilesFieldsFromParameter(LParameter);
+      ShowInifilesStatus(Format('Parâmetro "%s" encontrado!', [LChave]));
+    end
+    else
+    begin
+      ShowInifilesStatus(Format('Parâmetro "%s" não encontrado.', [LChave]), True);
+      ShowMessage(Format('Parâmetro "%s" não encontrado.', [LChave]));
+    end;
+    
+    if Assigned(LParameter) then
+    begin
+      LParameter.Free;
+      LParameter := nil;
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowInifilesStatus('Erro ao buscar: ' + E.Message, True);
+      ShowMessage('Erro ao buscar parâmetro: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnInifilesInsertClick(Sender: TObject);
+var
+  LParameter: TParameter;
+  LSuccess: Boolean;
+begin
+  if not ValidateInifilesFields then
+    Exit;
+    
+  try
+    // Atualiza configuração
+    FParameters.Inifiles
+      .FilePath(edtInifilesFilePath.Text)
+      .Section(edtInifilesSection.Text)
+      .AutoCreateFile(chkInifilesAutoCreate.Checked);
+    
+    LParameter := GetInifilesParameterFromFields;
+    
+    try
+      FParameters.Inifiles.Insert(LParameter, LSuccess);
+      
+      if LSuccess then
+      begin
+        ShowInifilesStatus('Parâmetro inserido com sucesso!');
+        ClearInifilesFields;
+        LoadInifilesDataToListView;
+        ShowMessage('Parâmetro inserido com sucesso!');
+      end
+      else
+      begin
+        ShowInifilesStatus('Erro ao inserir parâmetro.', True);
+        ShowMessage('Erro ao inserir parâmetro.');
+      end;
+    finally
+      LParameter.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowInifilesStatus('Erro ao inserir: ' + E.Message, True);
+      ShowMessage('Erro ao inserir parâmetro: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnInifilesUpdateClick(Sender: TObject);
+var
+  LParameter: TParameter;
+  LSuccess: Boolean;
+begin
+  if Trim(edtInifilesChave.Text) = '' then
+  begin
+    ShowMessage('Selecione um parâmetro para atualizar.');
+    Exit;
+  end;
+    
+  if not ValidateInifilesFields then
+    Exit;
+    
+  try
+    // Atualiza configuração
+    FParameters.Inifiles
+      .FilePath(edtInifilesFilePath.Text)
+      .Section(edtInifilesSection.Text)
+      .AutoCreateFile(chkInifilesAutoCreate.Checked);
+    
+    LParameter := GetInifilesParameterFromFields;
+    
+    try
+      FParameters.Inifiles.Update(LParameter, LSuccess);
+      
+      if LSuccess then
+      begin
+        ShowInifilesStatus('Parâmetro atualizado com sucesso!');
+        LoadInifilesDataToListView;
+        ShowMessage('Parâmetro atualizado com sucesso!');
+      end
+      else
+      begin
+        ShowInifilesStatus('Erro ao atualizar parâmetro.', True);
+        ShowMessage('Erro ao atualizar parâmetro.');
+      end;
+    finally
+      LParameter.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowInifilesStatus('Erro ao atualizar: ' + E.Message, True);
+      ShowMessage('Erro ao atualizar parâmetro: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnInifilesDeleteClick(Sender: TObject);
+var
+  LChave: string;
+  LTitulo: string;
+  LSuccess: Boolean;
+begin
+  LChave := Trim(edtInifilesChave.Text);
+  
+  if LChave = '' then
+  begin
+    ShowMessage('Selecione um parâmetro para deletar.');
+    Exit;
+  end;
+  
+  if MessageDlg(Format('Deseja realmente deletar o parâmetro "%s"?', [LChave]),
+                mtConfirmation, [mbYes, mbNo], 0) = mrNo then
+    Exit;
+    
+  try
+    // Obtém o Título (seção) do campo
+    // O Título é a seção do INI onde o parâmetro está armazenado
+    LTitulo := Trim(edtInifilesTitulo.Text);
+    if LTitulo = '' then
+      LTitulo := edtInifilesSection.Text; // Fallback para seção padrão
+    
+    // Atualiza configuração com a seção correta
+    FParameters.Inifiles
+      .FilePath(edtInifilesFilePath.Text)
+      .Section(LTitulo)  // Usa o Título do parâmetro como seção
+      .AutoCreateFile(chkInifilesAutoCreate.Checked);
+    
+    FParameters.Inifiles.Delete(LChave, LSuccess);
+    
+    if LSuccess then
+    begin
+      ShowInifilesStatus('Parâmetro deletado com sucesso!');
+      ClearInifilesFields;
+      LoadInifilesDataToListView;
+      ShowMessage('Parâmetro deletado com sucesso!');
+    end
+    else
+    begin
+      ShowInifilesStatus('Erro ao deletar parâmetro.', True);
+      ShowMessage('Erro ao deletar parâmetro.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowInifilesStatus('Erro ao deletar: ' + E.Message, True);
+      ShowMessage('Erro ao deletar parâmetro: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnInifilesCountClick(Sender: TObject);
+var
+  LCount: Integer;
+begin
+  try
+    // Atualiza configuração
+    FParameters.Inifiles
+      .FilePath(edtInifilesFilePath.Text)
+      .Section(edtInifilesSection.Text)
+      .AutoCreateFile(chkInifilesAutoCreate.Checked);
+    
+    FParameters.Inifiles.Count(LCount);
+    ShowInifilesStatus(Format('Total de parâmetros: %d', [LCount]));
+    ShowMessage(Format('Total de parâmetros no arquivo INI: %d', [LCount]));
+  except
+    on E: Exception do
+    begin
+      ShowInifilesStatus('Erro ao contar: ' + E.Message, True);
+      ShowMessage('Erro ao contar parâmetros: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnInifilesExistsClick(Sender: TObject);
+var
+  LChave: string;
+  LExists: Boolean;
+begin
+  LChave := Trim(edtInifilesChave.Text);
+  
+  if LChave = '' then
+  begin
+    ShowMessage('Informe a chave para verificar.');
+    edtInifilesChave.SetFocus;
+    Exit;
+  end;
+  
+  try
+    // Atualiza configuração
+    FParameters.Inifiles
+      .FilePath(edtInifilesFilePath.Text)
+      .Section(edtInifilesSection.Text)
+      .AutoCreateFile(chkInifilesAutoCreate.Checked);
+    
+    FParameters.Inifiles.Exists(LChave, LExists);
+    
+    if LExists then
+    begin
+      ShowInifilesStatus(Format('Parâmetro "%s" existe!', [LChave]));
+      ShowMessage(Format('Parâmetro "%s" existe no arquivo INI.', [LChave]));
+    end
+    else
+    begin
+      ShowInifilesStatus(Format('Parâmetro "%s" não existe.', [LChave]), True);
+      ShowMessage(Format('Parâmetro "%s" não existe no arquivo INI.', [LChave]));
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowInifilesStatus('Erro ao verificar: ' + E.Message, True);
+      ShowMessage('Erro ao verificar existência: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnInifilesImportClick(Sender: TObject);
+var
+  LSuccess: Boolean;
+  LIsConnected: Boolean;
+  LFilePath: string;
+begin
+  if not Assigned(FParameters) then
+  begin
+    ShowMessage('Conecte-se ao banco de dados primeiro (aba Database).');
+    Exit;
+  end;
+  
+  // Verifica se o Database está conectado
+  FParameters.Database.IsConnected(LIsConnected);
+  if not LIsConnected then
+  begin
+    ShowMessage('Conecte-se ao banco de dados primeiro (aba Database).');
+    ShowInifilesStatus('Erro: Database não está conectado.', True);
+    Exit;
+  end;
+  
+  // VALIDAÇÃO DO CAMINHO ANTES DE QUALQUER OPERAÇÃO
+  // IMPORTANTE: Validar ANTES do try para evitar que .FilePath() chame EnsureFile com caminho inválido
+  LFilePath := Trim(edtInifilesFilePath.Text);
+  
+  // Valida o caminho: verifica se está vazio, se não tem nome de arquivo válido ou se o diretório é inválido
+  if (LFilePath = '') or (ExtractFileName(LFilePath) = '') then
+    begin
+      // Solicita ao usuário onde salvar o arquivo INI
+      if not Assigned(dlgInifilesSave) then
+      begin
+        ShowInifilesStatus('Diálogo de salvamento não configurado.', True);
+        Exit;
+      end;
+      
+      dlgInifilesSave.Filter := 'INI Files (*.ini)|*.ini|All Files (*.*)|*.*';
+      dlgInifilesSave.FilterIndex := 1;
+      dlgInifilesSave.Title := 'Salvar arquivo INI - Importar do Database';
+      dlgInifilesSave.DefaultExt := 'ini';
+      
+      // Se já houver um caminho parcial, usa como base
+      if (LFilePath <> '') and (ExtractFilePath(LFilePath) <> '') then
+        dlgInifilesSave.InitialDir := ExtractFilePath(LFilePath)
+      else
+        dlgInifilesSave.InitialDir := '';
+      
+      dlgInifilesSave.FileName := 'config_import.ini'; // Nome padrão
+      
+      if not dlgInifilesSave.Execute then
+      begin
+        ShowInifilesStatus('Importação cancelada pelo usuário.');
+        Exit;
+      end;
+      
+      LFilePath := Trim(dlgInifilesSave.FileName);
+      
+      // Valida o caminho escolhido: deve ter nome de arquivo
+      if (LFilePath = '') or (ExtractFileName(LFilePath) = '') then
+      begin
+        ShowInifilesStatus('Erro: Caminho do arquivo inválido. Selecione um arquivo válido.', True);
+        ShowMessage('Erro: O caminho do arquivo selecionado é inválido.'#13#10'Por favor, selecione um arquivo válido.');
+        Exit;
+      end;
+      
+      edtInifilesFilePath.Text := LFilePath;
+    end;
+    
+    // Validação final: garante que o caminho tem nome de arquivo válido
+    // e que o diretório pode ser criado (se necessário)
+    if (LFilePath = '') or (ExtractFileName(LFilePath) = '') then
+    begin
+      ShowInifilesStatus('Erro: Caminho do arquivo inválido. Informe um caminho válido.', True);
+      ShowMessage('Erro: O caminho do arquivo é inválido.'#13#10'Por favor, informe um caminho completo com nome de arquivo.');
+      Exit;
+    end;
+    
+    // Agora que temos um caminho válido, podemos prosseguir com a importação
+    try
+      // Atualiza configuração
+      FParameters.Inifiles
+        .FilePath(LFilePath)
+        .Section(edtInifilesSection.Text)
+        .AutoCreateFile(chkInifilesAutoCreate.Checked)
+        .ContratoID(StrToIntDef(edtInifilesFiltroContrato.Text, 0))
+        .ProdutoID(StrToIntDef(edtInifilesFiltroProduto.Text, 0));
+      
+      // Importa do Database para o INI
+      FParameters.Inifiles.ImportFromDatabase(FParameters.Database, LSuccess);
+      
+      if LSuccess then
+      begin
+        ShowInifilesStatus(Format('Importação concluída! Arquivo salvo em: %s', [LFilePath]));
+        LoadInifilesDataToListView;
+        ShowMessage(Format('Parâmetros importados do Database para o arquivo INI com sucesso!'#13#10#13#10'Arquivo salvo em:'#13#10'%s', [LFilePath]));
+      end
+      else
+      begin
+        ShowInifilesStatus('Erro ao importar do Database.', True);
+        ShowMessage('Erro ao importar parâmetros do Database.');
+      end;
+    except
+      on E: Exception do
+      begin
+        ShowInifilesStatus('Erro ao importar: ' + E.Message, True);
+        ShowMessage('Erro ao importar do Database: ' + E.Message);
+      end;
+    end;
+end;
+
+procedure TfrmConfigCRUD.btnInifilesExportClick(Sender: TObject);
+var
+  LSuccess: Boolean;
+begin
+  if not Assigned(FParameters) then
+  begin
+    ShowMessage('Conecte-se ao banco de dados primeiro (aba Database).');
+    Exit;
+  end;
+  
+  try
+    // Atualiza configuração
+    FParameters.Inifiles
+      .FilePath(edtInifilesFilePath.Text)
+      .Section(edtInifilesSection.Text)
+      .AutoCreateFile(chkInifilesAutoCreate.Checked);
+    
+    FParameters.Inifiles.ExportToDatabase(FParameters.Database, LSuccess);
+    
+    if LSuccess then
+    begin
+      ShowInifilesStatus('Exportação do INI para Database concluída com sucesso!');
+      ShowMessage('Parâmetros exportados do arquivo INI para o Database com sucesso!');
+    end
+    else
+    begin
+      ShowInifilesStatus('Erro ao exportar para Database.', True);
+      ShowMessage('Erro ao exportar parâmetros para Database.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowInifilesStatus('Erro ao exportar: ' + E.Message, True);
+      ShowMessage('Erro ao exportar para Database: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnInifilesImportJsonClick(Sender: TObject);
+var
+  LSuccess: Boolean;
+  LList: TParameterList;
+  I: Integer;
+  LParam: TParameter;
+  LParamSuccess: Boolean;
+  LJsonFilePath: string;
+begin
+  if not Assigned(FParameters.JsonObject) then
+  begin
+    ShowMessage('Configure o arquivo JSON primeiro (aba JsonObject).');
+    Exit;
+  end;
+  
+  // VALIDAÇÃO DO CAMINHO DO ARQUIVO JSON ANTES DE QUALQUER OPERAÇÃO
+  // Solicita ao usuário selecionar o arquivo JSON para importar
+  if not Assigned(dlgJsonObjectOpen) then
+  begin
+    ShowInifilesStatus('Diálogo de abertura não configurado.', True);
+    Exit;
+  end;
+  
+  dlgJsonObjectOpen.Filter := 'JSON Files (*.json)|*.json|All Files (*.*)|*.*';
+  dlgJsonObjectOpen.FilterIndex := 1;
+  dlgJsonObjectOpen.Title := 'Importar do JSON para INI - Selecionar arquivo';
+  dlgJsonObjectOpen.Options := dlgJsonObjectOpen.Options + [ofFileMustExist];
+  
+  // Se já houver um caminho configurado, usa como base
+  if Trim(edtJsonObjectFilePath.Text) <> '' then
+    dlgJsonObjectOpen.FileName := edtJsonObjectFilePath.Text
+  else
+    dlgJsonObjectOpen.FileName := '';
+  
+  if not dlgJsonObjectOpen.Execute then
+  begin
+    ShowInifilesStatus('Importação cancelada pelo usuário.');
+    Exit;
+  end;
+  
+  LJsonFilePath := Trim(dlgJsonObjectOpen.FileName);
+  
+  // Valida o caminho escolhido
+  if (LJsonFilePath = '') or (ExtractFileName(LJsonFilePath) = '') then
+  begin
+    ShowInifilesStatus('Erro: Caminho do arquivo JSON inválido. Selecione um arquivo válido.', True);
+    ShowMessage('Erro: O caminho do arquivo selecionado é inválido.'#13#10'Por favor, selecione um arquivo JSON válido.');
+    Exit;
+  end;
+  
+  try
+    // Atualiza configuração do INI
+    FParameters.Inifiles
+      .FilePath(edtInifilesFilePath.Text)
+      .Section(edtInifilesSection.Text)
+      .AutoCreateFile(chkInifilesAutoCreate.Checked)
+      .ContratoID(StrToIntDef(edtInifilesFiltroContrato.Text, 0))
+      .ProdutoID(StrToIntDef(edtInifilesFiltroProduto.Text, 0));
+    
+    // Configura o JSON com o arquivo selecionado e filtros
+    FParameters.JsonObject
+      .FilePath(LJsonFilePath)
+      .ContratoID(StrToIntDef(edtInifilesFiltroContrato.Text, 0))
+      .ProdutoID(StrToIntDef(edtInifilesFiltroProduto.Text, 0));
+    
+    // Importa do JSON para o INI
+    // Nota: IParametersInifiles não tem ImportFromJsonObject, então precisamos fazer manualmente
+    LList := FParameters.JsonObject.List;
+    try
+      for I := 0 to LList.Count - 1 do
+      begin
+        LParam := LList[I];
+        FParameters.Inifiles.Insert(LParam, LParamSuccess);
+        if not LParamSuccess then
+          FParameters.Inifiles.Update(LParam, LParamSuccess);
+      end;
+      LSuccess := True;
+    finally
+      LList.ClearAll;
+      LList.Free;
+    end;
+    
+    if LSuccess then
+    begin
+      ShowInifilesStatus('Importação do JSON para INI concluída com sucesso!');
+      LoadInifilesDataToListView;
+      ShowMessage('Parâmetros importados do JSON para o INI com sucesso!');
+    end
+    else
+    begin
+      ShowInifilesStatus('Erro ao importar do JSON.', True);
+      ShowMessage('Erro ao importar parâmetros do JSON.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowInifilesStatus('Erro ao importar do JSON: ' + E.Message, True);
+      ShowMessage('Erro ao importar parâmetros do JSON: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnInifilesExportJsonClick(Sender: TObject);
+var
+  LSuccess: Boolean;
+  LFilePath: string;
+begin
+  if not Assigned(FParameters.JsonObject) then
+  begin
+    ShowMessage('Configure o arquivo JSON primeiro (aba JsonObject).');
+    Exit;
+  end;
+  
+  try
+    // Solicita ao usuário onde salvar o arquivo JSON
+    if not Assigned(dlgJsonObjectSave) then
+    begin
+      ShowInifilesStatus('Diálogo de salvamento não configurado.', True);
+      Exit;
+    end;
+    
+    dlgJsonObjectSave.Filter := 'JSON Files (*.json)|*.json|All Files (*.*)|*.*';
+    dlgJsonObjectSave.FilterIndex := 1;
+    dlgJsonObjectSave.Title := 'Salvar arquivo JSON - Exportar do INI';
+    dlgJsonObjectSave.DefaultExt := 'json';
+    
+    // Se já houver um caminho configurado no campo, usa como padrão
+    if Trim(edtJsonObjectFilePath.Text) <> '' then
+      dlgJsonObjectSave.FileName := edtJsonObjectFilePath.Text
+    else
+      dlgJsonObjectSave.FileName := 'config_export.json'; // Nome padrão
+    
+    if not dlgJsonObjectSave.Execute then
+    begin
+      ShowInifilesStatus('Exportação cancelada pelo usuário.');
+      Exit;
+    end;
+    
+    LFilePath := dlgJsonObjectSave.FileName;
+    
+    // Atualiza configuração
+    FParameters.Inifiles
+      .FilePath(edtInifilesFilePath.Text)
+      .Section(edtInifilesSection.Text)
+      .AutoCreateFile(chkInifilesAutoCreate.Checked);
+    
+    // Atualiza configuração do JSON com o caminho escolhido
+    FParameters.JsonObject
+      .FilePath(LFilePath)
+      .ObjectName(edtJsonObjectObjectName.Text)
+      .AutoCreateFile(chkJsonObjectAutoCreate.Checked);
+    
+    // Exporta do INI para o JSON (em memória)
+    FParameters.JsonObject.ImportFromInifiles(FParameters.Inifiles, LSuccess);
+    
+    if not LSuccess then
+    begin
+      ShowInifilesStatus('Erro ao importar dados do INI para JSON.', True);
+      ShowMessage('Erro ao importar parâmetros do INI para JSON.');
+      Exit;
+    end;
+    
+    // Salva o arquivo JSON no caminho escolhido
+    FParameters.JsonObject.SaveToFile(LFilePath, LSuccess);
+    
+    if LSuccess then
+    begin
+      // Atualiza o campo com o caminho salvo
+      edtJsonObjectFilePath.Text := LFilePath;
+      ShowInifilesStatus(Format('Exportação concluída! Arquivo salvo em: %s', [LFilePath]));
+      ShowMessage(Format('Parâmetros exportados do arquivo INI para o JSON com sucesso!'#13#10#13#10'Arquivo salvo em:'#13#10'%s', [LFilePath]));
+    end
+    else
+    begin
+      ShowInifilesStatus('Erro ao salvar arquivo JSON.', True);
+      ShowMessage('Erro ao salvar arquivo JSON.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowInifilesStatus('Erro ao exportar para JSON: ' + E.Message, True);
+      ShowMessage('Erro ao exportar parâmetros para JSON: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.lvInifilesSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+var
+  LChave: string;
+  LTitulo: string;
+  LParameter: TParameter;
+begin
+  if not Selected or (Item = nil) then
+    Exit;
+    
+  LParameter := nil;
+  try
+    // Obtém o Título (seção) e a Chave do item selecionado
+    // Ordem das colunas: ID (Caption), Contrato (0), Produto (1), Ordem (2), Título (3), Chave (4), Valor (5), Descrição (6), Ativo (7)
+    if Item.SubItems.Count > 4 then
+    begin
+      LTitulo := Item.SubItems[3];  // Coluna 4: Título (seção do INI)
+      LChave := Item.SubItems[4];   // Coluna 5: Chave
+    end
+    else
+    begin
+      ShowInifilesStatus('Erro: Item sem dados suficientes.', True);
+      Exit;
+    end;
+    
+    // Atualiza configuração com a seção correta (Título do parâmetro)
+    FParameters.Inifiles
+      .FilePath(edtInifilesFilePath.Text)
+      .Section(LTitulo)  // Usa o Título do parâmetro como seção
+      .AutoCreateFile(chkInifilesAutoCreate.Checked);
+    
+    // Busca o parâmetro completo
+    FParameters.Inifiles.Get(LChave, LParameter);
+    
+    if Assigned(LParameter) and (LParameter.Name <> '') then
+    begin
+      LoadInifilesFieldsFromParameter(LParameter);
+      ShowInifilesStatus(Format('Parâmetro carregado: %s (Seção: %s)', [LChave, LTitulo]));
+    end
+    else
+    begin
+      ShowInifilesStatus(Format('Parâmetro "%s" não encontrado na seção "%s".', [LChave, LTitulo]), True);
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowInifilesStatus('Erro ao carregar: ' + E.Message, True);
+      ShowMessage('Erro ao carregar parâmetro: ' + E.Message);
+    end;
+  end;
+  
+  // Libera o parâmetro retornado pelo Get
+  if Assigned(LParameter) then
+  begin
+    LParameter.Free;
+    LParameter := nil;
+  end;
+end;
+
+procedure TfrmConfigCRUD.LoadInifilesDataToListView;
+var
+  LList: TParameterList;
+  LItem: TListItem;
+  LParameter: TParameter;
+  I: Integer;
+  LValue: string;
+begin
+  lvInifiles.Items.BeginUpdate;
+  try
+    try
+      lvInifiles.Items.Clear;
+      
+      // Atualiza configuração
+      FParameters.Inifiles
+        .FilePath(edtInifilesFilePath.Text)
+        .Section(edtInifilesSection.Text)
+        .AutoCreateFile(chkInifilesAutoCreate.Checked);
+      
+      // Lista todos os parâmetros do arquivo INI
+      LList := FParameters.Inifiles.List;
+      
+      try
+        for I := 0 to LList.Count - 1 do
+        begin
+          LParameter := LList[I];
+          
+          LValue := LParameter.Value;
+          if Length(LValue) > 50 then
+            LValue := Copy(LValue, 1, 50) + '...';
+          
+          LItem := lvInifiles.Items.Add;
+          LItem.Caption := IntToStr(LParameter.ID); // Coluna 0: ID
+          LItem.SubItems.Add(IntToStr(LParameter.ContratoID)); // Coluna 1: Contrato
+          LItem.SubItems.Add(IntToStr(LParameter.ProdutoID)); // Coluna 2: Produto
+          LItem.SubItems.Add(IntToStr(LParameter.Ordem)); // Coluna 3: Ordem
+          LItem.SubItems.Add(LParameter.Titulo); // Coluna 4: Título
+          LItem.SubItems.Add(LParameter.Name); // Coluna 5: Chave
+          LItem.SubItems.Add(LValue); // Coluna 6: Valor (truncado se necessário)
+          LItem.SubItems.Add(LParameter.Description); // Coluna 7: Descrição
+          LItem.SubItems.Add(IfThen(LParameter.Ativo, 'Sim', 'Não')); // Coluna 8: Ativo
+          LItem.Data := Pointer(I); // Índice na lista para referência rápida
+        end;
+      finally
+        LList.ClearAll;
+        LList.Free;
+      end;
+    except
+      on E: Exception do
+      begin
+        ShowInifilesStatus('Erro ao carregar lista: ' + E.Message, True);
+        raise;
+      end;
+    end;
+  finally
+    lvInifiles.Items.EndUpdate;
+  end;
+end;
+
+procedure TfrmConfigCRUD.ClearInifilesFields;
+begin
+  edtInifilesContratoID.Text := '1';
+  edtInifilesProdutoID.Text := '1';
+  edtInifilesOrdem.Text := '1';
+  edtInifilesTitulo.Text := '';
+  edtInifilesChave.Text := '';
+  memoInifilesValor.Clear;
+  memoInifilesDescricao.Clear;
+  chkInifilesAtivo.Checked := True;
+end;
+
+procedure TfrmConfigCRUD.LoadInifilesFieldsFromParameter(const AParameter: TParameter);
+begin
+  if not Assigned(AParameter) then
+    Exit;
+    
+  edtInifilesContratoID.Text := IntToStr(AParameter.ContratoID);
+  edtInifilesProdutoID.Text := IntToStr(AParameter.ProdutoID);
+  edtInifilesOrdem.Text := IntToStr(AParameter.Ordem);
+  edtInifilesTitulo.Text := AParameter.Titulo;
+  edtInifilesChave.Text := AParameter.Name;
+  memoInifilesValor.Text := AParameter.Value;
+  memoInifilesDescricao.Text := AParameter.Description;
+  chkInifilesAtivo.Checked := AParameter.Ativo;
+end;
+
+function TfrmConfigCRUD.GetInifilesParameterFromFields: TParameter;
+begin
+  Result := TParameter.Create;
+  Result.ContratoID := StrToIntDef(edtInifilesContratoID.Text, 1);
+  Result.ProdutoID := StrToIntDef(edtInifilesProdutoID.Text, 1);
+  Result.Ordem := StrToIntDef(edtInifilesOrdem.Text, 0);
+  Result.Titulo := Trim(edtInifilesTitulo.Text);
+  Result.Name := Trim(edtInifilesChave.Text);
+  Result.Value := memoInifilesValor.Text;
+  Result.Description := memoInifilesDescricao.Text;
+  Result.Ativo := chkInifilesAtivo.Checked;
+  Result.ValueType := pvtString; // INI sempre retorna string
+end;
+
+function TfrmConfigCRUD.ValidateInifilesFields: Boolean;
+begin
+  Result := False;
+  
+  if Trim(edtInifilesChave.Text) = '' then
+  begin
+    ShowMessage('O campo "Chave" é obrigatório.');
+    edtInifilesChave.SetFocus;
+    Exit;
+  end;
+  
+  if Trim(edtInifilesTitulo.Text) = '' then
+  begin
+    ShowMessage('O campo "Título" é obrigatório (define a seção do INI).');
+    edtInifilesTitulo.SetFocus;
+    Exit;
+  end;
+  
+  if Trim(edtInifilesFilePath.Text) = '' then
+  begin
+    ShowMessage('O campo "File Path" é obrigatório.');
+    edtInifilesFilePath.SetFocus;
+    Exit;
+  end;
+  
+  // Validação de campos numéricos
+  if StrToIntDef(edtInifilesContratoID.Text, -1) < 0 then
+  begin
+    ShowMessage('O campo "Contrato ID" deve ser um número válido (>= 0).');
+    edtInifilesContratoID.SetFocus;
+    Exit;
+  end;
+  
+  if StrToIntDef(edtInifilesProdutoID.Text, -1) < 0 then
+  begin
+    ShowMessage('O campo "Produto ID" deve ser um número válido (>= 0).');
+    edtInifilesProdutoID.SetFocus;
+    Exit;
+  end;
+  
+  if StrToIntDef(edtInifilesOrdem.Text, -1) < 0 then
+  begin
+    ShowMessage('O campo "Ordem" deve ser um número válido (>= 0).');
+    edtInifilesOrdem.SetFocus;
+    Exit;
+  end;
+  
+  Result := True;
+end;
+
+procedure TfrmConfigCRUD.btnInifilesClearClick(Sender: TObject);
+begin
+  ClearInifilesFields;
+  ShowInifilesStatus('Campos limpos.');
+end;
+
+procedure TfrmConfigCRUD.ShowInifilesStatus(const AMessage: string; AIsError: Boolean);
+begin
+  // Usa o mesmo lblStatus do formulário (compartilhado)
+  ShowStatus(AMessage, AIsError);
+end;
+
+// ========== MÉTODOS JSONOBJECT ==========
+
+// InitializeJsonObject removido - a inicialização é automática no TParameters.New
+// Os valores padrão são configurados automaticamente no construtor TParametersImpl.Create
+
+procedure TfrmConfigCRUD.btnJsonObjectSelectFileClick(Sender: TObject);
+begin
+  if not Assigned(dlgJsonObjectSave) then
+    Exit;
+    
+  dlgJsonObjectSave.Filter := 'JSON Files (*.json)|*.json|All Files (*.*)|*.*';
+  dlgJsonObjectSave.FilterIndex := 1;
+  dlgJsonObjectSave.Title := 'Selecionar ou criar arquivo JSON';
+  dlgJsonObjectSave.Options := dlgJsonObjectSave.Options + [ofOverwritePrompt];
+  
+  if dlgJsonObjectSave.Execute then
+  begin
+    edtJsonObjectFilePath.Text := dlgJsonObjectSave.FileName;
+    FParameters.JsonObject.FilePath(edtJsonObjectFilePath.Text);
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectRefreshClick(Sender: TObject);
+begin
+  try
+    // Atualiza configuração
+    FParameters.JsonObject
+      .FilePath(edtJsonObjectFilePath.Text)
+      .ObjectName(edtJsonObjectObjectName.Text)
+      .AutoCreateFile(chkJsonObjectAutoCreate.Checked)
+      .Refresh;
+    
+    ShowJsonObjectStatus('Objeto JSON atualizado com sucesso!');
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao atualizar: ' + E.Message, True);
+      ShowMessage('Erro ao atualizar objeto JSON: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectListClick(Sender: TObject);
+begin
+  try
+    LoadJsonObjectDataToListView;
+    ShowJsonObjectStatus(Format('Listagem concluída. %d registro(s) encontrado(s).', [lvJsonObject.Items.Count]));
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao listar: ' + E.Message, True);
+      ShowMessage('Erro ao listar parâmetros: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectGetClick(Sender: TObject);
+var
+  LChave: string;
+  LParameter: TParameter;
+begin
+  LChave := Trim(edtJsonObjectChave.Text);
+  
+  if LChave = '' then
+  begin
+    ShowMessage('Informe a chave para buscar.');
+    edtJsonObjectChave.SetFocus;
+    Exit;
+  end;
+  
+  try
+    // Atualiza configuração antes de buscar
+    FParameters.JsonObject
+      .FilePath(edtJsonObjectFilePath.Text)
+      .ObjectName(edtJsonObjectObjectName.Text)
+      .AutoCreateFile(chkJsonObjectAutoCreate.Checked);
+    
+    FParameters.JsonObject.Get(LChave, LParameter);
+    
+    if Assigned(LParameter) and (LParameter.Name <> '') then
+    begin
+      LoadJsonObjectFieldsFromParameter(LParameter);
+      ShowJsonObjectStatus(Format('Parâmetro "%s" encontrado!', [LChave]));
+    end
+    else
+    begin
+      ShowJsonObjectStatus(Format('Parâmetro "%s" não encontrado.', [LChave]), True);
+      ShowMessage(Format('Parâmetro "%s" não encontrado.', [LChave]));
+    end;
+    
+    if Assigned(LParameter) then
+    begin
+      LParameter.Free;
+      LParameter := nil;
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao buscar: ' + E.Message, True);
+      ShowMessage('Erro ao buscar parâmetro: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectInsertClick(Sender: TObject);
+var
+  LParameter: TParameter;
+  LSuccess: Boolean;
+begin
+  if not ValidateJsonObjectFields then
+    Exit;
+    
+  try
+    // Atualiza configuração
+    FParameters.JsonObject
+      .FilePath(edtJsonObjectFilePath.Text)
+      .ObjectName(edtJsonObjectObjectName.Text)
+      .AutoCreateFile(chkJsonObjectAutoCreate.Checked);
+    
+    LParameter := GetJsonObjectParameterFromFields;
+    
+    try
+      FParameters.JsonObject.Insert(LParameter, LSuccess);
+      
+      if LSuccess then
+      begin
+        ShowJsonObjectStatus('Parâmetro inserido com sucesso!');
+        ClearJsonObjectFields;
+        LoadJsonObjectDataToListView;
+        ShowMessage('Parâmetro inserido com sucesso!');
+      end
+      else
+      begin
+        ShowJsonObjectStatus('Erro ao inserir parâmetro.', True);
+        ShowMessage('Erro ao inserir parâmetro.');
+      end;
+    finally
+      LParameter.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao inserir: ' + E.Message, True);
+      ShowMessage('Erro ao inserir parâmetro: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectUpdateClick(Sender: TObject);
+var
+  LParameter: TParameter;
+  LSuccess: Boolean;
+begin
+  if Trim(edtJsonObjectChave.Text) = '' then
+  begin
+    ShowMessage('Selecione um parâmetro para atualizar.');
+    Exit;
+  end;
+    
+  if not ValidateJsonObjectFields then
+    Exit;
+    
+  try
+    // Atualiza configuração
+    FParameters.JsonObject
+      .FilePath(edtJsonObjectFilePath.Text)
+      .ObjectName(edtJsonObjectObjectName.Text)
+      .AutoCreateFile(chkJsonObjectAutoCreate.Checked);
+    
+    LParameter := GetJsonObjectParameterFromFields;
+    
+    try
+      FParameters.JsonObject.Update(LParameter, LSuccess);
+      
+      if LSuccess then
+      begin
+        ShowJsonObjectStatus('Parâmetro atualizado com sucesso!');
+        LoadJsonObjectDataToListView;
+        ShowMessage('Parâmetro atualizado com sucesso!');
+      end
+      else
+      begin
+        ShowJsonObjectStatus('Erro ao atualizar parâmetro.', True);
+        ShowMessage('Erro ao atualizar parâmetro.');
+      end;
+    finally
+      LParameter.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao atualizar: ' + E.Message, True);
+      ShowMessage('Erro ao atualizar parâmetro: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectDeleteClick(Sender: TObject);
+var
+  LChave: string;
+  LSuccess: Boolean;
+begin
+  LChave := Trim(edtJsonObjectChave.Text);
+  
+  if LChave = '' then
+  begin
+    ShowMessage('Selecione um parâmetro para deletar.');
+    Exit;
+  end;
+  
+  if MessageDlg(Format('Deseja realmente deletar o parâmetro "%s"?', [LChave]),
+                mtConfirmation, [mbYes, mbNo], 0) = mrNo then
+    Exit;
+    
+  try
+    // Atualiza configuração
+    FParameters.JsonObject
+      .FilePath(edtJsonObjectFilePath.Text)
+      .ObjectName(edtJsonObjectObjectName.Text)
+      .AutoCreateFile(chkJsonObjectAutoCreate.Checked);
+    
+    FParameters.JsonObject.Delete(LChave, LSuccess);
+    
+    if LSuccess then
+    begin
+      ShowJsonObjectStatus('Parâmetro deletado com sucesso!');
+      ClearJsonObjectFields;
+      LoadJsonObjectDataToListView;
+      ShowMessage('Parâmetro deletado com sucesso!');
+    end
+    else
+    begin
+      ShowJsonObjectStatus('Erro ao deletar parâmetro.', True);
+      ShowMessage('Erro ao deletar parâmetro.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao deletar: ' + E.Message, True);
+      ShowMessage('Erro ao deletar parâmetro: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectCountClick(Sender: TObject);
+var
+  LCount: Integer;
+begin
+  try
+    // Atualiza configuração
+    FParameters.JsonObject
+      .FilePath(edtJsonObjectFilePath.Text)
+      .ObjectName(edtJsonObjectObjectName.Text)
+      .AutoCreateFile(chkJsonObjectAutoCreate.Checked);
+    
+    FParameters.JsonObject.Count(LCount);
+    ShowJsonObjectStatus(Format('Total de parâmetros: %d', [LCount]));
+    ShowMessage(Format('Total de parâmetros no objeto JSON: %d', [LCount]));
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao contar: ' + E.Message, True);
+      ShowMessage('Erro ao contar parâmetros: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectExistsClick(Sender: TObject);
+var
+  LChave: string;
+  LExists: Boolean;
+begin
+  LChave := Trim(edtJsonObjectChave.Text);
+  
+  if LChave = '' then
+  begin
+    ShowMessage('Informe a chave para verificar.');
+    edtJsonObjectChave.SetFocus;
+    Exit;
+  end;
+  
+  try
+    // Atualiza configuração
+    FParameters.JsonObject
+      .FilePath(edtJsonObjectFilePath.Text)
+      .ObjectName(edtJsonObjectObjectName.Text)
+      .AutoCreateFile(chkJsonObjectAutoCreate.Checked);
+    
+    FParameters.JsonObject.Exists(LChave, LExists);
+    
+    if LExists then
+    begin
+      ShowJsonObjectStatus(Format('Parâmetro "%s" existe!', [LChave]));
+      ShowMessage(Format('Parâmetro "%s" existe no objeto JSON.', [LChave]));
+    end
+    else
+    begin
+      ShowJsonObjectStatus(Format('Parâmetro "%s" não existe.', [LChave]), True);
+      ShowMessage(Format('Parâmetro "%s" não existe no objeto JSON.', [LChave]));
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao verificar: ' + E.Message, True);
+      ShowMessage('Erro ao verificar existência: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectImportClick(Sender: TObject);
+var
+  LSuccess: Boolean;
+begin
+  if not Assigned(FParameters) then
+  begin
+    ShowMessage('Conecte-se ao banco de dados primeiro (aba Database).');
+    Exit;
+  end;
+  
+  try
+    // Atualiza configuração
+    FParameters.JsonObject
+      .FilePath(edtJsonObjectFilePath.Text)
+      .ObjectName(edtJsonObjectObjectName.Text)
+      .AutoCreateFile(chkJsonObjectAutoCreate.Checked)
+      .ContratoID(StrToIntDef(edtJsonObjectFiltroContrato.Text, 0))
+      .ProdutoID(StrToIntDef(edtJsonObjectFiltroProduto.Text, 0));
+    
+    FParameters.JsonObject.ImportFromDatabase(FParameters.Database, LSuccess);
+    
+    if LSuccess then
+    begin
+      ShowJsonObjectStatus('Importação do Database para JSON concluída com sucesso!');
+      LoadJsonObjectDataToListView;
+      ShowMessage('Parâmetros importados do Database para o objeto JSON com sucesso!');
+    end
+    else
+    begin
+      ShowJsonObjectStatus('Erro ao importar do Database.', True);
+      ShowMessage('Erro ao importar parâmetros do Database.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao importar: ' + E.Message, True);
+      ShowMessage('Erro ao importar do Database: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectImportIniClick(Sender: TObject);
+var
+  LSuccess: Boolean;
+  LIniFilePath: string;
+begin
+  if not Assigned(FParameters.Inifiles) then
+  begin
+    ShowMessage('Configure o arquivo INI primeiro (aba Inifiles).');
+    Exit;
+  end;
+  
+  // VALIDAÇÃO DO CAMINHO DO ARQUIVO INI ANTES DE QUALQUER OPERAÇÃO
+  // Solicita ao usuário selecionar o arquivo INI para importar
+  if not Assigned(dlgInifilesOpen) then
+  begin
+    ShowJsonObjectStatus('Diálogo de abertura não configurado.', True);
+    Exit;
+  end;
+  
+  dlgInifilesOpen.Filter := 'INI Files (*.ini)|*.ini|All Files (*.*)|*.*';
+  dlgInifilesOpen.FilterIndex := 1;
+  dlgInifilesOpen.Title := 'Importar do INI para JSON - Selecionar arquivo';
+  dlgInifilesOpen.Options := dlgInifilesOpen.Options + [ofFileMustExist];
+  
+  // Se já houver um caminho configurado, usa como base
+  if Trim(edtInifilesFilePath.Text) <> '' then
+    dlgInifilesOpen.FileName := edtInifilesFilePath.Text
+  else
+    dlgInifilesOpen.FileName := '';
+  
+  if not dlgInifilesOpen.Execute then
+  begin
+    ShowJsonObjectStatus('Importação cancelada pelo usuário.');
+    Exit;
+  end;
+  
+  LIniFilePath := Trim(dlgInifilesOpen.FileName);
+  
+  // Valida o caminho escolhido
+  if (LIniFilePath = '') or (ExtractFileName(LIniFilePath) = '') then
+  begin
+    ShowJsonObjectStatus('Erro: Caminho do arquivo INI inválido. Selecione um arquivo válido.', True);
+    ShowMessage('Erro: O caminho do arquivo selecionado é inválido.'#13#10'Por favor, selecione um arquivo INI válido.');
+    Exit;
+  end;
+  
+  try
+    // Atualiza configuração do JSON
+    FParameters.JsonObject
+      .FilePath(edtJsonObjectFilePath.Text)
+      .ObjectName(edtJsonObjectObjectName.Text)
+      .AutoCreateFile(chkJsonObjectAutoCreate.Checked)
+      .ContratoID(StrToIntDef(edtJsonObjectFiltroContrato.Text, 0))
+      .ProdutoID(StrToIntDef(edtJsonObjectFiltroProduto.Text, 0));
+    
+    // Configura o INI com o arquivo selecionado
+    FParameters.Inifiles
+      .FilePath(LIniFilePath)
+      .Section(edtInifilesSection.Text)
+      .AutoCreateFile(chkInifilesAutoCreate.Checked)
+      .ContratoID(StrToIntDef(edtJsonObjectFiltroContrato.Text, 0))
+      .ProdutoID(StrToIntDef(edtJsonObjectFiltroProduto.Text, 0));
+    
+    FParameters.JsonObject.ImportFromInifiles(FParameters.Inifiles, LSuccess);
+    
+    if LSuccess then
+    begin
+      ShowJsonObjectStatus('Importação do INI para JSON concluída com sucesso!');
+      LoadJsonObjectDataToListView;
+      ShowMessage('Parâmetros importados do INI para o objeto JSON com sucesso!');
+    end
+    else
+    begin
+      ShowJsonObjectStatus('Erro ao importar do INI.', True);
+      ShowMessage('Erro ao importar parâmetros do INI.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao importar do INI: ' + E.Message, True);
+      ShowMessage('Erro ao importar parâmetros do INI: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectExportClick(Sender: TObject);
+var
+  LSuccess: Boolean;
+begin
+  if not Assigned(FParameters) then
+  begin
+    ShowMessage('Conecte-se ao banco de dados primeiro (aba Database).');
+    Exit;
+  end;
+  
+  try
+    // Atualiza configuração
+    FParameters.JsonObject
+      .FilePath(edtJsonObjectFilePath.Text)
+      .ObjectName(edtJsonObjectObjectName.Text)
+      .AutoCreateFile(chkJsonObjectAutoCreate.Checked);
+    
+    FParameters.JsonObject.ExportToDatabase(FParameters.Database, LSuccess);
+    
+    if LSuccess then
+    begin
+      ShowJsonObjectStatus('Exportação do JSON para Database concluída com sucesso!');
+      ShowMessage('Parâmetros exportados do objeto JSON para o Database com sucesso!');
+    end
+    else
+    begin
+      ShowJsonObjectStatus('Erro ao exportar para Database.', True);
+      ShowMessage('Erro ao exportar parâmetros para Database.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao exportar: ' + E.Message, True);
+      ShowMessage('Erro ao exportar para Database: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectSaveClick(Sender: TObject);
+var
+  LFilePath: string;
+  LSuccess: Boolean;
+begin
+  // SEMPRE abre o diálogo para selecionar onde salvar o arquivo JSON
+  if not Assigned(dlgJsonObjectSave) then
+  begin
+    ShowJsonObjectStatus('Diálogo de salvamento não configurado.', True);
+    Exit;
+  end;
+  
+  dlgJsonObjectSave.Filter := 'JSON Files (*.json)|*.json|All Files (*.*)|*.*';
+  dlgJsonObjectSave.FilterIndex := 1;
+  dlgJsonObjectSave.Title := 'Salvar arquivo JSON';
+  dlgJsonObjectSave.DefaultExt := 'json';
+  dlgJsonObjectSave.Options := dlgJsonObjectSave.Options + [ofOverwritePrompt];
+  
+  // Se já houver um caminho configurado, usa como base
+  if Trim(edtJsonObjectFilePath.Text) <> '' then
+    dlgJsonObjectSave.FileName := edtJsonObjectFilePath.Text
+  else
+    dlgJsonObjectSave.FileName := 'config.json'; // Nome padrão
+  
+  if not dlgJsonObjectSave.Execute then
+  begin
+    ShowJsonObjectStatus('Salvamento cancelado pelo usuário.');
+    Exit;
+  end;
+  
+  LFilePath := Trim(dlgJsonObjectSave.FileName);
+  
+  // Valida o caminho escolhido
+  if (LFilePath = '') or (ExtractFileName(LFilePath) = '') then
+  begin
+    ShowJsonObjectStatus('Erro: Caminho do arquivo JSON inválido. Selecione um arquivo válido.', True);
+    ShowMessage('Erro: O caminho do arquivo selecionado é inválido.'#13#10'Por favor, selecione um arquivo válido.');
+    Exit;
+  end;
+  
+  try
+    FParameters.JsonObject.SaveToFile(LFilePath, LSuccess);
+    
+    if LSuccess then
+    begin
+      edtJsonObjectFilePath.Text := LFilePath;
+      ShowJsonObjectStatus('Arquivo JSON salvo com sucesso!');
+      ShowMessage('Arquivo JSON salvo com sucesso!');
+    end
+    else
+    begin
+      ShowJsonObjectStatus('Erro ao salvar arquivo JSON.', True);
+      ShowMessage('Erro ao salvar arquivo JSON.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao salvar: ' + E.Message, True);
+      ShowMessage('Erro ao salvar arquivo JSON: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectExportIniClick(Sender: TObject);
+var
+  LSuccess: Boolean;
+  LIniFilePath: string;
+begin
+  if not Assigned(FParameters.Inifiles) then
+  begin
+    ShowMessage('Configure o arquivo INI primeiro (aba Inifiles).');
+    Exit;
+  end;
+  
+  // VALIDAÇÃO DO CAMINHO DO ARQUIVO INI ANTES DE QUALQUER OPERAÇÃO
+  // Solicita ao usuário onde salvar o arquivo INI
+  if not Assigned(dlgInifilesSave) then
+  begin
+    ShowJsonObjectStatus('Diálogo de salvamento não configurado.', True);
+    Exit;
+  end;
+  
+  dlgInifilesSave.Filter := 'INI Files (*.ini)|*.ini|All Files (*.*)|*.*';
+  dlgInifilesSave.FilterIndex := 1;
+  dlgInifilesSave.Title := 'Exportar do JSON para INI - Selecionar local e nome do arquivo';
+  dlgInifilesSave.DefaultExt := 'ini';
+  dlgInifilesSave.Options := dlgInifilesSave.Options + [ofOverwritePrompt];
+  
+  // Se já houver um caminho configurado, usa como base
+  if Trim(edtInifilesFilePath.Text) <> '' then
+    dlgInifilesSave.FileName := edtInifilesFilePath.Text
+  else
+    dlgInifilesSave.FileName := 'config_export.ini'; // Nome padrão
+  
+  if not dlgInifilesSave.Execute then
+  begin
+    ShowJsonObjectStatus('Exportação cancelada pelo usuário.');
+    Exit;
+  end;
+  
+  LIniFilePath := Trim(dlgInifilesSave.FileName);
+  
+  // Valida o caminho escolhido
+  if (LIniFilePath = '') or (ExtractFileName(LIniFilePath) = '') then
+  begin
+    ShowJsonObjectStatus('Erro: Caminho do arquivo INI inválido. Selecione um arquivo válido.', True);
+    ShowMessage('Erro: O caminho do arquivo selecionado é inválido.'#13#10'Por favor, selecione um arquivo válido.');
+    Exit;
+  end;
+  
+  try
+    // Atualiza configuração do JSON
+    FParameters.JsonObject
+      .FilePath(edtJsonObjectFilePath.Text)
+      .ObjectName(edtJsonObjectObjectName.Text)
+      .AutoCreateFile(chkJsonObjectAutoCreate.Checked);
+    
+    // Configura o INI com o arquivo selecionado
+    FParameters.Inifiles
+      .FilePath(LIniFilePath)
+      .Section(edtInifilesSection.Text)
+      .AutoCreateFile(chkInifilesAutoCreate.Checked);
+    
+    FParameters.JsonObject.ExportToInifiles(FParameters.Inifiles, LSuccess);
+    
+    if LSuccess then
+    begin
+      ShowJsonObjectStatus('Exportação do JSON para INI concluída com sucesso!');
+      ShowMessage('Parâmetros exportados do objeto JSON para o INI com sucesso!');
+    end
+    else
+    begin
+      ShowJsonObjectStatus('Erro ao exportar para INI.', True);
+      ShowMessage('Erro ao exportar parâmetros para INI.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao exportar para INI: ' + E.Message, True);
+      ShowMessage('Erro ao exportar parâmetros para INI: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectLoadClick(Sender: TObject);
+var
+  LFilePath: string;
+  LSuccess: Boolean;
+begin
+  // Abre o diálogo para selecionar o arquivo JSON para carregar
+  if not Assigned(dlgJsonObjectOpen) then
+  begin
+    ShowJsonObjectStatus('Diálogo de abertura não configurado.', True);
+    Exit;
+  end;
+  
+  dlgJsonObjectOpen.Filter := 'JSON Files (*.json)|*.json|All Files (*.*)|*.*';
+  dlgJsonObjectOpen.FilterIndex := 1;
+  dlgJsonObjectOpen.Title := 'Carregar arquivo JSON';
+  dlgJsonObjectOpen.Options := dlgJsonObjectOpen.Options + [ofFileMustExist];
+  
+  // Se já houver um caminho configurado, usa como base
+  if Trim(edtJsonObjectFilePath.Text) <> '' then
+    dlgJsonObjectOpen.FileName := edtJsonObjectFilePath.Text
+  else
+    dlgJsonObjectOpen.FileName := '';
+  
+  if not dlgJsonObjectOpen.Execute then
+  begin
+    ShowJsonObjectStatus('Carregamento cancelado pelo usuário.');
+    Exit;
+  end;
+  
+  LFilePath := Trim(dlgJsonObjectOpen.FileName);
+  
+  // Valida o caminho escolhido
+  if (LFilePath = '') or (ExtractFileName(LFilePath) = '') then
+  begin
+    ShowJsonObjectStatus('Erro: Caminho do arquivo JSON inválido. Selecione um arquivo válido.', True);
+    ShowMessage('Erro: O caminho do arquivo selecionado é inválido.'#13#10'Por favor, selecione um arquivo JSON válido.');
+    Exit;
+  end;
+  
+  try
+    FParameters.JsonObject.LoadFromFile(LFilePath, LSuccess);
+    
+    if LSuccess then
+    begin
+      edtJsonObjectFilePath.Text := LFilePath;
+      LoadJsonObjectDataToListView;
+      ShowJsonObjectStatus('Arquivo JSON carregado com sucesso!');
+      ShowMessage('Arquivo JSON carregado com sucesso!');
+    end
+    else
+    begin
+      ShowJsonObjectStatus('Erro ao carregar arquivo JSON.', True);
+      ShowMessage('Erro ao carregar arquivo JSON.');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao carregar: ' + E.Message, True);
+      ShowMessage('Erro ao carregar arquivo JSON: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmConfigCRUD.lvJsonObjectSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+var
+  LChave: string;
+  LTitulo: string;
+  LParameter: TParameter;
+begin
+  if not Selected or (Item = nil) then
+    Exit;
+    
+  LParameter := nil;
+  try
+    // Obtém o Título (objeto) e a Chave do item selecionado
+    // Ordem das colunas: ID (Caption), Contrato (0), Produto (1), Ordem (2), Título (3), Chave (4), Valor (5), Descrição (6), Ativo (7)
+    if Item.SubItems.Count > 4 then
+    begin
+      LTitulo := Item.SubItems[3];  // Coluna 4: Título (nome do objeto JSON)
+      LChave := Item.SubItems[4];   // Coluna 5: Chave
+    end
+    else
+    begin
+      ShowJsonObjectStatus('Erro: Item sem dados suficientes.', True);
+      Exit;
+    end;
+    
+    // Atualiza configuração com o nome do objeto correto (Título do parâmetro)
+    FParameters.JsonObject
+      .FilePath(edtJsonObjectFilePath.Text)
+      .ObjectName(LTitulo)  // Usa o Título do parâmetro como nome do objeto
+      .AutoCreateFile(chkJsonObjectAutoCreate.Checked);
+    
+    // Busca o parâmetro completo
+    FParameters.JsonObject.Get(LChave, LParameter);
+    
+    if Assigned(LParameter) and (LParameter.Name <> '') then
+    begin
+      LoadJsonObjectFieldsFromParameter(LParameter);
+      ShowJsonObjectStatus(Format('Parâmetro carregado: %s (Objeto: %s)', [LChave, LTitulo]));
+    end
+    else
+    begin
+      ShowJsonObjectStatus(Format('Parâmetro "%s" não encontrado no objeto "%s".', [LChave, LTitulo]), True);
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowJsonObjectStatus('Erro ao carregar: ' + E.Message, True);
+      ShowMessage('Erro ao carregar parâmetro: ' + E.Message);
+    end;
+  end;
+  
+  // Libera o parâmetro retornado pelo Get
+  if Assigned(LParameter) then
+  begin
+    LParameter.Free;
+    LParameter := nil;
+  end;
+end;
+
+procedure TfrmConfigCRUD.LoadJsonObjectDataToListView;
+var
+  LList: TParameterList;
+  LItem: TListItem;
+  LParameter: TParameter;
+  I: Integer;
+  LValue: string;
+begin
+  lvJsonObject.Items.BeginUpdate;
+  try
+    try
+      lvJsonObject.Items.Clear;
+      
+      // Atualiza configuração
+      FParameters.JsonObject
+        .FilePath(edtJsonObjectFilePath.Text)
+        .ObjectName(edtJsonObjectObjectName.Text)
+        .AutoCreateFile(chkJsonObjectAutoCreate.Checked);
+      
+      // Lista todos os parâmetros do objeto JSON
+      LList := FParameters.JsonObject.List;
+      
+      try
+        for I := 0 to LList.Count - 1 do
+        begin
+          LParameter := LList[I];
+          
+          LValue := LParameter.Value;
+          if Length(LValue) > 50 then
+            LValue := Copy(LValue, 1, 50) + '...';
+          
+          LItem := lvJsonObject.Items.Add;
+          LItem.Caption := IntToStr(LParameter.ID); // Coluna 0: ID
+          LItem.SubItems.Add(IntToStr(LParameter.ContratoID)); // Coluna 1: Contrato
+          LItem.SubItems.Add(IntToStr(LParameter.ProdutoID)); // Coluna 2: Produto
+          LItem.SubItems.Add(IntToStr(LParameter.Ordem)); // Coluna 3: Ordem
+          LItem.SubItems.Add(LParameter.Titulo); // Coluna 4: Título
+          LItem.SubItems.Add(LParameter.Name); // Coluna 5: Chave
+          LItem.SubItems.Add(LValue); // Coluna 6: Valor (truncado se necessário)
+          LItem.SubItems.Add(LParameter.Description); // Coluna 7: Descrição
+          LItem.SubItems.Add(IfThen(LParameter.Ativo, 'Sim', 'Não')); // Coluna 8: Ativo
+          LItem.Data := Pointer(I); // Índice na lista para referência rápida
+        end;
+      finally
+        LList.ClearAll;
+        LList.Free;
+      end;
+    except
+      on E: Exception do
+      begin
+        ShowJsonObjectStatus('Erro ao carregar lista: ' + E.Message, True);
+        raise;
+      end;
+    end;
+  finally
+    lvJsonObject.Items.EndUpdate;
+  end;
+end;
+
+procedure TfrmConfigCRUD.ClearJsonObjectFields;
+begin
+  edtJsonObjectContratoID.Text := '1';
+  edtJsonObjectProdutoID.Text := '1';
+  edtJsonObjectOrdem.Text := '1';
+  edtJsonObjectTitulo.Text := '';
+  edtJsonObjectChave.Text := '';
+  memoJsonObjectValor.Clear;
+  memoJsonObjectDescricao.Clear;
+  chkJsonObjectAtivo.Checked := True;
+end;
+
+procedure TfrmConfigCRUD.LoadJsonObjectFieldsFromParameter(const AParameter: TParameter);
+begin
+  if not Assigned(AParameter) then
+    Exit;
+    
+  edtJsonObjectContratoID.Text := IntToStr(AParameter.ContratoID);
+  edtJsonObjectProdutoID.Text := IntToStr(AParameter.ProdutoID);
+  edtJsonObjectOrdem.Text := IntToStr(AParameter.Ordem);
+  edtJsonObjectTitulo.Text := AParameter.Titulo;
+  edtJsonObjectChave.Text := AParameter.Name;
+  memoJsonObjectValor.Text := AParameter.Value;
+  memoJsonObjectDescricao.Text := AParameter.Description;
+  chkJsonObjectAtivo.Checked := AParameter.Ativo;
+end;
+
+function TfrmConfigCRUD.GetJsonObjectParameterFromFields: TParameter;
+begin
+  Result := TParameter.Create;
+  Result.ContratoID := StrToIntDef(edtJsonObjectContratoID.Text, 1);
+  Result.ProdutoID := StrToIntDef(edtJsonObjectProdutoID.Text, 1);
+  Result.Ordem := StrToIntDef(edtJsonObjectOrdem.Text, 0);
+  Result.Titulo := Trim(edtJsonObjectTitulo.Text);
+  Result.Name := Trim(edtJsonObjectChave.Text);
+  Result.Value := memoJsonObjectValor.Text;
+  Result.Description := memoJsonObjectDescricao.Text;
+  Result.Ativo := chkJsonObjectAtivo.Checked;
+  Result.ValueType := pvtString; // JSON sempre retorna string
+end;
+
+function TfrmConfigCRUD.ValidateJsonObjectFields: Boolean;
+begin
+  Result := False;
+  
+  if Trim(edtJsonObjectChave.Text) = '' then
+  begin
+    ShowMessage('O campo "Chave" é obrigatório.');
+    edtJsonObjectChave.SetFocus;
+    Exit;
+  end;
+  
+  if Trim(edtJsonObjectTitulo.Text) = '' then
+  begin
+    ShowMessage('O campo "Título" é obrigatório (define o nome do objeto JSON).');
+    edtJsonObjectTitulo.SetFocus;
+    Exit;
+  end;
+  
+  if Trim(edtJsonObjectFilePath.Text) = '' then
+  begin
+    ShowMessage('O campo "File Path" é obrigatório.');
+    edtJsonObjectFilePath.SetFocus;
+    Exit;
+  end;
+  
+  // Validação de campos numéricos
+  if StrToIntDef(edtJsonObjectContratoID.Text, -1) < 0 then
+  begin
+    ShowMessage('O campo "Contrato ID" deve ser um número válido (>= 0).');
+    edtJsonObjectContratoID.SetFocus;
+    Exit;
+  end;
+  
+  if StrToIntDef(edtJsonObjectProdutoID.Text, -1) < 0 then
+  begin
+    ShowMessage('O campo "Produto ID" deve ser um número válido (>= 0).');
+    edtJsonObjectProdutoID.SetFocus;
+    Exit;
+  end;
+  
+  if StrToIntDef(edtJsonObjectOrdem.Text, -1) < 0 then
+  begin
+    ShowMessage('O campo "Ordem" deve ser um número válido (>= 0).');
+    edtJsonObjectOrdem.SetFocus;
+    Exit;
+  end;
+  
+  Result := True;
+end;
+
+procedure TfrmConfigCRUD.btnJsonObjectClearClick(Sender: TObject);
+begin
+  ClearJsonObjectFields;
+  ShowJsonObjectStatus('Campos limpos.');
+end;
+
+procedure TfrmConfigCRUD.ShowJsonObjectStatus(const AMessage: string; AIsError: Boolean);
+begin
+  // Usa o mesmo lblStatus do formulário (compartilhado)
+  ShowStatus(AMessage, AIsError);
+end;
+
+end.
+

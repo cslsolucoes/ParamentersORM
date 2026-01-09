@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentação Completa - CRUD Config (ProvidersORM v2.0.0)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0;
+            margin: 0;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+            background: white;
+        }
+        
+        /* Menu Lateral Fixo */
+        .sidebar {
+            width: 280px;
+            background: #2d3748;
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.3);
+        }
+        
+        .sidebar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 1.3em;
+            color: white;
+        }
+        
+        .sidebar-header .version {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .sidebar nav {
+            padding: 20px 0;
+        }
+        
+        .sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar nav li {
+            margin: 0;
+        }
+        
+        .sidebar nav a {
+            display: block;
+            padding: 12px 20px;
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+        
+        .sidebar nav a:hover {
+            background: #4a5568;
+            border-left-color: #667eea;
+            color: white;
+        }
+        
+        .sidebar nav a.active {
+            background: #4a5568;
+            border-left-color: #667eea;
+            color: white;
+        }
+        
+        /* Conteúdo Principal */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Botão Voltar ao Topo */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 999;
+            font-size: 24px;
+            text-decoration: none;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        header .meta {
+            margin-top: 15px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        /* Removido nav antigo */
+        
+        main {
+            padding: 40px;
+        }
+        
+        section {
+            margin-bottom: 50px;
+            scroll-margin-top: 30px;
+        }
+        
+        section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        section h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        
+        section h4 {
+            color: #555;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .card.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .card.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        
+        .card.danger {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .card.info {
+            border-left-color: #17a2b8;
+            background: #d1ecf1;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #c7254e;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 0 5px;
+        }
+        
+        .badge.success { background: #28a745; color: white; }
+        .badge.danger { background: #dc3545; color: white; }
+        .badge.warning { background: #ffc107; color: #333; }
+        .badge.info { background: #17a2b8; color: white; }
+        
+        .example {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .example h5 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            background: #2d2d2d;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Menu Lateral Fixo -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>📚 ProvidersORM</h2>
+                <div class="version">v2.0.0 | Versão 1.7.0</div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#topo">🏠 Início</a></li>
+                    <li><a href="#visao-geral">🎯 Visão Geral</a></li>
+                    <li><a href="#correcoes">🔧 Correções</a></li>
+                    <li><a href="#melhorias">✨ Melhorias</a></li>
+                    <li><a href="#filtros">🔍 Filtros</a></li>
+                    <li><a href="#ordenacao">📊 Ordenação</a></li>
+                    <li><a href="#crud">🎛️ CRUD Completo</a></li>
+                    <li><a href="#api">📚 API</a></li>
+                    <li><a href="#configuracao">🔧 Configuração</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            <header id="topo">
+                <h1>📚 Documentação Completa</h1>
+                <div class="subtitle">CRUD - Tabela Config (dbcsl.config)</div>
+                <div class="meta">
+                    <strong>Projeto:</strong> ProvidersORM v2.0.0<br>
+                    <strong>Exemplo:</strong> VCL - ExemploConfigCRUD<br>
+                    <strong>Data:</strong> 03/01/2026<br>
+                    <strong>Versão:</strong> 1.7.0<br>
+                    <strong>Desenvolvedor:</strong> Claiton de Souza Linhares
+                </div>
+            </header>
+            
+            <main>
+                <!-- VISÃO GERAL -->
+            <section id="visao-geral">
+                <h2>🎯 Visão Geral</h2>
+                
+                <div class="card success">
+                    <h3>✅ Sistema 100% Funcional</h3>
+                    <p>O <strong>ExemploConfigCRUD</strong> é uma aplicação VCL completa que demonstra o uso do módulo <code>IParametersDatabase</code> para gerenciar a tabela <code>dbcsl.config</code>.</p>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Funcionalidade</th>
+                            <th>Status</th>
+                            <th>Versão</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>CRUD Completo</strong></td>
+                            <td><span class="badge success">✅ 100%</span></td>
+                            <td>1.6.2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Filtros (Texto + Contrato + Produto)</strong></td>
+                            <td><span class="badge success">✅ 100%</span></td>
+                            <td>1.3.0</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ordenação Hierárquica</strong></td>
+                            <td><span class="badge success">✅ 100%</span></td>
+                            <td>1.5.4</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Validação de Campos</strong></td>
+                            <td><span class="badge success">✅ 100%</span></td>
+                            <td>1.0.0</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Interface 9 Colunas</strong></td>
+                            <td><span class="badge success">✅ 100%</span></td>
+                            <td>1.6.0</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Configuração Fluente</strong></td>
+                            <td><span class="badge success">✅ 100%</span></td>
+                            <td>1.1.0</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Tecnologias</h3>
+                <ul>
+                    <li>✅ <strong>Delphi VCL</strong> - Interface gráfica</li>
+                    <li>✅ <strong>UNIDAC</strong> - Acesso ao banco</li>
+                    <li>✅ <strong>PostgreSQL</strong> - Banco de dados</li>
+                    <li>✅ <strong>IParametersDatabase</strong> - API fluente</li>
+                </ul>
+            </section>
+            
+            <!-- CORREÇÕES -->
+            <section id="correcoes">
+                <h2>🔧 Correções Aplicadas</h2>
+                
+                <h3>1. Ordenação Padrão (v1.5.4)</h3>
+                
+                <div class="card danger">
+                    <h4>❌ Problema</h4>
+                    <p>A ordenação padrão não era aplicada após operações CRUD. Após inserir/atualizar/deletar, os dados ficavam desordenados.</p>
+                </div>
+                
+                <div class="card success">
+                    <h4>✅ Solução</h4>
+                    <p>Lógica corrigida para preservar ordenação do usuário OU aplicar ordenação padrão:</p>
+                    <pre>if FSortColumn >= 0 then
+  SortListView(FSortColumn);  // Mantém ordenação do usuário
+else
+  SortListViewDefault();      // Aplica ordenação padrão</pre>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cenário</th>
+                            <th>Antes</th>
+                            <th>Depois</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Abertura</td>
+                            <td>✅ Ordenado</td>
+                            <td>✅ Ordenado</td>
+                        </tr>
+                        <tr>
+                            <td>Após Insert</td>
+                            <td>❌ Desordenado</td>
+                            <td>✅ Mantém ordenação</td>
+                        </tr>
+                        <tr>
+                            <td>Após Update</td>
+                            <td>❌ Desordenado</td>
+                            <td>✅ Mantém ordenação</td>
+                        </tr>
+                        <tr>
+                            <td>Após Delete</td>
+                            <td>❌ Desordenado</td>
+                            <td>✅ Mantém ordenação</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>2. Nomenclatura do Botão "Alterar"</h3>
+                
+                <div class="card warning">
+                    <h4>⚠️ Problema</h4>
+                    <p>O botão <code>btnUpdate</code> tinha caption "Atualizar", confundindo com <code>btnRefresh</code>.</p>
+                </div>
+                
+                <div class="card success">
+                    <h4>✅ Correção</h4>
+                    <ul>
+                        <li><strong>Alterar</strong> (btnUpdate) = Modifica registro</li>
+                        <li><strong>Atualizar</strong> (btnRefresh) = Recarrega do banco</li>
+                    </ul>
+                </div>
+                
+                <h3>3. Ordem das Colunas Conforme Banco (v1.6.0)</h3>
+                
+                <div class="card info">
+                    <h4>✅ Alinhamento Completo</h4>
+                    <p>Ordem no TListView agora corresponde exatamente à ordem dos campos no banco:</p>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Coluna</th>
+                            <th>Campo DB</th>
+                            <th>Largura</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>ID</td>
+                            <td>config_id</td>
+                            <td>40px</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Contrato</td>
+                            <td>contrato_id</td>
+                            <td>70px</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Produto</td>
+                            <td>produto_id</td>
+                            <td>70px</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Ordem</td>
+                            <td>ordem</td>
+                            <td>50px</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Título</td>
+                            <td>titulo</td>
+                            <td>150px</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>Chave</td>
+                            <td>chave</td>
+                            <td>150px</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>Valor</td>
+                            <td>valor</td>
+                            <td>180px</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>Descrição</td>
+                            <td>descricao</td>
+                            <td>200px</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>Ativo</td>
+                            <td>ativo</td>
+                            <td>50px</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p><strong>Total:</strong> 960px (ScrollBar horizontal habilitada)</p>
+            </section>
+            
+            <!-- MELHORIAS -->
+            <section id="melhorias">
+                <h2>✨ Melhorias Implementadas</h2>
+                
+                <h3>1. Ordenação Padrão Automática (v1.6.1)</h3>
+                
+                <div class="card success">
+                    <h4>✅ Funcionalidade</h4>
+                    <p>Dados são automaticamente ordenados ao carregar pela primeira vez:</p>
+                    <pre style="background: #f8f9fa; color: #333;">Hierarquia: Contrato → Produto → Título → Ordem</pre>
+                </div>
+                
+                <h4>Quando Aplicada:</h4>
+                <ul>
+                    <li>✅ Primeira carga de dados</li>
+                    <li>✅ Após "Listar Todos"</li>
+                    <li>✅ Quando <code>FSortColumn = -1</code></li>
+                </ul>
+                
+                <h4>Como Funciona:</h4>
+                <pre>if FSortColumn = -1 then
+begin
+  FSortColumn := 1;       // Coluna Contrato
+  FSortAscending := True;
+  SortListView(1);        // Aplica ordenação hierárquica
+end;</pre>
+                
+                <h3>2. Interface Completa (v1.1.0)</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Controle</th>
+                            <th>Campo</th>
+                            <th>Obrigatório</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>edtContratoID</code></td>
+                            <td>contrato_id</td>
+                            <td><span class="badge danger">Sim</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>edtProdutoID</code></td>
+                            <td>produto_id</td>
+                            <td><span class="badge danger">Sim</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>edtOrdem</code></td>
+                            <td>ordem</td>
+                            <td><span class="badge info">Não</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>edtTitulo</code></td>
+                            <td>titulo</td>
+                            <td><span class="badge info">Não</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>edtChave</code></td>
+                            <td>chave</td>
+                            <td><span class="badge danger">Sim</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>memoValor</code></td>
+                            <td>valor</td>
+                            <td><span class="badge info">Não</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>memoDescricao</code></td>
+                            <td>descricao</td>
+                            <td><span class="badge info">Não</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>chkAtivo</code></td>
+                            <td>ativo</td>
+                            <td><span class="badge info">Não</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            
+            <!-- FILTROS -->
+            <section id="filtros">
+                <h2>🔍 Sistema de Filtros (v1.3.0)</h2>
+                
+                <h3>3 Campos de Filtro</h3>
+                
+                <div class="card info">
+                    <ol>
+                        <li><strong>Filtro de Texto</strong> - Busca em Chave, Título, Valor, Descrição</li>
+                        <li><strong>Filtro de Contrato</strong> - Busca exata por ID</li>
+                        <li><strong>Filtro de Produto</strong> - Busca exata por ID</li>
+                    </ol>
+                </div>
+                
+                <h3>Lógica de Filtro (AND)</h3>
+                
+                <pre>// Filtro de texto
+if LFiltroUpper <> '' then
+  LMostraItem := (Pos(LFiltroUpper, UpperCase(Name)) > 0) or
+                 (Pos(LFiltroUpper, UpperCase(Titulo)) > 0) or
+                 (Pos(LFiltroUpper, UpperCase(Value)) > 0) or
+                 (Pos(LFiltroUpper, UpperCase(Description)) > 0);
+
+// Filtro de Contrato (AND)
+if LMostraItem and (AFiltroContrato > 0) then
+  LMostraItem := (ContratoID = AFiltroContrato);
+
+// Filtro de Produto (AND)
+if LMostraItem and (AFiltroProduto > 0) then
+  LMostraItem := (ProdutoID = AFiltroProduto);</pre>
+                
+                <h3>Exemplos de Uso</h3>
+                
+                <div class="example">
+                    <h5>Filtro Simples</h5>
+                    <p><strong>Entrada:</strong> Contrato: 1</p>
+                    <p><strong>Resultado:</strong> Todos os registros do Contrato 1</p>
+                </div>
+                
+                <div class="example">
+                    <h5>Filtro Combinado</h5>
+                    <p><strong>Entrada:</strong> Texto: "smtp" + Contrato: 1</p>
+                    <p><strong>Resultado:</strong> Registros com "smtp" <strong>E</strong> do Contrato 1</p>
+                </div>
+                
+                <div class="example">
+                    <h5>Filtro Triplo</h5>
+                    <p><strong>Entrada:</strong> Texto: "email" + Contrato: 1 + Produto: 2</p>
+                    <p><strong>Resultado:</strong> Registros com "email" <strong>E</strong> Contrato 1 <strong>E</strong> Produto 2</p>
+                </div>
+                
+                <h3>Manutenção de Filtros</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operação</th>
+                            <th>Filtros Mantidos?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Insert</td>
+                            <td>✅ Sim</td>
+                        </tr>
+                        <tr>
+                            <td>Update</td>
+                            <td>✅ Sim</td>
+                        </tr>
+                        <tr>
+                            <td>Delete</td>
+                            <td>✅ Sim</td>
+                        </tr>
+                        <tr>
+                            <td>Refresh</td>
+                            <td>✅ Sim</td>
+                        </tr>
+                        <tr>
+                            <td>Listar Todos</td>
+                            <td>❌ Não</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            
+            <!-- ORDENAÇÃO -->
+            <section id="ordenacao">
+                <h2>📊 Sistema de Ordenação</h2>
+                
+                <h3>Ordenação Hierárquica (v1.5.1)</h3>
+                
+                <div class="card success">
+                    <h4>✅ 6 Critérios de Ordenação</h4>
+                    <pre style="background: #f8f9fa; color: #333;">1º Critério: Coluna Clicada
+2º Critério: Contrato
+3º Critério: Produto
+4º Critério: Chave
+5º Critério: Título
+6º Critério: Ordem</pre>
+                </div>
+                
+                <h3>Tipos de Ordenação</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Coluna</th>
+                            <th>Tipo</th>
+                            <th>Hierarquia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ID</td>
+                            <td>Numérico</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Contrato</strong></td>
+                            <td>Numérico</td>
+                            <td><strong>2º Critério</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Produto</strong></td>
+                            <td>Numérico</td>
+                            <td><strong>3º Critério</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ordem</strong></td>
+                            <td>Numérico</td>
+                            <td><strong>6º Critério</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Chave</strong></td>
+                            <td>Texto</td>
+                            <td><strong>4º Critério</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Título</strong></td>
+                            <td>Texto</td>
+                            <td><strong>5º Critério</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Valor</td>
+                            <td>Texto</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Descrição</td>
+                            <td>Texto</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Ativo</td>
+                            <td>Texto</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Como Usar</h3>
+                
+                <ul>
+                    <li>✅ Clique no cabeçalho da coluna para ordenar</li>
+                    <li>✅ Primeiro clique: Ordem Crescente (A-Z, 0-9)</li>
+                    <li>✅ Segundo clique: Ordem Decrescente (Z-A, 9-0)</li>
+                    <li>✅ Ordenação mantida após CRUD</li>
+                    <li>✅ Feedback visual na barra de status</li>
+                </ul>
+            </section>
+            
+            <!-- CRUD COMPLETO -->
+            <section id="crud">
+                <h2>🎛️ CRUD Completo (v1.6.2)</h2>
+                
+                <h3>1. Inserir Novo Registro</h3>
+                
+                <div class="card success">
+                    <h4>Passo a Passo</h4>
+                    <ol>
+                        <li>Preencher campos obrigatórios (Contrato, Produto, Chave)</li>
+                        <li>Preencher campos opcionais (Ordem, Título, Valor, Descrição)</li>
+                        <li>Marcar/desmarcar Ativo</li>
+                        <li>Clicar em <strong>"Inserir"</strong></li>
+                        <li>✅ Registro inserido e lista atualizada</li>
+                    </ol>
+                </div>
+                
+                <h4>Validações:</h4>
+                <ul>
+                    <li>✅ Contrato ID obrigatório</li>
+                    <li>✅ Produto ID obrigatório</li>
+                    <li>✅ Chave obrigatória e única</li>
+                </ul>
+                
+                <h3>2. Alterar Registro Existente</h3>
+                
+                <div class="card warning">
+                    <h4>Passo a Passo</h4>
+                    <ol>
+                        <li>Clicar em um registro no TListView</li>
+                        <li>Dados são carregados automaticamente</li>
+                        <li>Modificar os campos desejados</li>
+                        <li>Clicar em <strong>"Alterar"</strong></li>
+                        <li>✅ Registro atualizado e lista mantida</li>
+                    </ol>
+                </div>
+                
+                <h3>3. Deletar Registro</h3>
+                
+                <div class="card danger">
+                    <h4>Passo a Passo</h4>
+                    <ol>
+                        <li>Clicar em um registro no TListView</li>
+                        <li>Clicar em <strong>"Deletar"</strong></li>
+                        <li>Confirmar a operação</li>
+                        <li>✅ Registro deletado, campos limpos, lista atualizada</li>
+                    </ol>
+                </div>
+                
+                <h3>Botões Disponíveis</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Botão</th>
+                            <th>Função</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Inserir</strong></td>
+                            <td>Adiciona novo registro</td>
+                            <td><span class="badge success">✅ OK</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Alterar</strong></td>
+                            <td>Atualiza registro selecionado</td>
+                            <td><span class="badge success">✅ OK</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Deletar</strong></td>
+                            <td>Remove registro selecionado</td>
+                            <td><span class="badge success">✅ OK</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Listar Todos</strong></td>
+                            <td>Lista todos os registros</td>
+                            <td><span class="badge success">✅ OK</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Atualizar</strong></td>
+                            <td>Recarrega dados do banco</td>
+                            <td><span class="badge success">✅ OK</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Filtrar</strong></td>
+                            <td>Aplica filtros</td>
+                            <td><span class="badge success">✅ OK</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Limpar Filtros</strong></td>
+                            <td>Remove filtros</td>
+                            <td><span class="badge success">✅ OK</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Mensagens do Sistema</h3>
+                
+                <h4>Sucesso (Verde):</h4>
+                <ul>
+                    <li>✅ "Registro inserido com sucesso!"</li>
+                    <li>✅ "Registro atualizado com sucesso!"</li>
+                    <li>✅ "Registro deletado com sucesso!"</li>
+                    <li>✅ "Dados renovados do banco de dados com sucesso!"</li>
+                </ul>
+                
+                <h4>Erro (Vermelho):</h4>
+                <ul>
+                    <li>❌ "O campo 'Contrato ID' é obrigatório."</li>
+                    <li>❌ "O campo 'Produto ID' é obrigatório."</li>
+                    <li>❌ "O campo 'Chave' é obrigatório."</li>
+                    <li>❌ "Selecione um registro para atualizar."</li>
+                    <li>❌ "Selecione um registro para deletar."</li>
+                </ul>
+            </section>
+            
+            <!-- API -->
+            <section id="api">
+                <h2>📚 API IParametersDatabase</h2>
+                
+                <h3>Métodos de Configuração</h3>
+                
+                <h4><code>TableName()</code></h4>
+                <pre>FParameters.TableName('config');</pre>
+                
+                <h4><code>Schema()</code></h4>
+                <pre>FParameters.Schema('dbcsl');</pre>
+                
+                <h4>Configuração Fluente:</h4>
+                <pre>FParameters
+  .TableName('config')
+  .Schema('dbcsl')
+  .AutoCreateTable(False)
+  .Connect;</pre>
+                
+                <h3>Métodos CRUD</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Método</th>
+                            <th>Descrição</th>
+                            <th>Retorno</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>List()</code></td>
+                            <td>Lista todos os registros</td>
+                            <td>TParameterList</td>
+                        </tr>
+                        <tr>
+                            <td><code>Get(AName)</code></td>
+                            <td>Busca por chave</td>
+                            <td>TParameter</td>
+                        </tr>
+                        <tr>
+                            <td><code>Insert(AParameter)</code></td>
+                            <td>Insere registro</td>
+                            <td>IParametersDatabase</td>
+                        </tr>
+                        <tr>
+                            <td><code>Update(AParameter)</code></td>
+                            <td>Atualiza registro</td>
+                            <td>IParametersDatabase</td>
+                        </tr>
+                        <tr>
+                            <td><code>Delete(AName)</code></td>
+                            <td>Deleta registro</td>
+                            <td>IParametersDatabase</td>
+                        </tr>
+                        <tr>
+                            <td><code>Exists(AName)</code></td>
+                            <td>Verifica existência</td>
+                            <td>Boolean</td>
+                        </tr>
+                        <tr>
+                            <td><code>Count()</code></td>
+                            <td>Conta registros</td>
+                            <td>Integer</td>
+                        </tr>
+                        <tr>
+                            <td><code>Refresh()</code></td>
+                            <td>Atualiza cache</td>
+                            <td>IParametersDatabase</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Exemplo Completo</h3>
+                
+                <pre>// INSERT
+LParam := TParameter.Create;
+try
+  LParam.Name := 'smtp_host';
+  LParam.Value := 'smtp.gmail.com';
+  LParam.ContratoID := 1;
+  LParam.ProdutoID := 1;
+  
+  FParameters.Insert(LParam, LSuccess).Refresh;
+  if LSuccess then ShowMessage('Inserido!');
+finally
+  LParam.Free;
+end;
+
+// UPDATE
+LParam := FParameters.Get('smtp_host');
+try
+  LParam.Value := 'smtp.empresa.com';
+  FParameters.Update(LParam, LSuccess).Refresh;
+  if LSuccess then ShowMessage('Atualizado!');
+finally
+  LParam.Free;
+end;
+
+// DELETE
+FParameters.Delete('smtp_host', LSuccess).Refresh;
+if LSuccess then ShowMessage('Deletado!');</pre>
+                
+                <h3>Boas Práticas</h3>
+                
+                <div class="card success">
+                    <h4>✅ FAZER</h4>
+                    <ul>
+                        <li>Sempre liberar TParameter com <code>Free</code></li>
+                        <li>Verificar sucesso das operações</li>
+                        <li>Fazer <code>Refresh()</code> após alterações</li>
+                        <li>Usar <code>try..finally</code> para limpeza</li>
+                    </ul>
+                </div>
+                
+                <div class="card danger">
+                    <h4>❌ EVITAR</h4>
+                    <ul>
+                        <li>Não liberar TParameter (memory leak)</li>
+                        <li>Não verificar resultados de operações</li>
+                        <li>Não fazer refresh (cache desatualizado)</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- CONFIGURAÇÃO FLUENTE -->
+            <section id="configuracao">
+                <h2>🔧 Configuração Fluente (v1.1.0)</h2>
+                
+                <div class="card success">
+                    <h3>✅ Valores Padrão Automáticos</h3>
+                    <p>O módulo <code>IParametersDatabase</code> agora aceita configuração de conexão através de métodos fluentes, utilizando valores padrão caso não sejam especificados.</p>
+                </div>
+                
+                <h3>Novos Métodos Fluentes</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Método</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                            <th>Padrão</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Engine()</code></td>
+                            <td>String</td>
+                            <td>Engine de acesso</td>
+                            <td>'UniDAC'</td>
+                        </tr>
+                        <tr>
+                            <td><code>DatabaseType()</code></td>
+                            <td>String</td>
+                            <td>Tipo do banco</td>
+                            <td>'PostgreSQL'</td>
+                        </tr>
+                        <tr>
+                            <td><code>Host()</code></td>
+                            <td>String</td>
+                            <td>Host do servidor</td>
+                            <td>'201.87.244.234'</td>
+                        </tr>
+                        <tr>
+                            <td><code>Port()</code></td>
+                            <td>Integer</td>
+                            <td>Porta</td>
+                            <td>5432</td>
+                        </tr>
+                        <tr>
+                            <td><code>Username()</code></td>
+                            <td>String</td>
+                            <td>Usuário</td>
+                            <td>'postgres'</td>
+                        </tr>
+                        <tr>
+                            <td><code>Password()</code></td>
+                            <td>String</td>
+                            <td>Senha</td>
+                            <td>'postmy'</td>
+                        </tr>
+                        <tr>
+                            <td><code>Database()</code></td>
+                            <td>String</td>
+                            <td>Nome do banco</td>
+                            <td>'dbsgp'</td>
+                        </tr>
+                        <tr>
+                            <td><code>Schema()</code></td>
+                            <td>String</td>
+                            <td>Schema</td>
+                            <td>'dbcsl'</td>
+                        </tr>
+                        <tr>
+                            <td><code>TableName()</code></td>
+                            <td>String</td>
+                            <td>Nome da tabela</td>
+                            <td>'config'</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Exemplos de Uso</h3>
+                
+                <div class="example">
+                    <h5>Exemplo 1: Uso Mínimo (Todos os Padrões)</h5>
+                    <pre>// Usa TODOS os valores padrão do .inc
+FParameters := TParameters.New;
+FParameters.Connect;
+
+// Conectará automaticamente em:
+// Host: 201.87.244.234
+// Port: 5432
+// Database: dbsgp
+// Schema: dbcsl
+// Table: config</pre>
+                </div>
+                
+                <div class="example">
+                    <h5>Exemplo 2: Customizar Apenas Schema e Tabela</h5>
+                    <pre>// Customiza apenas o necessário
+FParameters := TParameters.New
+  .Schema('dbcsl')
+  .TableName('config')
+  .AutoCreateTable(False)
+  .Connect;
+  
+// Resto usa padrões (Host, Port, Username, Password, Database)</pre>
+                </div>
+                
+                <div class="example">
+                    <h5>Exemplo 3: Customizar Apenas Host</h5>
+                    <pre>// Customiza apenas Host, resto usa padrões
+FParameters := TParameters.New
+  .Host('10.0.0.50')
+  .Connect;</pre>
+                </div>
+                
+                <div class="example">
+                    <h5>Exemplo 4: Configuração Completa Customizada</h5>
+                    <pre>// Customiza TUDO
+FParameters := TParameters.New
+  .DatabaseType('MySQL')
+  .Host('mysql.servidor.com')
+  .Port(3306)
+  .Username('root')
+  .Password('senha_forte')
+  .Database('producao')
+  .Schema('app')
+  .TableName('configs')
+  .AutoCreateTable(True)
+  .Connect;</pre>
+                </div>
+                
+                <h3>Valores Padrão (ParamentersORM.Database.inc)</h3>
+                
+                <pre>DEFAULT_PARAMETERS_ENGINE         = 'UniDAC'
+DEFAULT_PARAMETERS_HOST           = '201.87.244.234'
+DEFAULT_PARAMETERS_PORT           = 5432
+DEFAULT_PARAMETERS_USERNAME       = 'postgres'
+DEFAULT_PARAMETERS_PASSWORD       = 'postmy'
+DEFAULT_PARAMETERS_DATABASE       = 'dbsgp'
+DEFAULT_PARAMETERS_SCHEMA         = 'dbcsl'
+DEFAULT_PARAMETERS_TABLE          = 'config'
+DEFAULT_PARAMETERS_DATABASE_TYPE  = 'PostgreSQL'</pre>
+                
+                <h3>Vantagens</h3>
+                
+                <div class="card success">
+                    <h4>1. Flexibilidade Total</h4>
+                    <ul>
+                        <li>✅ Permite usar valores padrão sem configurar nada</li>
+                        <li>✅ Permite customizar apenas o necessário</li>
+                        <li>✅ Permite customizar tudo se necessário</li>
+                    </ul>
+                </div>
+                
+                <div class="card info">
+                    <h4>2. Código Mais Limpo</h4>
+                    <ul>
+                        <li>✅ Reduz código repetitivo</li>
+                        <li>✅ Facilita manutenção</li>
+                        <li>✅ Mais legível</li>
+                    </ul>
+                </div>
+                
+                <div class="card success">
+                    <h4>3. Centralização</h4>
+                    <ul>
+                        <li>✅ Valores padrão centralizados em <code>ParamentersORM.Database.inc</code></li>
+                        <li>✅ Fácil modificar padrões globalmente</li>
+                        <li>✅ Consistência em todo o projeto</li>
+                    </ul>
+                </div>
+                
+                <div class="card warning">
+                    <h4>4. Atualização Dinâmica</h4>
+                    <ul>
+                        <li>✅ Mudanças refletem imediatamente na conexão</li>
+                        <li>✅ Não precisa recriar a conexão</li>
+                        <li>✅ Mais eficiente</li>
+                    </ul>
+                </div>
+                
+                <h3>Retrocompatibilidade</h3>
+                
+                <div class="card info">
+                    <p><strong>✅ 100% Compatível</strong> com código existente que não usa os novos métodos:</p>
+                    <pre>// Código antigo CONTINUA funcionando
+FParameters := TParameters.New(MyConnection, MyQuery);
+FParameters.TableName('config').Schema('dbcsl');</pre>
+                </div>
+                
+                <h3>Arquivos Modificados</h3>
+                
+                <ul>
+                    <li>✅ <code>Modulo.Parameters.Intefaces.pas</code> - Interface atualizada</li>
+                    <li>✅ <code>Modulo.Parameters.Database.pas</code> - Implementação completa</li>
+                    <li>✅ <code>ufrmConfigCRUD.pas</code> - Exemplo atualizado</li>
+                </ul>
+            </section>
+        </main>
+        
+        <footer>
+            <p><strong>Desenvolvedor:</strong> Claiton de Souza Linhares</p>
+            <p><strong>Projeto:</strong> ProvidersORM v2.0.0</p>
+            <p><strong>Data:</strong> 03/01/2026 | <strong>Versão:</strong> 1.7.0</p>
+            <p>📚 Documentação Completa - Exemplo CRUD Config</p>
+            <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+                Todas as funcionalidades testadas e validadas ✅
+            </p>
+        </footer>
+        </div>
+    </div>
+    
+    <!-- Botão Voltar ao Topo -->
+    <a href="#topo" class="back-to-top" id="backToTop">
+        ↑
+    </a>
+    
+    <script>
+        // Mostrar/ocultar botão voltar ao topo
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        // Marcar item ativo no menu
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.sidebar nav a');
+        
+        window.addEventListener('scroll', function() {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

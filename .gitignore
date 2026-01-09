@@ -40,11 +40,11 @@
 
 # Delphi compiler-generated binaries (safe to delete)
 *.exe
-*.dll
+#*.dll
 *.bpl
 *.bpi
 *.dcp
-*.so
+#*.so
 *.apk
 *.drc
 *.map
@@ -80,3 +80,9 @@ __recovery/
 
 # Boss dependency manager vendor folder https://github.com/HashLoad/boss
 modules/
+#.cursor/
+#.vscode/
+#Analises/
+Compiled/
+Dados/
+Outros/

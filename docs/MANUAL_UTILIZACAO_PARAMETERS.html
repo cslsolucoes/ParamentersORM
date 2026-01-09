@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Utilização - Módulo Parameters v1.0.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+            font-size: 2em;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        h4 {
+            color: #666;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .header-info {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        
+        .header-info p {
+            margin: 5px 0;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .toc ol {
+            margin-left: 20px;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #e74c3c;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+        
+        pre code {
+            background: transparent;
+            color: #ecf0f1;
+            padding: 0;
+        }
+        
+        .method-signature {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+        
+        .method-signature code {
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        
+        .example {
+            background: #fffbf0;
+            border: 1px solid #f0e68c;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .example-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .note {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background: #3498db;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .badge-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .badge-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        hr {
+            border: none;
+            border-top: 2px solid #ecf0f1;
+            margin: 30px 0;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+            text-align: center;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Manual de Utilização - Módulo Parameters v1.0.0</h1>
+        
+        <div class="header-info">
+            <p><strong>Versão:</strong> 1.0.0</p>
+            <p><strong>Data:</strong> 02/01/2026</p>
+            <p><strong>Autor:</strong> Claiton de Souza Linhares</p>
+            <p><strong>Status:</strong> <span class="badge badge-success">✅ Completo e Pronto para Uso</span></p>
+        </div>
+        
+        <div class="toc">
+            <h2>📋 Índice</h2>
+            <ol>
+                <li><a href="#introducao">Introdução</a></li>
+                <li><a href="#instalacao">Instalação e Configuração</a></li>
+                <li><a href="#conceitos">Conceitos Fundamentais</a></li>
+                <li><a href="#factory">Factory Methods - TParameters</a></li>
+                <li><a href="#iparameters">Interface IParameters (Convergência)</a></li>
+                <li><a href="#idatabase">Interface IParametersDatabase</a></li>
+                <li><a href="#iinifiles">Interface IParametersInifiles</a></li>
+                <li><a href="#ijson">Interface IParametersJsonObject</a></li>
+                <li><a href="#tipos">Tipos e Estruturas</a></li>
+                <li><a href="#exemplos">Exemplos Práticos Completos</a></li>
+                <li><a href="#erros">Tratamento de Erros</a></li>
+                <li><a href="#boas-praticas">Boas Práticas</a></li>
+            </ol>
+        </div>
+        
+        <hr>
+        
+        <h2 id="introducao">🎯 Introdução</h2>
+        
+        <p>O <strong>Módulo Parameters</strong> é um sistema unificado de gerenciamento de parâmetros de configuração com suporte a múltiplas fontes de dados (Banco de Dados, Arquivos INI, Objetos JSON) e fallback automático para contingência.</p>
+        
+        <h3>Características Principais</h3>
+        <ul>
+            <li>✅ <strong>Multi-fonte:</strong> Suporte a Database, INI Files e JSON Objects</li>
+            <li>✅ <strong>Fallback Automático:</strong> Busca em cascata quando uma fonte falha</li>
+            <li>✅ <strong>Multi-engine Database:</strong> UNIDAC, FireDAC, Zeos</li>
+            <li>✅ <strong>Multi-database:</strong> PostgreSQL, MySQL, SQL Server, SQLite, FireBird, Access, ODBC</li>
+            <li>✅ <strong>Thread-safe:</strong> Todas as operações protegidas com TCriticalSection</li>
+            <li>✅ <strong>Fluent Interface:</strong> Métodos encadeáveis para código mais legível</li>
+            <li>✅ <strong>Importação/Exportação:</strong> Bidirecional entre todas as fontes</li>
+            <li>✅ <strong>Encapsulamento Total:</strong> Apenas 2 arquivos públicos</li>
+        </ul>
+        
+        <h3>Quando Usar</h3>
+        <ul>
+            <li><strong>Aplicações que precisam de configuração flexível:</strong> Permite alternar entre Database, INI e JSON sem mudar o código</li>
+            <li><strong>Sistemas com requisito de contingência:</strong> Fallback automático garante disponibilidade mesmo se uma fonte falhar</li>
+            <li><strong>Aplicações multi-tenant:</strong> Suporte nativo a ContratoID e ProdutoID para isolamento de dados</li>
+            <li><strong>Migração de configurações:</strong> Importação/Exportação facilita migração entre fontes</li>
+        </ul>
+        
+        <hr>
+        
+        <h2 id="instalacao">🔧 Instalação e Configuração</h2>
+        
+        <h3>Requisitos</h3>
+        <ul>
+            <li>Delphi 10.1 ou superior OU Free Pascal (FPC) 3.0 ou superior</li>
+            <li>Uma das seguintes bibliotecas de acesso a banco de dados:
+                <ul>
+                    <li><strong>UniDAC</strong> (Devart)</li>
+                    <li><strong>FireDAC</strong> (Embarcadero)</li>
+                    <li><strong>Zeos</strong> (Open Source)</li>
+                </ul>
+            </li>
+        </ul>
+        
+        <h3>Configuração de Diretivas de Compilação</h3>
+        <p>No arquivo <code>ParamentersORM.Defines.inc</code>, defina qual engine será usado:</p>
+        
+        <pre><code>// Para usar UniDAC
+{$DEFINE USE_UNIDAC}
+
+// Para usar FireDAC
+{$DEFINE USE_FIREDAC}
+
+// Para usar Zeos
+{$DEFINE USE_ZEOS}</code></pre>
+        
+        <div class="note">
+            <strong>Nota:</strong> Apenas uma diretiva deve estar ativa por vez.
+        </div>
+        
+        <h3>Uso Básico</h3>
+        <pre><code>uses Parameters;
+
+var Parameters: IParameters;
+begin
+  // Cria instância com configuração padrão (apenas Database)
+  Parameters := TParameters.New;
+  
+  // Configura e usa
+  Parameters.Database
+    .Host('localhost')
+    .Port(5432)
+    .Database('mydb')
+    .Username('postgres')
+    .Password('pass')
+    .Connect;
+end;</code></pre>
+        
+        <hr>
+        
+        <h2 id="conceitos">📖 Conceitos Fundamentais</h2>
+        
+        <h3>TParameter</h3>
+        <p>Classe que representa um parâmetro de configuração:</p>
+        <pre><code>TParameter = class
+public
+  ID: Integer;                    // ID único (Database)
+  Name: string;                   // Nome/chave do parâmetro
+  Value: string;                  // Valor do parâmetro
+  ValueType: TParameterValueType; // Tipo do valor
+  Description: string;            // Descrição/comentário
+  ContratoID: Integer;            // Filtro de contrato
+  ProdutoID: Integer;            // Filtro de produto
+  Ordem: Integer;                // Ordem de exibição
+  Titulo: string;                 // Título/seção/objeto
+  Ativo: Boolean;                // Status ativo/inativo
+  CreatedAt: TDateTime;           // Data de criação
+  UpdatedAt: TDateTime;          // Data de atualização
+end;</code></pre>
+        
+        <h3>TParameterList</h3>
+        <p>Lista gerenciada de parâmetros:</p>
+        <pre><code>TParameterList = class(TList&lt;TParameter&gt;)
+public
+  procedure ClearAll; // Libera todos os objetos e limpa lista
+end;</code></pre>
+        
+        <h3>Fontes de Dados</h3>
+        <p>O módulo suporta três fontes de dados:</p>
+        <ol>
+            <li><strong>Database (psDatabase):</strong> Banco de dados relacional</li>
+            <li><strong>Inifiles (psInifiles):</strong> Arquivos INI</li>
+            <li><strong>JsonObject (psJsonObject):</strong> Objetos JSON</li>
+        </ol>
+        
+        <h3>Fallback Automático</h3>
+        <p>Quando múltiplas fontes estão configuradas, o sistema busca em cascata:</p>
+        <pre><code>Database → INI → JSON</code></pre>
+        <p>Se uma fonte falhar ou não encontrar o parâmetro, tenta a próxima automaticamente.</p>
+        
+        <hr>
+        
+        <h2 id="factory">🏭 Factory Methods - TParameters</h2>
+        
+        <p>A classe <code>TParameters</code> fornece métodos estáticos (Factory Methods) para criar instâncias das interfaces.</p>
+        
+        <h3>TParameters.New</h3>
+        <p>Cria uma nova instância da interface unificada <code>IParameters</code>.</p>
+        
+        <h4>Overload 1: Sem parâmetros</h4>
+        <div class="method-signature">
+            <code>class function New: IParameters;</code>
+        </div>
+        <p><strong>Descrição:</strong> Cria instância com configuração padrão (apenas Database).</p>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var Parameters: IParameters;
+Parameters := TParameters.New;
+Parameters.Database.Host('localhost').Connect;</code></pre>
+        </div>
+        
+        <h4>Overload 2: Com configuração</h4>
+        <div class="method-signature">
+            <code>class function New(AConfig: TParameterConfig): IParameters;</code>
+        </div>
+        <p><strong>Parâmetros:</strong></p>
+        <ul>
+            <li><code>AConfig: TParameterConfig</code> - Set de opções de configuração</li>
+        </ul>
+        <p><strong>Valores possíveis:</strong></p>
+        <ul>
+            <li><code>[pcfDataBase]</code> - Habilita apenas Database</li>
+            <li><code>[pcfInifile]</code> - Habilita apenas INI Files</li>
+            <li><code>[pcfJsonObject]</code> - Habilita apenas JSON Objects</li>
+            <li><code>[pcfDataBase, pcfInifile]</code> - Database com fallback para INI</li>
+            <li><code>[pcfDataBase, pcfInifile, pcfJsonObject]</code> - Todas as fontes</li>
+        </ul>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var Parameters: IParameters;
+// Database com fallback para INI
+Parameters := TParameters.New([pcfDataBase, pcfInifile]);
+Parameters.Database.Host('localhost').Connect;
+Parameters.Inifiles.FilePath('C:\Config\params.ini');
+
+// Busca em cascata: Database → INI
+var Param: TParameter;
+Param := Parameters.Get('database_host');</code></pre>
+        </div>
+        
+        <h3>TParameters.NewDatabase</h3>
+        <p>Cria uma nova instância de <code>IParametersDatabase</code>.</p>
+        
+        <h4>Overload 1: Sem parâmetros</h4>
+        <div class="method-signature">
+            <code>class function NewDatabase: IParametersDatabase;</code>
+        </div>
+        <p><strong>Descrição:</strong> Cria instância com conexão interna (automática).</p>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var DB: IParametersDatabase;
+DB := TParameters.NewDatabase;
+DB.Engine('UniDAC')
+  .DatabaseType('PostgreSQL')
+  .Host('localhost')
+  .Port(5432)
+  .Database('mydb')
+  .Username('postgres')
+  .Password('pass')
+  .TableName('config')
+  .Schema('public')
+  .Connect;</code></pre>
+        </div>
+        
+        <h4>Overload 2: Com conexão existente</h4>
+        <div class="method-signature">
+            <code>class function NewDatabase(AConnection: TObject; AQuery: TDataSet = nil; AExecQuery: TDataSet = nil): IParametersDatabase;</code>
+        </div>
+        <p><strong>Parâmetros:</strong></p>
+        <ul>
+            <li><code>AConnection: TObject</code> - Conexão existente (TUniConnection, TFDConnection ou TZConnection)</li>
+            <li><code>AQuery: TDataSet</code> (opcional) - Query para SELECT</li>
+            <li><code>AExecQuery: TDataSet</code> (opcional) - Query para INSERT/UPDATE/DELETE</li>
+        </ul>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var MyConnection: TUniConnection;
+var MyQuery: TUniQuery;
+var DB: IParametersDatabase;
+
+// ... inicializa MyConnection e MyQuery ...
+
+DB := TParameters.NewDatabase(MyConnection, MyQuery);
+DB.TableName('config').Schema('public');</code></pre>
+        </div>
+        
+        <h3>TParameters.NewInifiles</h3>
+        <p>Cria uma nova instância de <code>IParametersInifiles</code>.</p>
+        
+        <h4>Overload 1: Sem parâmetros</h4>
+        <div class="method-signature">
+            <code>class function NewInifiles: IParametersInifiles;</code>
+        </div>
+        <p><strong>Descrição:</strong> Cria instância com valores padrão.</p>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var Ini: IParametersInifiles;
+Ini := TParameters.NewInifiles;
+Ini.FilePath('C:\Config\params.ini')
+   .Section('Parameters');</code></pre>
+        </div>
+        
+        <h4>Overload 2: Com caminho do arquivo</h4>
+        <div class="method-signature">
+            <code>class function NewInifiles(const AFilePath: string): IParametersInifiles;</code>
+        </div>
+        <p><strong>Parâmetros:</strong></p>
+        <ul>
+            <li><code>AFilePath: string</code> - Caminho completo do arquivo INI</li>
+        </ul>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var Ini: IParametersInifiles;
+Ini := TParameters.NewInifiles('C:\Config\params.ini');
+// Arquivo já está configurado, pode usar diretamente
+var Param: TParameter;
+Param := Ini.Get('host');</code></pre>
+        </div>
+        
+        <h3>TParameters.NewJsonObject</h3>
+        <p>Cria uma nova instância de <code>IParametersJsonObject</code>.</p>
+        
+        <h4>Overload 1: Sem parâmetros</h4>
+        <div class="method-signature">
+            <code>class function NewJsonObject: IParametersJsonObject;</code>
+        </div>
+        <p><strong>Descrição:</strong> Cria instância com objeto JSON vazio.</p>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var Json: IParametersJsonObject;
+Json := TParameters.NewJsonObject;
+Json.FilePath('C:\Config\params.json')
+    .ObjectName('Parameters');</code></pre>
+        </div>
+        
+        <h4>Overload 2: Com objeto JSON existente</h4>
+        <div class="method-signature">
+            <code>class function NewJsonObject(AJsonObject: TJSONObject): IParametersJsonObject;</code>
+        </div>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var MyJson: TJSONObject;
+var Json: IParametersJsonObject;
+
+MyJson := TJSONObject.ParseJSONValue('{"ERP":{"host":"localhost"}}') as TJSONObject;
+Json := TParameters.NewJsonObject(MyJson);</code></pre>
+        </div>
+        
+        <h4>Overload 3: Com string JSON</h4>
+        <div class="method-signature">
+            <code>class function NewJsonObject(const AJsonString: string): IParametersJsonObject;</code>
+        </div>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var Json: IParametersJsonObject;
+Json := TParameters.NewJsonObject('{"ERP":{"host":"localhost","port":5432}}');
+var Param: TParameter;
+Param := Json.Get('host');</code></pre>
+        </div>
+        
+        <h3>TParameters.NewJsonObjectFromFile</h3>
+        <div class="method-signature">
+            <code>class function NewJsonObjectFromFile(const AFilePath: string): IParametersJsonObject;</code>
+        </div>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var Json: IParametersJsonObject;
+Json := TParameters.NewJsonObjectFromFile('C:\Config\params.json');
+// JSON já está carregado, pode usar diretamente
+var List: TParameterList;
+List := Json.List;</code></pre>
+        </div>
+        
+        <h3>TParameters.DetectEngine</h3>
+        <div class="method-signature">
+            <code>class function DetectEngine: TParameterDatabaseEngine;</code>
+        </div>
+        <p><strong>Retorno:</strong></p>
+        <ul>
+            <li><code>pteUnidac</code> - Se USE_UNIDAC definido</li>
+            <li><code>pteFireDAC</code> - Se USE_FIREDAC definido</li>
+            <li><code>pteZeos</code> - Se USE_ZEOS definido</li>
+            <li><code>pteNone</code> - Se nenhum estiver definido</li>
+        </ul>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var Engine: TParameterDatabaseEngine;
+Engine := TParameters.DetectEngine;
+case Engine of
+  pteUnidac: ShowMessage('UNIDAC detectado');
+  pteFireDAC: ShowMessage('FireDAC detectado');
+  pteZeos: ShowMessage('Zeos detectado');
+  pteNone: ShowMessage('Nenhum engine disponível');
+end;</code></pre>
+        </div>
+        
+        <h3>TParameters.DetectEngineName</h3>
+        <div class="method-signature">
+            <code>class function DetectEngineName: string;</code>
+        </div>
+        <p><strong>Retorno:</strong> String com o nome do engine ('UniDAC', 'FireDAC', 'Zeos' ou 'None').</p>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var EngineName: string;
+EngineName := TParameters.DetectEngineName;
+ShowMessage('Engine: ' + EngineName);</code></pre>
+        </div>
+        
+        <hr>
+        
+        <h2 id="iparameters">🔄 Interface IParameters (Convergência)</h2>
+        
+        <p>A interface <code>IParameters</code> é a interface unificada que gerencia múltiplas fontes de dados com suporte a fallback automático.</p>
+        
+        <h3>Gerenciamento de Fontes</h3>
+        
+        <h4>Source - Define fonte ativa</h4>
+        <div class="method-signature">
+            <code>function Source(ASource: TParameterSource): IParameters; overload;<br>
+function Source: TParameterSource; overload;</code>
+        </div>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var Parameters: IParameters;
+Parameters := TParameters.New([pcfDataBase, pcfInifile]);
+
+// Define INI como fonte ativa para inserções
+Parameters.Source(psInifiles);
+
+// Verifica fonte ativa
+var ActiveSource: TParameterSource;
+ActiveSource := Parameters.Source; // Retorna psInifiles</code></pre>
+        </div>
+        
+        <h4>AddSource - Adiciona fonte à lista</h4>
+        <div class="method-signature">
+            <code>function AddSource(ASource: TParameterSource): IParameters;</code>
+        </div>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var Parameters: IParameters;
+Parameters := TParameters.New([pcfDataBase]);
+// Adiciona INI como fallback
+Parameters.AddSource(psInifiles);</code></pre>
+        </div>
+        
+        <h4>RemoveSource - Remove fonte da lista</h4>
+        <div class="method-signature">
+            <code>function RemoveSource(ASource: TParameterSource): IParameters;</code>
+        </div>
+        
+        <h4>HasSource - Verifica se fonte está ativa</h4>
+        <div class="method-signature">
+            <code>function HasSource(ASource: TParameterSource): Boolean;</code>
+        </div>
+        
+        <h4>Priority - Define ordem de prioridade</h4>
+        <div class="method-signature">
+            <code>function Priority(ASources: TParameterSourceArray): IParameters;</code>
+        </div>
+        <div class="example">
+            <div class="example-title">Exemplo:</div>
+            <pre><code>var Parameters: IParameters;
+Parameters := TParameters.New([pcfDataBase, pcfInifile, pcfJsonObject]);
+
+// Define ordem: Database → INI → JSON
+Parameters.Priority([psDatabase, psInifiles, psJsonObject]);</code></pre>
+        </div>
+        
+        <h3>Operações Unificadas (com Fallback)</h3>
+        
+        <h4>Get - Busca parâmetro em cascata</h4>
+        <div class="method-signature">
+            <code>function Get(const AName: string): TParameter; overload;<br>
+function Get(const AName: string; ASource: TParameterSource): TParameter; overload;</code>
+        </div>
+        <div class="example">
+            <div class="example-title">Exemplo 1: Busca em cascata</div>
+            <pre><code>var Parameters: IParameters;
+var Param: TParameter;
+
+Parameters := TParameters.New([pcfDataBase, pcfInifile]);
+Parameters.Database.Host('localhost').Connect;
+Parameters.Inifiles.FilePath('C:\Config\params.ini');
+
+// Busca em cascata: Database → INI
+Param := Parameters.Get('database_host');
+try
+  if Assigned(Param) then
+    ShowMessage('Valor: ' + Param.Value)
+  else
+    ShowMessage('Não encontrado');
+finally
+  if Assigned(Param) then
+    Param.Free;
+end;</code></pre>
+        </div>
+        
+        <h4>List - Lista todos os parâmetros (merge de fontes)</h4>
+        <div class="method-signature">
+            <code>function List: TParameterList; overload;<br>
+function List(out AList: TParameterList): IParameters; overload;</code>
+        </div>
+        <p><strong>Retorno:</strong> <code>TParameterList</code> com todos os parâmetros únicos de todas as fontes (remove duplicatas por Name).</p>
+        
+        <h4>Insert - Insere parâmetro na fonte ativa</h4>
+        <div class="method-signature">
+            <code>function Insert(const AParameter: TParameter): IParameters; overload;<br>
+function Insert(const AParameter: TParameter; out ASuccess: Boolean): IParameters; overload;</code>
+        </div>
+        
+        <h4>Update - Atualiza parâmetro na fonte onde existe</h4>
+        <div class="method-signature">
+            <code>function Update(const AParameter: TParameter): IParameters; overload;<br>
+function Update(const AParameter: TParameter; out ASuccess: Boolean): IParameters; overload;</code>
+        </div>
+        
+        <h4>Delete - Deleta parâmetro de todas as fontes onde existe</h4>
+        <div class="method-signature">
+            <code>function Delete(const AName: string): IParameters; overload;<br>
+function Delete(const AName: string; out ASuccess: Boolean): IParameters; overload;</code>
+        </div>
+        
+        <h4>Exists - Verifica se parâmetro existe (OR lógico)</h4>
+        <div class="method-signature">
+            <code>function Exists(const AName: string): Boolean; overload;<br>
+function Exists(const AName: string; out AExists: Boolean): IParameters; overload;</code>
+        </div>
+        
+        <h4>Count - Conta parâmetros únicos de todas as fontes</h4>
+        <div class="method-signature">
+            <code>function Count: Integer; overload;<br>
+function Count(out ACount: Integer): IParameters; overload;</code>
+        </div>
+        
+        <h4>Refresh - Renova dados de todas as fontes</h4>
+        <div class="method-signature">
+            <code>function Refresh: IParameters;</code>
+        </div>
+        
+        <h3>Configuração Unificada</h3>
+        
+        <h4>ContratoID - Define/obtém ContratoID</h4>
+        <div class="method-signature">
+            <code>function ContratoID(const AValue: Integer): IParameters; overload;<br>
+function ContratoID: Integer; overload;</code>
+        </div>
+        <p>Aplica em todas as fontes ativas.</p>
+        
+        <h4>ProdutoID - Define/obtém ProdutoID</h4>
+        <div class="method-signature">
+            <code>function ProdutoID(const AValue: Integer): IParameters; overload;<br>
+function ProdutoID: Integer; overload;</code>
+        </div>
+        
+        <h3>Acesso Direto a Fontes</h3>
+        
+        <h4>Database - Retorna interface Database</h4>
+        <div class="method-signature">
+            <code>function Database: IParametersDatabase;</code>
+        </div>
+        
+        <h4>Inifiles - Retorna interface Inifiles</h4>
+        <div class="method-signature">
+            <code>function Inifiles: IParametersInifiles;</code>
+        </div>
+        
+        <h4>JsonObject - Retorna interface JsonObject</h4>
+        <div class="method-signature">
+            <code>function JsonObject: IParametersJsonObject;</code>
+        </div>
+        
+        <hr>
+        
+        <h2 id="idatabase">💾 Interface IParametersDatabase</h2>
+        
+        <p>Interface para acesso a parâmetros em banco de dados.</p>
+        
+        <h3>Configuração de Tabela</h3>
+        
+        <h4>TableName - Define/obtém nome da tabela</h4>
+        <div class="method-signature">
+            <code>function TableName(const AValue: string): IParametersDatabase; overload;<br>
+function TableName: string; overload;</code>
+        </div>
+        
+        <h4>Schema - Define/obtém schema</h4>
+        <div class="method-signature">
+            <code>function Schema(const AValue: string): IParametersDatabase; overload;<br>
+function Schema: string; overload;</code>
+        </div>
+        
+        <h4>AutoCreateTable - Define/obtém auto-criação de tabela</h4>
+        <div class="method-signature">
+            <code>function AutoCreateTable(const AValue: Boolean): IParametersDatabase; overload;<br>
+function AutoCreateTable: Boolean; overload;</code>
+        </div>
+        
+        <h3>Configuração de Conexão</h3>
+        
+        <h4>Engine - Define/obtém engine</h4>
+        <div class="method-signature">
+            <code>function Engine(const AValue: string): IParametersDatabase; overload;<br>
+function Engine(const AValue: TParameterDatabaseEngine): IParametersDatabase; overload;<br>
+function Engine: string; overload;</code>
+        </div>
+        
+        <h4>DatabaseType - Define/obtém tipo de banco</h4>
+        <div class="method-signature">
+            <code>function DatabaseType(const AValue: string): IParametersDatabase; overload;<br>
+function DatabaseType(const AValue: TParameterDatabaseTypes): IParametersDatabase; overload;<br>
+function DatabaseType: string; overload;</code>
+        </div>
+        
+        <h4>Host, Port, Username, Password, Database</h4>
+        <p>Métodos para configurar conexão. Todos seguem o mesmo padrão:</p>
+        <div class="method-signature">
+            <code>function Host(const AValue: string): IParametersDatabase; overload;<br>
+function Host: string; overload;</code>
+        </div>
+        
+        <h3>Configuração Completa de Conexão</h3>
+        <div class="example">
+            <div class="example-title">Exemplo completo:</div>
+            <pre><code>var DB: IParametersDatabase;
+var Success: Boolean;
+
+DB := TParameters.NewDatabase;
+DB.Engine('UniDAC')
+  .DatabaseType('PostgreSQL')
+  .Host('localhost')
+  .Port(5432)
+  .Database('mydb')
+  .Username('postgres')
+  .Password('mypassword')
+  .TableName('config')
+  .Schema('public')
+  .AutoCreateTable(True)
+  .Connect(Success);
+
+if Success then
+  ShowMessage('Conectado com sucesso!')
+else
+  ShowMessage('Erro ao conectar');</code></pre>
+        </div>
+        
+        <h3>Operações CRUD</h3>
+        
+        <p>Todas as operações CRUD (List, Get, Insert, Update, Delete, Exists, Count) seguem o mesmo padrão da interface <code>IParameters</code>, mas operam apenas no banco de dados.</p>
+        
+        <h3>Utilitários</h3>
+        
+        <h4>IsConnected - Verifica se está conectado</h4>
+        <div class="method-signature">
+            <code>function IsConnected: Boolean; overload;<br>
+function IsConnected(out AConnected: Boolean): IParametersDatabase; overload;</code>
+        </div>
+        
+        <h4>Connect - Conecta ao banco</h4>
+        <div class="method-signature">
+            <code>function Connect: IParametersDatabase; overload;<br>
+function Connect(out ASuccess: Boolean): IParametersDatabase; overload;</code>
+        </div>
+        
+        <h4>Disconnect - Desconecta do banco</h4>
+        <div class="method-signature">
+            <code>function Disconnect: IParametersDatabase;</code>
+        </div>
+        
+        <h4>Refresh - Renova dados do banco</h4>
+        <div class="method-signature">
+            <code>function Refresh: IParametersDatabase;</code>
+        </div>
+        
+        <h3>Gerenciamento de Tabela</h3>
+        
+        <h4>TableExists - Verifica se tabela existe</h4>
+        <div class="method-signature">
+            <code>function TableExists: Boolean; overload;<br>
+function TableExists(out AExists: Boolean): IParametersDatabase; overload;</code>
+        </div>
+        
+        <h4>CreateTable - Cria tabela com estrutura padrão</h4>
+        <div class="method-signature">
+            <code>function CreateTable: IParametersDatabase; overload;<br>
+function CreateTable(out ASuccess: Boolean): IParametersDatabase; overload;</code>
+        </div>
+        
+        <h4>DropTable - Remove tabela</h4>
+        <div class="method-signature">
+            <code>function DropTable: IParametersDatabase; overload;<br>
+function DropTable(out ASuccess: Boolean): IParametersDatabase; overload;</code>
+        </div>
+        
+        <h3>Listagem de Bancos e Tabelas</h3>
+        
+        <h4>ListAvailableDatabases - Lista bancos disponíveis</h4>
+        <div class="method-signature">
+            <code>function ListAvailableDatabases: TStringList; overload;<br>
+function ListAvailableDatabases(out ADatabases: TStringList): IParametersDatabase; overload;</code>
+        </div>
+        
+        <h4>ListAvailableTables - Lista tabelas disponíveis</h4>
+        <div class="method-signature">
+            <code>function ListAvailableTables: TStringList; overload;<br>
+function ListAvailableTables(out ATables: TStringList): IParametersDatabase; overload;</code>
+        </div>
+        
+        <hr>
+        
+        <h2 id="iinifiles">📄 Interface IParametersInifiles</h2>
+        
+        <p>Interface para acesso a parâmetros em arquivos INI.</p>
+        
+        <h3>Configuração</h3>
+        
+        <h4>FilePath - Define/obtém caminho do arquivo</h4>
+        <div class="method-signature">
+            <code>function FilePath(const AValue: string): IParametersInifiles; overload;<br>
+function FilePath: string; overload;</code>
+        </div>
+        
+        <h4>Section - Define/obtém seção</h4>
+        <div class="method-signature">
+            <code>function Section(const AValue: string): IParametersInifiles; overload;<br>
+function Section: string; overload;</code>
+        </div>
+        
+        <h4>AutoCreateFile - Define/obtém auto-criação de arquivo</h4>
+        <div class="method-signature">
+            <code>function AutoCreateFile(const AValue: Boolean): IParametersInifiles; overload;<br>
+function AutoCreateFile: Boolean; overload;</code>
+        </div>
+        
+        <h3>Operações CRUD</h3>
+        
+        <p>Todas as operações CRUD são idênticas às do <code>IParametersDatabase</code>.</p>
+        
+        <h3>Utilitários</h3>
+        
+        <h4>FileExists - Verifica se arquivo existe</h4>
+        <div class="method-signature">
+            <code>function FileExists: Boolean; overload;<br>
+function FileExists(out AExists: Boolean): IParametersInifiles; overload;</code>
+        </div>
+        
+        <h4>Refresh - Recarrega arquivo</h4>
+        <div class="method-signature">
+            <code>function Refresh: IParametersInifiles;</code>
+        </div>
+        
+        <h3>Importação/Exportação</h3>
+        
+        <h4>ImportFromDatabase - Importa de Database</h4>
+        <div class="method-signature">
+            <code>function ImportFromDatabase(ADatabase: IParametersDatabase): IParametersInifiles; overload;<br>
+function ImportFromDatabase(ADatabase: IParametersDatabase; out ASuccess: Boolean): IParametersInifiles; overload;</code>
+        </div>
+        
+        <h4>ExportToDatabase - Exporta para Database</h4>
+        <div class="method-signature">
+            <code>function ExportToDatabase(ADatabase: IParametersDatabase): IParametersInifiles; overload;<br>
+function ExportToDatabase(ADatabase: IParametersDatabase; out ASuccess: Boolean): IParametersInifiles; overload;</code>
+        </div>
+        
+        <hr>
+        
+        <h2 id="ijson">📋 Interface IParametersJsonObject</h2>
+        
+        <p>Interface para acesso a parâmetros em objetos JSON.</p>
+        
+        <h3>Configuração</h3>
+        
+        <h4>JsonObject - Define/obtém objeto JSON</h4>
+        <div class="method-signature">
+            <code>function JsonObject(AJsonObject: TJSONObject): IParametersJsonObject; overload;<br>
+function JsonObject: TJSONObject; overload;</code>
+        </div>
+        
+        <h4>ObjectName - Define/obtém nome do objeto</h4>
+        <div class="method-signature">
+            <code>function ObjectName(const AValue: string): IParametersJsonObject; overload;<br>
+function ObjectName: string; overload;</code>
+        </div>
+        
+        <h4>FilePath - Define/obtém caminho do arquivo</h4>
+        <div class="method-signature">
+            <code>function FilePath(const AValue: string): IParametersJsonObject; overload;<br>
+function FilePath: string; overload;</code>
+        </div>
+        
+        <h3>Operações CRUD</h3>
+        
+        <p>Todas as operações CRUD são idênticas às do <code>IParametersDatabase</code>.</p>
+        
+        <h3>Utilitários Especiais</h3>
+        
+        <h4>ToJSON - Retorna objeto JSON completo</h4>
+        <div class="method-signature">
+            <code>function ToJSON: TJSONObject;</code>
+        </div>
+        
+        <h4>ToJSONString - Retorna JSON como string formatada</h4>
+        <div class="method-signature">
+            <code>function ToJSONString: string;</code>
+        </div>
+        
+        <h4>SaveToFile - Salva JSON em arquivo</h4>
+        <div class="method-signature">
+            <code>function SaveToFile(const AFilePath: string = ''): IParametersJsonObject; overload;<br>
+function SaveToFile(const AFilePath: string; out ASuccess: Boolean): IParametersJsonObject; overload;</code>
+        </div>
+        
+        <h4>LoadFromFile - Carrega JSON de arquivo</h4>
+        <div class="method-signature">
+            <code>function LoadFromFile(const AFilePath: string = ''): IParametersJsonObject; overload;<br>
+function LoadFromFile(const AFilePath: string; out ASuccess: Boolean): IParametersJsonObject; overload;</code>
+        </div>
+        
+        <h4>LoadFromString - Carrega JSON de string</h4>
+        <div class="method-signature">
+            <code>function LoadFromString(const AJsonString: string): IParametersJsonObject;</code>
+        </div>
+        
+        <h3>Importação/Exportação</h3>
+        
+        <h4>ImportFromDatabase - Importa de Database</h4>
+        <div class="method-signature">
+            <code>function ImportFromDatabase(ADatabase: IParametersDatabase): IParametersJsonObject; overload;<br>
+function ImportFromDatabase(ADatabase: IParametersDatabase; out ASuccess: Boolean): IParametersJsonObject; overload;</code>
+        </div>
+        
+        <h4>ExportToDatabase - Exporta para Database</h4>
+        <div class="method-signature">
+            <code>function ExportToDatabase(ADatabase: IParametersDatabase): IParametersJsonObject; overload;<br>
+function ExportToDatabase(ADatabase: IParametersDatabase; out ASuccess: Boolean): IParametersJsonObject; overload;</code>
+        </div>
+        
+        <h4>ImportFromInifiles - Importa de INI</h4>
+        <div class="method-signature">
+            <code>function ImportFromInifiles(AInifiles: IParametersInifiles): IParametersJsonObject; overload;<br>
+function ImportFromInifiles(AInifiles: IParametersInifiles; out ASuccess: Boolean): IParametersJsonObject; overload;</code>
+        </div>
+        
+        <h4>ExportToInifiles - Exporta para INI</h4>
+        <div class="method-signature">
+            <code>function ExportToInifiles(AInifiles: IParametersInifiles): IParametersJsonObject; overload;<br>
+function ExportToInifiles(AInifiles: IParametersInifiles; out ASuccess: Boolean): IParametersJsonObject; overload;</code>
+        </div>
+        
+        <hr>
+        
+        <h2 id="tipos">📊 Tipos e Estruturas</h2>
+        
+        <h3>TParameterValueType</h3>
+        <p>Enum para tipos de valor:</p>
+        <pre><code>TParameterValueType = (
+  pvtString,    // String
+  pvtInteger,   // Integer
+  pvtFloat,     // Float/Double
+  pvtBoolean,   // Boolean
+  pvtDateTime,  // DateTime
+  pvtJSON       // JSON Object
+);</code></pre>
+        
+        <h3>TParameterSource</h3>
+        <p>Enum para fontes de dados:</p>
+        <pre><code>TParameterSource = (
+  psDatabase,   // Banco de dados
+  psInifiles,   // Arquivos INI
+  psJsonObject  // Objetos JSON
+);</code></pre>
+        
+        <h3>TParameterDatabaseEngine</h3>
+        <p>Enum para engines de banco de dados:</p>
+        <pre><code>TParameterDatabaseEngine = (
+  pteUnidac,    // UniDAC
+  pteFireDAC,   // FireDAC
+  pteZeos       // Zeos
+);</code></pre>
+        
+        <h3>TParameterDatabaseTypes</h3>
+        <p>Enum para tipos de banco de dados:</p>
+        <pre><code>TParameterDatabaseTypes = (
+  pdtPostgreSQL,  // PostgreSQL
+  pdtMySQL,       // MySQL
+  pdtSQLServer,   // SQL Server
+  pdtSQLite,      // SQLite
+  pdtFireBird,    // FireBird
+  pdtAccess,      // Microsoft Access
+  pdtODBC         // ODBC
+);</code></pre>
+        
+        <hr>
+        
+        <h2 id="exemplos">💡 Exemplos Práticos Completos</h2>
+        
+        <h3>Exemplo 1: Configuração Básica com Database</h3>
+        <div class="example">
+            <pre><code>uses Parameters;
+
+procedure ConfigurarParametros;
+var
+  DB: IParametersDatabase;
+  Param: TParameter;
+  Success: Boolean;
+begin
+  // Cria instância
+  DB := TParameters.NewDatabase;
+  
+  // Configura conexão
+  DB.Engine('UniDAC')
+    .DatabaseType('PostgreSQL')
+    .Host('localhost')
+    .Port(5432)
+    .Database('mydb')
+    .Username('postgres')
+    .Password('mypassword')
+    .TableName('config')
+    .Schema('public')
+    .AutoCreateTable(True)
+    .Connect(Success);
+  
+  if not Success then
+  begin
+    ShowMessage('Erro ao conectar');
+    Exit;
+  end;
+  
+  // Insere parâmetro
+  Param := TParameter.Create;
+  try
+    Param.Name := 'api_timeout';
+    Param.Value := '30';
+    Param.ValueType := pvtInteger;
+    Param.Description := 'Timeout da API em segundos';
+    Param.ContratoID := 1;
+    Param.ProdutoID := 1;
+    Param.Ativo := True;
+    
+    DB.Insert(Param, Success);
+    if Success then
+      ShowMessage('Parâmetro inserido!');
+  finally
+    Param.Free;
+  end;
+end;</code></pre>
+        </div>
+        
+        <h3>Exemplo 2: Múltiplas Fontes com Fallback</h3>
+        <div class="example">
+            <pre><code>uses Parameters;
+
+procedure ConfigurarComFallback;
+var
+  Parameters: IParameters;
+  Param: TParameter;
+begin
+  // Cria instância com Database e INI
+  Parameters := TParameters.New([pcfDataBase, pcfInifile]);
+  
+  // Configura Database
+  Parameters.Database
+    .Host('localhost')
+    .Port(5432)
+    .Database('mydb')
+    .Username('postgres')
+    .Password('pass')
+    .TableName('config')
+    .Schema('public')
+    .Connect;
+  
+  // Configura INI (fallback)
+  Parameters.Inifiles
+    .FilePath('C:\Config\params.ini')
+    .Section('Parameters');
+  
+  // Define ordem de prioridade
+  Parameters.Priority([psDatabase, psInifiles]);
+  
+  // Busca em cascata: Database → INI
+  Param := Parameters.Get('database_host');
+  try
+    if Assigned(Param) then
+      ShowMessage('Encontrado: ' + Param.Value)
+    else
+      ShowMessage('Não encontrado em nenhuma fonte');
+  finally
+    if Assigned(Param) then
+      Param.Free;
+  end;
+end;</code></pre>
+        </div>
+        
+        <h3>Exemplo 3: Importação/Exportação</h3>
+        <div class="example">
+            <pre><code>uses Parameters;
+
+procedure ImportarExportar;
+var
+  DB: IParametersDatabase;
+  Ini: IParametersInifiles;
+  Json: IParametersJsonObject;
+  Success: Boolean;
+begin
+  // Cria instâncias
+  DB := TParameters.NewDatabase;
+  // ... configuração e conexão ...
+  
+  Ini := TParameters.NewInifiles;
+  Ini.FilePath('C:\Config\params.ini');
+  
+  Json := TParameters.NewJsonObject;
+  Json.FilePath('C:\Config\params.json');
+  
+  // Exporta Database → INI
+  Ini.ExportToDatabase(DB, Success);
+  if Success then
+    ShowMessage('Exportado para INI!');
+  
+  // Importa INI → JSON
+  Json.ImportFromInifiles(Ini, Success);
+  if Success then
+    ShowMessage('Importado para JSON!');
+end;</code></pre>
+        </div>
+        
+        <h3>Exemplo 4: Sistema Multi-tenant</h3>
+        <div class="example">
+            <pre><code>uses Parameters;
+
+procedure SistemaMultiTenant;
+var
+  Parameters: IParameters;
+  Param: TParameter;
+begin
+  Parameters := TParameters.New([pcfDataBase]);
+  Parameters.Database
+    .Host('localhost')
+    .Connect;
+  
+  // Define ContratoID e ProdutoID
+  Parameters.ContratoID(1);
+  Parameters.ProdutoID(2);
+  
+  // Todos os parâmetros serão filtrados por ContratoID=1 e ProdutoID=2
+  Param := Parameters.Get('api_timeout');
+  try
+    if Assigned(Param) then
+      ShowMessage(Format('Contrato %d, Produto %d: %s = %s', 
+        [Param.ContratoID, Param.ProdutoID, Param.Name, Param.Value]));
+  finally
+    if Assigned(Param) then
+      Param.Free;
+  end;
+end;</code></pre>
+        </div>
+        
+        <hr>
+        
+        <h2 id="erros">⚠️ Tratamento de Erros</h2>
+        
+        <p>O módulo lança exceções específicas para diferentes tipos de erro:</p>
+        
+        <h3>EParametersException</h3>
+        <p>Exceção base para todos os erros do módulo.</p>
+        <div class="example">
+            <pre><code>try
+  DB.Connect;
+except
+  on E: EParametersException do
+    ShowMessage('Erro: ' + E.Message);
+end;</code></pre>
+        </div>
+        
+        <h3>EParametersConnectionException</h3>
+        <p>Erro de conexão com banco de dados.</p>
+        
+        <h3>EParametersSQLException</h3>
+        <p>Erro em operação SQL.</p>
+        
+        <h3>EParametersNotFoundException</h3>
+        <p>Parâmetro não encontrado.</p>
+        
+        <hr>
+        
+        <h2 id="boas-praticas">✅ Boas Práticas</h2>
+        
+        <h3>1. Sempre Libere Objetos TParameter</h3>
+        <div class="example">
+            <pre><code>var Param: TParameter;
+Param := DB.Get('host');
+try
+  // Use Param
+finally
+  if Assigned(Param) then
+    Param.Free;
+end;</code></pre>
+        </div>
+        
+        <h3>2. Sempre Libere TParameterList</h3>
+        <div class="example">
+            <pre><code>var List: TParameterList;
+List := DB.List;
+try
+  // Use List
+finally
+  List.ClearAll;
+  List.Free;
+end;</code></pre>
+        </div>
+        
+        <h3>3. Use Try-Except para Operações Críticas</h3>
+        <div class="example">
+            <pre><code>var Success: Boolean;
+try
+  DB.Connect(Success);
+  if not Success then
+    ShowMessage('Falha na conexão');
+except
+  on E: Exception do
+    ShowMessage('Erro: ' + E.Message);
+end;</code></pre>
+        </div>
+        
+        <h3>4. Configure Fallback para Contingência</h3>
+        <div class="example">
+            <pre><code>// Sempre configure fallback para garantir disponibilidade
+Parameters := TParameters.New([pcfDataBase, pcfInifile]);
+Parameters.Priority([psDatabase, psInifiles]);</code></pre>
+        </div>
+        
+        <h3>5. Use Fluent Interface para Código Legível</h3>
+        <div class="example">
+            <pre><code>// Bom
+DB.Host('localhost').Port(5432).Database('mydb').Connect;
+
+// Evite
+DB.Host('localhost');
+DB.Port(5432);
+DB.Database('mydb');
+DB.Connect;</code></pre>
+        </div>
+        
+        <h3>6. Valide Parâmetros Antes de Usar</h3>
+        <div class="example">
+            <pre><code>var Param: TParameter;
+Param := DB.Get('host');
+try
+  if Assigned(Param) and (Param.Name <> '') then
+  begin
+    // Use Param
+  end
+  else
+    ShowMessage('Parâmetro inválido');
+finally
+  if Assigned(Param) then
+    Param.Free;
+end;</code></pre>
+        </div>
+        
+        <hr>
+        
+        <h2>📝 Conclusão</h2>
+        
+        <p>O <strong>Módulo Parameters v1.0.0</strong> oferece uma solução completa e flexível para gerenciamento de parâmetros de configuração, com suporte a múltiplas fontes de dados e fallback automático.</p>
+        
+        <h3>Características Principais</h3>
+        <ul>
+            <li>✅ <strong>Multi-fonte:</strong> Database, INI, JSON</li>
+            <li>✅ <strong>Fallback Automático:</strong> Busca em cascata</li>
+            <li>✅ <strong>Thread-safe:</strong> Operações protegidas</li>
+            <li>✅ <strong>Fluent Interface:</strong> Código legível</li>
+            <li>✅ <strong>Importação/Exportação:</strong> Bidirecional</li>
+        </ul>
+        
+        <h3>Próximos Passos</h3>
+        <ol>
+            <li>Configure o módulo conforme suas necessidades</li>
+            <li>Teste com suas fontes de dados</li>
+            <li>Implemente fallback para contingência</li>
+            <li>Use os exemplos como referência</li>
+        </ol>
+        
+        <div class="footer">
+            <p><strong>Autor:</strong> Claiton de Souza Linhares</p>
+            <p><strong>Versão:</strong> 1.0.0</p>
+            <p><strong>Data:</strong> 02/01/2026</p>
+            <p><strong>Status:</strong> <span class="badge badge-success">✅ Completo e Pronto para Uso</span></p>
+        </div>
+    </div>
+</body>
+</html>
+

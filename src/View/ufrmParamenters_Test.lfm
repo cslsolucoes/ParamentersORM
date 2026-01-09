@@ -1,0 +1,1644 @@
+object frmConfigCRUD: TfrmConfigCRUD
+  Left = 361
+  Height = 677
+  Top = 167
+  Width = 1305
+  Caption = 'CRUD - Tabela Config (Exemplo Parameters)'
+  ClientHeight = 677
+  ClientWidth = 1305
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Position = poScreenCenter
+  LCLVersion = '4.0.0.4'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  object pnlTop: TPanel
+    Left = 0
+    Height = 147
+    Top = 0
+    Width = 1305
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 147
+    ClientWidth = 1305
+    Color = 16744448
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 0
+    object lblTitulo: TLabel
+      Left = 20
+      Height = 23
+      Top = 8
+      Width = 345
+      Caption = 'CRUD - Tabela Config (dbcsl.config)'
+      Font.Color = clWhite
+      Font.Height = -19
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object lblEngine: TLabel
+      Left = 812
+      Height = 13
+      Top = 0
+      Width = 36
+      Caption = 'Engine:'
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+    end
+    object lblDatabaseType: TLabel
+      Left = 938
+      Height = 13
+      Top = 0
+      Width = 77
+      Caption = 'Database Type:'
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+    end
+    object lblHost: TLabel
+      Left = 1084
+      Height = 13
+      Top = 0
+      Width = 26
+      Caption = 'Host:'
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+    end
+    object lblPort: TLabel
+      Left = 1247
+      Height = 13
+      Top = 0
+      Width = 24
+      Caption = 'Port:'
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+    end
+    object lblUsername: TLabel
+      Left = 812
+      Height = 13
+      Top = 36
+      Width = 52
+      Caption = 'Username:'
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+    end
+    object lblPassword: TLabel
+      Left = 1056
+      Height = 13
+      Top = 36
+      Width = 50
+      Caption = 'Password:'
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+    end
+    object lblDatabase: TLabel
+      Left = 812
+      Height = 13
+      Top = 73
+      Width = 50
+      Caption = 'Database:'
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+    end
+    object lblSchema: TLabel
+      Left = 976
+      Height = 13
+      Top = 73
+      Width = 41
+      Caption = 'Schema:'
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+    end
+    object lblTableName: TLabel
+      Left = 1137
+      Height = 13
+      Top = 73
+      Width = 60
+      Caption = 'Table Name:'
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+    end
+    object lblODBCDatabaseType: TLabel
+      Left = 1084
+      Height = 13
+      Top = 0
+      Width = 108
+      Caption = 'ODBC Database Type:'
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+      Visible = False
+    end
+    object lblConexaoInfo: TLabel
+      Left = 20
+      Height = 13
+      Top = 37
+      Width = 1260
+      AutoSize = False
+      Caption = 'Carregando informações de conexão...'
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+    end
+    object lblConexaoTipo: TLabel
+      Left = 20
+      Height = 13
+      Top = 55
+      Width = 1260
+      AutoSize = False
+      Font.Color = clYellow
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object lblDLLPath: TLabel
+      Left = 20
+      Height = 13
+      Top = 73
+      Width = 1260
+      AutoSize = False
+      Font.Color = clAqua
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+    end
+    object edtEngine: TEdit
+      Left = 812
+      Height = 21
+      Top = 15
+      Width = 120
+      TabOrder = 0
+      Text = 'FireDac'
+    end
+    object cmbDatabaseType: TComboBox
+      Left = 938
+      Height = 21
+      Top = 15
+      Width = 140
+      ItemHeight = 13
+      Style = csDropDownList
+      TabOrder = 1
+      OnChange = cmbDatabaseTypeChange
+    end
+    object edtHost: TEdit
+      Left = 1084
+      Height = 21
+      Top = 15
+      Width = 158
+      TabOrder = 2
+      Text = '201.87.244.234'
+    end
+    object edtPort: TEdit
+      Left = 1247
+      Height = 21
+      Top = 15
+      Width = 49
+      NumbersOnly = True
+      TabOrder = 3
+      Text = '5432'
+    end
+    object edtUsername: TEdit
+      Left = 812
+      Height = 21
+      Top = 51
+      Width = 240
+      TabOrder = 4
+      Text = 'postgres'
+    end
+    object edtPassword: TEdit
+      Left = 1056
+      Height = 21
+      Top = 51
+      Width = 240
+      TabOrder = 5
+      Text = 'postmy'
+    end
+    object edtDatabase: TEdit
+      Left = 812
+      Height = 21
+      Top = 88
+      Width = 130
+      TabOrder = 6
+      Text = 'dbsgp'
+    end
+    object cmbODBCDSN: TComboBox
+      Left = 812
+      Height = 21
+      Top = 88
+      Width = 130
+      ItemHeight = 13
+      TabOrder = 13
+      Visible = False
+    end
+    object btnSelectDatabase: TButton
+      Left = 948
+      Height = 21
+      Top = 88
+      Width = 23
+      Caption = '...'
+      TabOrder = 12
+      OnClick = btnSelectDatabaseClick
+    end
+    object cmbODBCDatabaseType: TComboBox
+      Left = 1084
+      Height = 21
+      Top = 15
+      Width = 140
+      ItemHeight = 13
+      Style = csDropDownList
+      TabOrder = 11
+      Visible = False
+      OnChange = cmbODBCDatabaseTypeChange
+    end
+    object edtSchema: TEdit
+      Left = 976
+      Height = 21
+      Top = 88
+      Width = 156
+      TabOrder = 7
+      Text = 'dbcsl'
+    end
+    object edtTableName: TEdit
+      Left = 1137
+      Height = 21
+      Top = 88
+      Width = 159
+      TabOrder = 8
+      Text = 'config'
+    end
+    object btnConectar: TButton
+      Left = 1110
+      Height = 25
+      Top = 120
+      Width = 90
+      Caption = 'Connect'
+      TabOrder = 9
+      OnClick = btnConectarClick
+    end
+    object btnDesconectar: TButton
+      Left = 1206
+      Height = 25
+      Top = 120
+      Width = 90
+      Caption = 'Disconnect'
+      TabOrder = 10
+      OnClick = btnDesconectarClick
+    end
+    object cbApagar: TCheckBox
+      Left = 812
+      Height = 17
+      Top = 121
+      Width = 110
+      Caption = 'Apagar caso exista'
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+      TabOrder = 14
+    end
+  end
+  object pnlBottom: TPanel
+    Left = 0
+    Height = 22
+    Top = 655
+    Width = 1305
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 22
+    ClientWidth = 1305
+    ParentBackground = False
+    TabOrder = 1
+    object lblStatus: TLabel
+      Left = 10
+      Height = 16
+      Top = 5
+      Width = 1180
+      AutoSize = False
+      Caption = 'Pronto'
+      Font.Color = clGreen
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+    end
+  end
+  object pnlCenter: TPanel
+    Left = 0
+    Height = 508
+    Top = 147
+    Width = 1305
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 508
+    ClientWidth = 1305
+    ParentBackground = False
+    TabOrder = 2
+    object pgcMain: TPageControl
+      Left = 0
+      Height = 508
+      Top = 0
+      Width = 1305
+      ActivePage = tsInifiles
+      Align = alClient
+      TabIndex = 1
+      TabOrder = 0
+      object tsDatabase: TTabSheet
+        Caption = 'Database'
+        ClientHeight = 482
+        ClientWidth = 1297
+        object pnlDados: TPanel
+          Left = 0
+          Height = 482
+          Top = 0
+          Width = 430
+          Align = alLeft
+          BevelOuter = bvLowered
+          ClientHeight = 482
+          ClientWidth = 430
+          ParentBackground = False
+          TabOrder = 0
+          object lblContratoID: TLabel
+            Left = 10
+            Height = 13
+            Top = 11
+            Width = 61
+            Caption = 'Contrato ID:'
+          end
+          object lblProdutoID: TLabel
+            Left = 10
+            Height = 13
+            Top = 41
+            Width = 56
+            Caption = 'Produto ID:'
+          end
+          object lblOrdem: TLabel
+            Left = 10
+            Height = 13
+            Top = 71
+            Width = 36
+            Caption = 'Ordem:'
+          end
+          object lblTituloCampo: TLabel
+            Left = 10
+            Height = 13
+            Top = 101
+            Width = 30
+            Caption = 'Título:'
+          end
+          object lblChave: TLabel
+            Left = 10
+            Height = 13
+            Top = 131
+            Width = 35
+            Caption = 'Chave:'
+          end
+          object lblValor: TLabel
+            Left = 10
+            Height = 13
+            Top = 161
+            Width = 28
+            Caption = 'Valor:'
+          end
+          object lblDescricao: TLabel
+            Left = 10
+            Height = 13
+            Top = 281
+            Width = 50
+            Caption = 'Descrição:'
+          end
+          object edtContratoID: TEdit
+            Left = 75
+            Height = 21
+            Top = 8
+            Width = 100
+            TabOrder = 0
+            Text = '1'
+          end
+          object edtProdutoID: TEdit
+            Left = 75
+            Height = 21
+            Top = 38
+            Width = 100
+            TabOrder = 1
+            Text = '1'
+          end
+          object edtOrdem: TEdit
+            Left = 75
+            Height = 21
+            Top = 68
+            Width = 100
+            TabOrder = 2
+            Text = '1'
+          end
+          object edtTitulo: TEdit
+            Left = 75
+            Height = 21
+            Top = 98
+            Width = 334
+            TabOrder = 3
+          end
+          object edtChave: TEdit
+            Left = 75
+            Height = 21
+            Top = 128
+            Width = 334
+            TabOrder = 4
+          end
+          object memoValor: TMemo
+            Left = 75
+            Height = 110
+            Top = 158
+            Width = 334
+            ScrollBars = ssVertical
+            TabOrder = 5
+          end
+          object memoDescricao: TMemo
+            Left = 75
+            Height = 110
+            Top = 278
+            Width = 334
+            ScrollBars = ssVertical
+            TabOrder = 6
+          end
+          object chkAtivo: TCheckBox
+            Left = 10
+            Height = 17
+            Top = 369
+            Width = 43
+            Caption = 'Ativo'
+            Checked = True
+            State = cbChecked
+            TabOrder = 7
+          end
+          object btnClear: TButton
+            Left = 5
+            Height = 25
+            Top = 407
+            Width = 80
+            Caption = 'Clear'
+            TabOrder = 8
+            OnClick = btnClearClick
+          end
+          object btnGet: TButton
+            Left = 90
+            Height = 25
+            Top = 407
+            Width = 80
+            Caption = 'Get'
+            TabOrder = 9
+            OnClick = btnGetClick
+          end
+          object btnInsert: TButton
+            Left = 175
+            Height = 25
+            Top = 407
+            Width = 80
+            Caption = 'Insert'
+            TabOrder = 10
+            OnClick = btnInsertClick
+          end
+          object btnUpdate: TButton
+            Left = 260
+            Height = 25
+            Top = 407
+            Width = 80
+            Caption = 'Update'
+            TabOrder = 11
+            OnClick = btnUpdateClick
+          end
+          object btnDelete: TButton
+            Left = 345
+            Height = 25
+            Top = 407
+            Width = 80
+            Caption = 'Delete'
+            TabOrder = 12
+            OnClick = btnDeleteClick
+          end
+        end
+        object pnlLista: TPanel
+          Left = 430
+          Height = 482
+          Top = 0
+          Width = 867
+          Align = alClient
+          BevelOuter = bvLowered
+          ClientHeight = 482
+          ClientWidth = 867
+          ParentBackground = False
+          TabOrder = 1
+          object lblLista: TLabel
+            Left = 10
+            Height = 13
+            Top = 10
+            Width = 104
+            Caption = 'Lista de Registros:'
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object lblFiltro: TLabel
+            Left = 10
+            Height = 13
+            Top = 35
+            Width = 28
+            Caption = 'Filtro:'
+          end
+          object lblFiltroContrato: TLabel
+            Left = 10
+            Height = 13
+            Top = 62
+            Width = 47
+            Caption = 'Contrato:'
+          end
+          object lblFiltroProduto: TLabel
+            Left = 155
+            Height = 13
+            Top = 62
+            Width = 42
+            Caption = 'Produto:'
+          end
+          object edtFiltro: TEdit
+            Left = 50
+            Height = 21
+            Top = 32
+            Width = 719
+            TabOrder = 0
+            TextHint = 'Digite para filtrar por chave, título, valor ou descrição...'
+          end
+          object edtFiltroContrato: TEdit
+            Left = 65
+            Height = 21
+            Top = 59
+            Width = 80
+            NumbersOnly = True
+            TabOrder = 1
+            TextHint = 'ID'
+          end
+          object edtFiltroProduto: TEdit
+            Left = 205
+            Height = 21
+            Top = 59
+            Width = 80
+            NumbersOnly = True
+            TabOrder = 2
+            TextHint = 'ID'
+          end
+          object btnFiltrar: TButton
+            Left = 775
+            Height = 50
+            Top = 30
+            Width = 90
+            Caption = 'Filter'
+            TabOrder = 3
+            OnClick = btnFiltrarClick
+          end
+          object lvConfig: TListView
+            Left = 10
+            Height = 295
+            Top = 93
+            Width = 855
+            Columns = <            
+              item
+                Caption = 'ID'
+                Width = 40
+              end            
+              item
+                Caption = 'Contrato'
+                Width = 70
+              end            
+              item
+                Caption = 'Produto'
+                Width = 70
+              end            
+              item
+                Caption = 'Ordem'
+              end            
+              item
+                Caption = 'Título'
+                Width = 150
+              end            
+              item
+                Caption = 'Chave'
+                Width = 150
+              end            
+              item
+                Caption = 'Valor'
+                Width = 180
+              end            
+              item
+                Caption = 'Descrição'
+                Width = 200
+              end            
+              item
+                Caption = 'Ativo'
+              end>
+            GridLines = True
+            ReadOnly = True
+            RowSelect = True
+            TabOrder = 4
+            ViewStyle = vsReport
+            OnColumnClick = lvConfigColumnClick
+            OnSelectItem = lvConfigSelectItem
+          end
+          object btnList: TButton
+            Left = 92
+            Height = 25
+            Top = 406
+            Width = 90
+            Caption = 'List All'
+            TabOrder = 5
+            OnClick = btnListClick
+          end
+          object btnRefresh: TButton
+            Left = 192
+            Height = 25
+            Top = 406
+            Width = 90
+            Caption = 'Refresh'
+            TabOrder = 6
+            OnClick = btnRefreshClick
+          end
+          object btnLimparFiltro: TButton
+            Left = 292
+            Height = 25
+            Top = 406
+            Width = 90
+            Caption = 'Clear Filters'
+            TabOrder = 7
+            OnClick = btnLimparFiltroClick
+          end
+          object btnDatabaseImportIni: TButton
+            Left = 392
+            Height = 25
+            Top = 406
+            Width = 90
+            Caption = 'Import from INI'
+            TabOrder = 8
+            OnClick = btnDatabaseImportIniClick
+          end
+          object btnDatabaseImportJson: TButton
+            Left = 492
+            Height = 25
+            Top = 406
+            Width = 90
+            Caption = 'Import from JSON'
+            TabOrder = 9
+            OnClick = btnDatabaseImportJsonClick
+          end
+          object btnDatabaseExportIni: TButton
+            Left = 592
+            Height = 25
+            Top = 406
+            Width = 90
+            Caption = 'Export to INI'
+            TabOrder = 10
+            OnClick = btnDatabaseExportIniClick
+          end
+          object btnDatabaseExportJson: TButton
+            Left = 692
+            Height = 25
+            Top = 406
+            Width = 90
+            Caption = 'Export to JSON'
+            TabOrder = 11
+            OnClick = btnDatabaseExportJsonClick
+          end
+        end
+      end
+      object tsInifiles: TTabSheet
+        Caption = 'Inifiles'
+        ClientHeight = 482
+        ClientWidth = 1297
+        ImageIndex = 1
+        object pnlInifilesTop: TPanel
+          Left = 0
+          Height = 89
+          Top = 0
+          Width = 1297
+          Align = alTop
+          BevelOuter = bvLowered
+          ClientHeight = 89
+          ClientWidth = 1297
+          ParentBackground = False
+          TabOrder = 0
+          object lblInifilesFilePath: TLabel
+            Left = 10
+            Height = 13
+            Top = 10
+            Width = 45
+            Caption = 'File Path:'
+          end
+          object lblInifilesSection: TLabel
+            Left = 10
+            Height = 13
+            Top = 40
+            Width = 39
+            Caption = 'Section:'
+          end
+          object lblInifilesAutoCreate: TLabel
+            Left = 10
+            Height = 13
+            Top = 70
+            Width = 63
+            Caption = 'Auto Create:'
+          end
+          object lblInifilesFiltroContrato: TLabel
+            Left = 660
+            Height = 13
+            Top = 10
+            Width = 88
+            Caption = 'Filtro Contrato ID:'
+          end
+          object lblInifilesFiltroProduto: TLabel
+            Left = 660
+            Height = 13
+            Top = 40
+            Width = 83
+            Caption = 'Filtro Produto ID:'
+          end
+          object lblInifilesFiltroInfo: TLabel
+            Left = 842
+            Height = 13
+            Top = 10
+            Width = 151
+            Caption = '(0 = importa todos, >0 = filtra)'
+            Font.Color = clGray
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            ParentFont = False
+          end
+          object edtInifilesFilePath: TEdit
+            Left = 70
+            Height = 21
+            Top = 7
+            Width = 500
+            TabOrder = 0
+            Text = 'D:\Dados\config.ini'
+          end
+          object btnInifilesSelectFile: TButton
+            Left = 576
+            Height = 25
+            Top = 6
+            Width = 90
+            Caption = 'Select...'
+            TabOrder = 1
+            OnClick = btnInifilesSelectFileClick
+          end
+          object edtInifilesSection: TEdit
+            Left = 70
+            Height = 21
+            Top = 37
+            Width = 200
+            TabOrder = 2
+            Text = 'Default'
+          end
+          object chkInifilesAutoCreate: TCheckBox
+            Left = 85
+            Height = 17
+            Top = 68
+            Width = 127
+            Caption = 'Criar automaticamente'
+            Checked = True
+            State = cbChecked
+            TabOrder = 3
+          end
+          object btnInifilesRefresh: TButton
+            Left = 280
+            Height = 25
+            Top = 35
+            Width = 90
+            Caption = 'Refresh'
+            TabOrder = 4
+            OnClick = btnInifilesRefreshClick
+          end
+          object edtInifilesFiltroContrato: TEdit
+            Left = 756
+            Height = 21
+            Top = 7
+            Width = 80
+            NumbersOnly = True
+            TabOrder = 5
+            Text = '0'
+          end
+          object edtInifilesFiltroProduto: TEdit
+            Left = 756
+            Height = 21
+            Top = 37
+            Width = 80
+            NumbersOnly = True
+            TabOrder = 6
+            Text = '0'
+          end
+        end
+        object pnlInifilesLeft: TPanel
+          Left = 0
+          Height = 393
+          Top = 89
+          Width = 430
+          Align = alLeft
+          BevelOuter = bvLowered
+          ClientHeight = 393
+          ClientWidth = 430
+          ParentBackground = False
+          TabOrder = 1
+          object lblInifilesContratoID: TLabel
+            Left = 10
+            Height = 13
+            Top = 13
+            Width = 61
+            Caption = 'Contrato ID:'
+          end
+          object lblInifilesProdutoID: TLabel
+            Left = 10
+            Height = 13
+            Top = 43
+            Width = 56
+            Caption = 'Produto ID:'
+          end
+          object lblInifilesOrdem: TLabel
+            Left = 10
+            Height = 13
+            Top = 73
+            Width = 36
+            Caption = 'Ordem:'
+          end
+          object lblInifilesTitulo: TLabel
+            Left = 10
+            Height = 13
+            Top = 103
+            Width = 30
+            Caption = 'Título:'
+          end
+          object lblInifilesChave: TLabel
+            Left = 10
+            Height = 13
+            Top = 133
+            Width = 35
+            Caption = 'Chave:'
+          end
+          object lblInifilesValor: TLabel
+            Left = 10
+            Height = 13
+            Top = 163
+            Width = 28
+            Caption = 'Valor:'
+          end
+          object lblInifilesDescricao: TLabel
+            Left = 10
+            Height = 13
+            Top = 283
+            Width = 50
+            Caption = 'Descrição:'
+          end
+          object edtInifilesContratoID: TEdit
+            Left = 75
+            Height = 21
+            Top = 10
+            Width = 100
+            NumbersOnly = True
+            TabOrder = 0
+            Text = '1'
+          end
+          object edtInifilesProdutoID: TEdit
+            Left = 75
+            Height = 21
+            Top = 40
+            Width = 100
+            NumbersOnly = True
+            TabOrder = 1
+            Text = '1'
+          end
+          object edtInifilesOrdem: TEdit
+            Left = 75
+            Height = 21
+            Top = 70
+            Width = 100
+            NumbersOnly = True
+            TabOrder = 2
+            Text = '1'
+          end
+          object edtInifilesTitulo: TEdit
+            Left = 75
+            Height = 21
+            Top = 100
+            Width = 334
+            TabOrder = 3
+          end
+          object edtInifilesChave: TEdit
+            Left = 75
+            Height = 21
+            Top = 130
+            Width = 334
+            TabOrder = 4
+          end
+          object memoInifilesValor: TMemo
+            Left = 75
+            Height = 110
+            Top = 160
+            Width = 334
+            ScrollBars = ssVertical
+            TabOrder = 5
+          end
+          object memoInifilesDescricao: TMemo
+            Left = 75
+            Height = 50
+            Top = 280
+            Width = 334
+            ScrollBars = ssVertical
+            TabOrder = 6
+          end
+          object chkInifilesAtivo: TCheckBox
+            Left = 10
+            Height = 17
+            Top = 343
+            Width = 43
+            Caption = 'Ativo'
+            Checked = True
+            State = cbChecked
+            TabOrder = 7
+          end
+          object btnInifilesClear: TButton
+            Left = 5
+            Height = 25
+            Top = 338
+            Width = 80
+            Caption = 'Clear'
+            TabOrder = 8
+            OnClick = btnInifilesClearClick
+          end
+          object btnInifilesGet: TButton
+            Left = 90
+            Height = 25
+            Top = 338
+            Width = 80
+            Caption = 'Get'
+            TabOrder = 9
+            OnClick = btnInifilesGetClick
+          end
+          object btnInifilesInsert: TButton
+            Left = 175
+            Height = 25
+            Top = 338
+            Width = 80
+            Caption = 'Insert'
+            TabOrder = 10
+            OnClick = btnInifilesInsertClick
+          end
+          object btnInifilesUpdate: TButton
+            Left = 260
+            Height = 25
+            Top = 338
+            Width = 80
+            Caption = 'Update'
+            TabOrder = 11
+            OnClick = btnInifilesUpdateClick
+          end
+          object btnInifilesDelete: TButton
+            Left = 345
+            Height = 25
+            Top = 338
+            Width = 80
+            Caption = 'Delete'
+            TabOrder = 12
+            OnClick = btnInifilesDeleteClick
+          end
+        end
+        object pnlInifilesRight: TPanel
+          Left = 430
+          Height = 393
+          Top = 89
+          Width = 867
+          Align = alClient
+          BevelOuter = bvLowered
+          ClientHeight = 393
+          ClientWidth = 867
+          ParentBackground = False
+          TabOrder = 2
+          object lblInifilesLista: TLabel
+            Left = 10
+            Height = 13
+            Top = 10
+            Width = 117
+            Caption = 'Lista de Parâmetros:'
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object lvInifiles: TListView
+            Left = 10
+            Height = 294
+            Top = 36
+            Width = 851
+            Columns = <            
+              item
+                Caption = 'ID'
+                Width = 40
+              end            
+              item
+                Caption = 'Contrato'
+                Width = 70
+              end            
+              item
+                Caption = 'Produto'
+                Width = 70
+              end            
+              item
+                Caption = 'Ordem'
+              end            
+              item
+                Caption = 'Título'
+                Width = 150
+              end            
+              item
+                Caption = 'Chave'
+                Width = 150
+              end            
+              item
+                Caption = 'Valor'
+                Width = 180
+              end            
+              item
+                Caption = 'Descrição'
+                Width = 200
+              end            
+              item
+                Caption = 'Ativo'
+              end>
+            GridLines = True
+            ReadOnly = True
+            RowSelect = True
+            TabOrder = 0
+            ViewStyle = vsReport
+            OnSelectItem = lvInifilesSelectItem
+          end
+          object btnInifilesList: TButton
+            Left = 92
+            Height = 25
+            Top = 338
+            Width = 90
+            Caption = 'List'
+            TabOrder = 1
+            OnClick = btnInifilesListClick
+          end
+          object btnInifilesCount: TButton
+            Left = 192
+            Height = 25
+            Top = 338
+            Width = 90
+            Caption = 'Count'
+            TabOrder = 2
+            OnClick = btnInifilesCountClick
+          end
+          object btnInifilesExists: TButton
+            Left = 292
+            Height = 25
+            Top = 338
+            Width = 90
+            Caption = 'Exists'
+            TabOrder = 3
+            OnClick = btnInifilesExistsClick
+          end
+          object btnInifilesImport: TButton
+            Left = 392
+            Height = 25
+            Top = 338
+            Width = 90
+            Caption = 'Import from DB'
+            TabOrder = 4
+            OnClick = btnInifilesImportClick
+          end
+          object btnInifilesExport: TButton
+            Left = 492
+            Height = 25
+            Top = 338
+            Width = 90
+            Caption = 'Export to DB'
+            TabOrder = 5
+            OnClick = btnInifilesExportClick
+          end
+          object btnInifilesImportJson: TButton
+            Left = 592
+            Height = 25
+            Top = 338
+            Width = 90
+            Caption = 'Import from JSON'
+            TabOrder = 6
+            OnClick = btnInifilesImportJsonClick
+          end
+          object btnInifilesExportJson: TButton
+            Left = 692
+            Height = 25
+            Top = 338
+            Width = 90
+            Caption = 'Export to JSON'
+            TabOrder = 7
+            OnClick = btnInifilesExportJsonClick
+          end
+        end
+      end
+      object tsJsonObject: TTabSheet
+        Caption = 'JsonObject'
+        ClientHeight = 482
+        ClientWidth = 1297
+        ImageIndex = 2
+        object pnlJsonObjectTop: TPanel
+          Left = 0
+          Height = 89
+          Top = 0
+          Width = 1297
+          Align = alTop
+          BevelOuter = bvLowered
+          ClientHeight = 89
+          ClientWidth = 1297
+          ParentBackground = False
+          TabOrder = 0
+          object lblJsonObjectFilePath: TLabel
+            Left = 10
+            Height = 13
+            Top = 10
+            Width = 45
+            Caption = 'File Path:'
+          end
+          object lblJsonObjectObjectName: TLabel
+            Left = 10
+            Height = 13
+            Top = 40
+            Width = 66
+            Caption = 'Object Name:'
+          end
+          object lblJsonObjectAutoCreate: TLabel
+            Left = 10
+            Height = 13
+            Top = 70
+            Width = 63
+            Caption = 'Auto Create:'
+          end
+          object lblJsonObjectFiltroContrato: TLabel
+            Left = 660
+            Height = 13
+            Top = 10
+            Width = 88
+            Caption = 'Filtro Contrato ID:'
+          end
+          object lblJsonObjectFiltroProduto: TLabel
+            Left = 660
+            Height = 13
+            Top = 40
+            Width = 83
+            Caption = 'Filtro Produto ID:'
+          end
+          object lblJsonObjectFiltroInfo: TLabel
+            Left = 842
+            Height = 13
+            Top = 10
+            Width = 141
+            Caption = 'Filtros para importação do DB'
+            Font.Color = clBlue
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            ParentFont = False
+          end
+          object edtJsonObjectFilePath: TEdit
+            Left = 80
+            Height = 21
+            Top = 7
+            Width = 400
+            TabOrder = 0
+            Text = 'D:\Dados\config.json'
+          end
+          object btnJsonObjectSelectFile: TButton
+            Left = 490
+            Height = 25
+            Top = 5
+            Width = 90
+            Caption = 'Select...'
+            TabOrder = 1
+            OnClick = btnJsonObjectSelectFileClick
+          end
+          object edtJsonObjectObjectName: TEdit
+            Left = 80
+            Height = 21
+            Top = 37
+            Width = 200
+            TabOrder = 2
+          end
+          object chkJsonObjectAutoCreate: TCheckBox
+            Left = 80
+            Height = 17
+            Top = 68
+            Width = 77
+            Caption = 'Auto Create'
+            TabOrder = 3
+          end
+          object btnJsonObjectRefresh: TButton
+            Left = 300
+            Height = 25
+            Top = 35
+            Width = 90
+            Caption = 'Refresh'
+            TabOrder = 4
+            OnClick = btnJsonObjectRefreshClick
+          end
+          object edtJsonObjectFiltroContrato: TEdit
+            Left = 760
+            Height = 21
+            Top = 7
+            Width = 60
+            NumbersOnly = True
+            TabOrder = 5
+            Text = '0'
+          end
+          object edtJsonObjectFiltroProduto: TEdit
+            Left = 760
+            Height = 21
+            Top = 37
+            Width = 60
+            NumbersOnly = True
+            TabOrder = 6
+            Text = '0'
+          end
+        end
+        object pnlJsonObjectLeft: TPanel
+          Left = 0
+          Height = 393
+          Top = 89
+          Width = 430
+          Align = alLeft
+          BevelOuter = bvLowered
+          ClientHeight = 393
+          ClientWidth = 430
+          ParentBackground = False
+          TabOrder = 1
+          object lblJsonObjectContratoID: TLabel
+            Left = 10
+            Height = 13
+            Top = 11
+            Width = 61
+            Caption = 'Contrato ID:'
+          end
+          object lblJsonObjectProdutoID: TLabel
+            Left = 10
+            Height = 13
+            Top = 41
+            Width = 56
+            Caption = 'Produto ID:'
+          end
+          object lblJsonObjectOrdem: TLabel
+            Left = 10
+            Height = 13
+            Top = 71
+            Width = 36
+            Caption = 'Ordem:'
+          end
+          object lblJsonObjectTitulo: TLabel
+            Left = 10
+            Height = 13
+            Top = 101
+            Width = 30
+            Caption = 'Título:'
+          end
+          object lblJsonObjectChave: TLabel
+            Left = 10
+            Height = 13
+            Top = 131
+            Width = 35
+            Caption = 'Chave:'
+          end
+          object lblJsonObjectValor: TLabel
+            Left = 10
+            Height = 13
+            Top = 161
+            Width = 28
+            Caption = 'Valor:'
+          end
+          object lblJsonObjectDescricao: TLabel
+            Left = 10
+            Height = 13
+            Top = 281
+            Width = 50
+            Caption = 'Descrição:'
+          end
+          object edtJsonObjectContratoID: TEdit
+            Left = 75
+            Height = 21
+            Top = 8
+            Width = 100
+            NumbersOnly = True
+            TabOrder = 0
+            Text = '1'
+          end
+          object edtJsonObjectProdutoID: TEdit
+            Left = 75
+            Height = 21
+            Top = 38
+            Width = 100
+            NumbersOnly = True
+            TabOrder = 1
+            Text = '1'
+          end
+          object edtJsonObjectOrdem: TEdit
+            Left = 75
+            Height = 21
+            Top = 68
+            Width = 100
+            NumbersOnly = True
+            TabOrder = 2
+            Text = '1'
+          end
+          object edtJsonObjectTitulo: TEdit
+            Left = 75
+            Height = 21
+            Top = 98
+            Width = 330
+            TabOrder = 3
+          end
+          object edtJsonObjectChave: TEdit
+            Left = 75
+            Height = 21
+            Top = 128
+            Width = 330
+            TabOrder = 4
+          end
+          object memoJsonObjectValor: TMemo
+            Left = 75
+            Height = 100
+            Top = 158
+            Width = 330
+            ScrollBars = ssVertical
+            TabOrder = 5
+          end
+          object memoJsonObjectDescricao: TMemo
+            Left = 75
+            Height = 59
+            Top = 278
+            Width = 330
+            ScrollBars = ssVertical
+            TabOrder = 6
+          end
+          object chkJsonObjectAtivo: TCheckBox
+            Left = 10
+            Height = 17
+            Top = 331
+            Width = 43
+            Caption = 'Ativo'
+            Checked = True
+            State = cbChecked
+            TabOrder = 7
+          end
+          object btnJsonObjectClear: TButton
+            Left = 5
+            Height = 25
+            Top = 358
+            Width = 80
+            Caption = 'Clear'
+            TabOrder = 8
+            OnClick = btnJsonObjectClearClick
+          end
+          object btnJsonObjectGet: TButton
+            Left = 90
+            Height = 25
+            Top = 358
+            Width = 80
+            Caption = 'Get'
+            TabOrder = 9
+            OnClick = btnJsonObjectGetClick
+          end
+          object btnJsonObjectInsert: TButton
+            Left = 175
+            Height = 25
+            Top = 358
+            Width = 80
+            Caption = 'Insert'
+            TabOrder = 10
+            OnClick = btnJsonObjectInsertClick
+          end
+          object btnJsonObjectUpdate: TButton
+            Left = 260
+            Height = 25
+            Top = 358
+            Width = 80
+            Caption = 'Update'
+            TabOrder = 11
+            OnClick = btnJsonObjectUpdateClick
+          end
+          object btnJsonObjectDelete: TButton
+            Left = 345
+            Height = 25
+            Top = 358
+            Width = 80
+            Caption = 'Delete'
+            TabOrder = 12
+            OnClick = btnJsonObjectDeleteClick
+          end
+        end
+        object pnlJsonObjectRight: TPanel
+          Left = 430
+          Height = 393
+          Top = 89
+          Width = 867
+          Align = alClient
+          BevelOuter = bvLowered
+          ClientHeight = 393
+          ClientWidth = 867
+          ParentBackground = False
+          TabOrder = 2
+          object lblJsonObjectLista: TLabel
+            Left = 10
+            Height = 13
+            Top = 10
+            Width = 26
+            Caption = 'Lista:'
+          end
+          object lvJsonObject: TListView
+            Left = 10
+            Height = 308
+            Top = 29
+            Width = 851
+            Columns = <            
+              item
+                Caption = 'ID'
+                Width = 40
+              end            
+              item
+                Caption = 'Contrato'
+                Width = 70
+              end            
+              item
+                Caption = 'Produto'
+                Width = 70
+              end            
+              item
+                Caption = 'Ordem'
+                Width = 60
+              end            
+              item
+                Caption = 'Título'
+                Width = 150
+              end            
+              item
+                Caption = 'Chave'
+                Width = 150
+              end            
+              item
+                Caption = 'Valor'
+                Width = 200
+              end            
+              item
+                Caption = 'Descrição'
+                Width = 200
+              end            
+              item
+                Caption = 'Ativo'
+              end>
+            GridLines = True
+            ReadOnly = True
+            RowSelect = True
+            TabOrder = 0
+            ViewStyle = vsReport
+            OnSelectItem = lvJsonObjectSelectItem
+          end
+          object btnJsonObjectList: TButton
+            Left = 92
+            Height = 25
+            Top = 358
+            Width = 90
+            Caption = 'List'
+            TabOrder = 1
+            OnClick = btnJsonObjectListClick
+          end
+          object btnJsonObjectCount: TButton
+            Left = 192
+            Height = 25
+            Top = 358
+            Width = 90
+            Caption = 'Count'
+            TabOrder = 2
+            OnClick = btnJsonObjectCountClick
+          end
+          object btnJsonObjectExists: TButton
+            Left = 292
+            Height = 25
+            Top = 358
+            Width = 90
+            Caption = 'Exists'
+            TabOrder = 3
+            OnClick = btnJsonObjectExistsClick
+          end
+          object btnJsonObjectImport: TButton
+            Left = 392
+            Height = 25
+            Top = 358
+            Width = 90
+            Caption = 'Import from DB'
+            TabOrder = 4
+            OnClick = btnJsonObjectImportClick
+          end
+          object btnJsonObjectImportIni: TButton
+            Left = 492
+            Height = 25
+            Top = 358
+            Width = 90
+            Caption = 'Import from INI'
+            TabOrder = 5
+            OnClick = btnJsonObjectImportIniClick
+          end
+          object btnJsonObjectExport: TButton
+            Left = 592
+            Height = 25
+            Top = 358
+            Width = 90
+            Caption = 'Export to DB'
+            TabOrder = 6
+            OnClick = btnJsonObjectExportClick
+          end
+          object btnJsonObjectExportIni: TButton
+            Left = 692
+            Height = 25
+            Top = 358
+            Width = 90
+            Caption = 'Export to INI'
+            TabOrder = 7
+            OnClick = btnJsonObjectExportIniClick
+          end
+          object btnJsonObjectSave: TButton
+            Left = 792
+            Height = 25
+            Top = 358
+            Width = 90
+            Caption = 'Save to File'
+            TabOrder = 8
+            OnClick = btnJsonObjectSaveClick
+          end
+          object btnJsonObjectLoad: TButton
+            Left = 892
+            Height = 25
+            Top = 358
+            Width = 90
+            Caption = 'Load from File'
+            TabOrder = 9
+            OnClick = btnJsonObjectLoadClick
+          end
+        end
+      end
+    end
+  end
+  object dlgOpenDatabase: TOpenDialog
+    Filter = 'FireBird Database (*.fdb)|*.fdb|SQLite Database (*.db;*.sqlite)|*.db;*.sqlite|Access Database (*.mdb;*.accdb)|*.mdb;*.accdb|All Files (*.*)|*.*'
+    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    Left = 1200
+    Top = 400
+  end
+  object dlgJsonObjectSave: TSaveDialog
+    Filter = 'JSON Files (*.json)|*.json|All Files (*.*)|*.*'
+    Options = [ofOverwritePrompt, ofEnableSizing]
+    Left = 1200
+    Top = 450
+  end
+  object dlgJsonObjectOpen: TOpenDialog
+    Filter = 'JSON Files (*.json)|*.json|All Files (*.*)|*.*'
+    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    Left = 1200
+    Top = 500
+  end
+  object dlgInifilesOpen: TOpenDialog
+    Filter = 'INI Files (*.ini)|*.ini|All Files (*.*)|*.*'
+    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    Left = 1200
+    Top = 550
+  end
+  object dlgInifilesSave: TSaveDialog
+    DefaultExt = '.ini'
+    Filter = 'INI Files (*.ini)|*.ini|All Files (*.*)|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
+    Left = 1200
+    Top = 450
+  end
+end

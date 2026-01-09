@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentação Completa - Módulo Parameters</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            margin: -20px -20px 30px -20px;
+            border-radius: 0 0 10px 10px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .meta {
+            margin-top: 20px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        h3 {
+            color: #764ba2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .method {
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .method-signature {
+            font-family: 'Courier New', monospace;
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .method-name {
+            color: #a6e22e;
+            font-weight: bold;
+        }
+        
+        .method-params {
+            color: #f92672;
+        }
+        
+        .method-return {
+            color: #66d9ef;
+        }
+        
+        .description {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+        }
+        
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .params-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .params-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .params-table tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .return-info {
+            background: #e8f4f8;
+            border-left: 4px solid #66d9ef;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .example-keyword {
+            color: #f92672;
+        }
+        
+        .example-string {
+            color: #e6db74;
+        }
+        
+        .example-comment {
+            color: #75715e;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .toc {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .toc ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .badge-overload {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .badge-fluent {
+            background: #28a745;
+            color: white;
+        }
+        
+        .badge-thread-safe {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .unit-section {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 3px solid #667eea;
+        }
+        
+        .code-block {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Módulo Parameters - Documentação Completa</h1>
+            <div class="subtitle">Sistema Unificado de Gerenciamento de Parâmetros Multi-Fonte</div>
+            <div class="meta">
+                <strong>Versão:</strong> 2.0.0 | 
+                <strong>Autor:</strong> Claiton de Souza Linhares | 
+                <strong>Data:</strong> 02/01/2026
+            </div>
+        </header>
+
+        <section id="overview">
+            <h2>Visão Geral</h2>
+            <p>
+                O <strong>Módulo Parameters</strong> é um sistema completo e unificado para gerenciamento de parâmetros
+                de configuração que suporta múltiplas fontes de dados: <strong>Banco de Dados</strong>, 
+                <strong>Arquivos INI</strong> e <strong>Objetos JSON</strong>. O módulo oferece uma interface fluente
+                (Fluent Interface) e suporta fallback automático entre fontes para garantir alta disponibilidade.
+            </p>
+            
+            <div class="info">
+                <strong>Características Principais:</strong>
+                <ul style="margin-top: 10px; margin-left: 20px;">
+                    <li><strong>Multi-Fonte:</strong> Suporte a Database, INI e JSON simultaneamente</li>
+                    <li><strong>Fallback Automático:</strong> Busca em cascata quando uma fonte falha</li>
+                    <li><strong>Fluent Interface:</strong> Código legível e encadeável</li>
+                    <li><strong>Thread-Safe:</strong> Operações seguras em ambientes multi-thread</li>
+                    <li><strong>Multi-Engine:</strong> Suporte a UNIDAC, FireDAC e Zeos</li>
+                    <li><strong>Multi-Database:</strong> PostgreSQL, MySQL, SQL Server, SQLite, Firebird, Access, ODBC</li>
+                    <li><strong>Importação/Exportação:</strong> Transferência bidirecional entre fontes</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="table-of-contents">
+            <h2>Índice</h2>
+            <div class="toc">
+                <ul>
+                    <li><a href="#overview">Visão Geral</a></li>
+                    <li><a href="#architecture">Arquitetura</a></li>
+                    <li><a href="#factory-methods">Factory Methods (TParameters)</a></li>
+                    <li><a href="#interface-parameters">Interface IParameters (Convergência)</a></li>
+                    <li><a href="#interface-database">Interface IParametersDatabase</a></li>
+                    <li><a href="#interface-inifiles">Interface IParametersInifiles</a></li>
+                    <li><a href="#interface-json">Interface IParametersJsonObject</a></li>
+                    <li><a href="#types">Tipos e Constantes</a></li>
+                    <li><a href="#exceptions">Exceções e Tratamento de Erros</a></li>
+                    <li><a href="#examples">Exemplos Práticos</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="architecture" class="unit-section">
+            <h2>Arquitetura do Módulo</h2>
+            
+            <h3>Estrutura de Units</h3>
+            <div class="code-block">
+<strong>Modulo.Parameters.pas</strong>              - Factory Methods e ponto de entrada público
+<strong>Modulo.Parameters.Intefaces.pas</strong>   - Interfaces públicas (IParameters, IParametersDatabase, etc.)
+<strong>Modulo.Parameters.Database.pas</strong>    - Implementação de acesso a banco de dados
+<strong>Modulo.Parameters.Inifiles.pas</strong>    - Implementação de acesso a arquivos INI
+<strong>Modulo.Parameters.JsonObject.pas</strong>  - Implementação de acesso a objetos JSON
+<strong>Modulo.Parameters.Types.pas</strong>        - Tipos e classes base (TParameter, TParameterList)
+<strong>Modulo.Parameters.Consts.pas</strong>      - Constantes e valores padrão
+<strong>Modulo.Parameters.Exceptions.pas</strong>  - Exceções customizadas
+            </div>
+
+            <div class="note">
+                <strong>Encapsulamento:</strong> Apenas <code>Modulo.Parameters.pas</code> e 
+                <code>Modulo.Parameters.Intefaces.pas</code> devem ser usados externamente. 
+                Todas as implementações estão ocultas na seção <code>implementation</code>.
+            </div>
+        </section>
+
+        <!-- Seção Factory Methods -->
+        <section id="factory-methods" class="unit-section">
+            <h2>Factory Methods - TParameters</h2>
+            <p>
+                A classe <code>TParameters</code> fornece métodos estáticos (Factory Methods) para criar
+                instâncias das interfaces do módulo. É o ponto de entrada principal para o sistema.
+            </p>
+
+            <div class="method">
+                <h3>New (Convergência)</h3>
+                <div class="method-signature">
+                    <span class="method-keyword">class function</span> <span class="method-name">New</span>: <span class="method-return">IParameters</span>; <span class="badge badge-overload">overload</span><br>
+                    <span class="method-keyword">class function</span> <span class="method-name">New</span>(<span class="method-params">AConfig: TParameterConfig</span>): <span class="method-return">IParameters</span>; <span class="badge badge-overload">overload</span>
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Cria uma nova instância de <code>IParameters</code> (interface unificada)
+                    que gerencia múltiplas fontes de dados com fallback automático.
+                    <br><br>
+                    <strong>Parâmetros:</strong>
+                    <table class="params-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td>AConfig</td>
+                            <td>TParameterConfig</td>
+                            <td>Set de opções de configuração: <code>[pcfDataBase, pcfInifile, pcfJsonObject]</code></td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Retorno:</strong> Instância de <code>IParameters</code> configurada com as fontes especificadas.
+                    <br><br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Cria instância com Database e INI (fallback automático)</span>
+<span class="example-keyword">var</span> Parameters: IParameters;
+Parameters := TParameters.New([pcfDataBase, pcfInifile]);
+
+<span class="example-comment">// Configura Database</span>
+Parameters.Database
+  .Host('localhost')
+  .Port(5432)
+  .Database('mydb')
+  .Username('postgres')
+  .Password('password')
+  .Connect;
+
+<span class="example-comment">// Configura INI (fallback)</span>
+Parameters.Inifiles.FilePath('C:\Config\params.ini');
+
+<span class="example-comment">// Busca parâmetro (tenta Database primeiro, depois INI)</span>
+<span class="example-keyword">var</span> Param: TParameter;
+Param := Parameters.Get('database_host');
+                    </div>
+                </div>
+            </div>
+
+            <div class="method">
+                <h3>NewDatabase</h3>
+                <div class="method-signature">
+                    <span class="method-keyword">class function</span> <span class="method-name">NewDatabase</span>: <span class="method-return">IParametersDatabase</span>; <span class="badge badge-overload">overload</span><br>
+                    <span class="method-keyword">class function</span> <span class="method-name">NewDatabase</span>(<span class="method-params">AConnection: TObject; AQuery: TDataSet = nil; AExecQuery: TDataSet = nil</span>): <span class="method-return">IParametersDatabase</span>; <span class="badge badge-overload">overload</span>
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Cria uma nova instância de <code>IParametersDatabase</code> para acesso
+                    exclusivo a parâmetros em banco de dados.
+                    <br><br>
+                    <strong>Parâmetros:</strong>
+                    <table class="params-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td>AConnection</td>
+                            <td>TObject</td>
+                            <td>Conexão existente (TUniConnection, TFDConnection ou TZConnection). Se nil, cria conexão interna.</td>
+                        </tr>
+                        <tr>
+                            <td>AQuery</td>
+                            <td>TDataSet</td>
+                            <td>Query para SELECT (TUniQuery, TFDQuery ou TZQuery). Se nil, cria internamente.</td>
+                        </tr>
+                        <tr>
+                            <td>AExecQuery</td>
+                            <td>TDataSet</td>
+                            <td>Query para INSERT/UPDATE/DELETE. Se nil, usa AQuery ou cria internamente.</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Retorno:</strong> Instância de <code>IParametersDatabase</code>.
+                    <br><br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Cria instância sem conexão (cria internamente)</span>
+<span class="example-keyword">var</span> DB: IParametersDatabase;
+DB := TParameters.NewDatabase;
+
+<span class="example-comment">// Configura e conecta</span>
+DB.Engine('UniDAC')
+  .DatabaseType('PostgreSQL')
+  .Host('localhost')
+  .Port(5432)
+  .Database('mydb')
+  .Username('postgres')
+  .Password('password')
+  .TableName('config')
+  .Schema('public')
+  .Connect;
+
+<span class="example-comment">// Usa conexão existente</span>
+<span class="example-keyword">var</span> MyConnection: TUniConnection;
+<span class="example-keyword">var</span> MyQuery: TUniQuery;
+<span class="example-comment">// ... inicializa MyConnection e MyQuery ...</span>
+
+DB := TParameters.NewDatabase(MyConnection, MyQuery);
+DB.TableName('config').Schema('public');
+                    </div>
+                </div>
+            </div>
+
+            <div class="method">
+                <h3>NewInifiles</h3>
+                <div class="method-signature">
+                    <span class="method-keyword">class function</span> <span class="method-name">NewInifiles</span>: <span class="method-return">IParametersInifiles</span>; <span class="badge badge-overload">overload</span><br>
+                    <span class="method-keyword">class function</span> <span class="method-name">NewInifiles</span>(<span class="method-params">const AFilePath: string</span>): <span class="method-return">IParametersInifiles</span>; <span class="badge badge-overload">overload</span>
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Cria uma nova instância de <code>IParametersInifiles</code> para acesso
+                    a parâmetros em arquivos INI.
+                    <br><br>
+                    <strong>Parâmetros:</strong>
+                    <table class="params-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td>AFilePath</td>
+                            <td>string</td>
+                            <td>Caminho completo do arquivo INI. Se vazio, usa valor padrão.</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Retorno:</strong> Instância de <code>IParametersInifiles</code>.
+                    <br><br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Cria instância com caminho</span>
+<span class="example-keyword">var</span> Ini: IParametersInifiles;
+Ini := TParameters.NewInifiles('C:\Config\params.ini');
+
+<span class="example-comment">// Ou cria e configura depois</span>
+Ini := TParameters.NewInifiles;
+Ini.FilePath('C:\Config\params.ini')
+   .Section('Parameters')
+   .AutoCreateFile(True);
+                    </div>
+                </div>
+            </div>
+
+            <div class="method">
+                <h3>NewJsonObject</h3>
+                <div class="method-signature">
+                    <span class="method-keyword">class function</span> <span class="method-name">NewJsonObject</span>: <span class="method-return">IParametersJsonObject</span>; <span class="badge badge-overload">overload</span><br>
+                    <span class="method-keyword">class function</span> <span class="method-name">NewJsonObject</span>(<span class="method-params">AJsonObject: TJSONObject</span>): <span class="method-return">IParametersJsonObject</span>; <span class="badge badge-overload">overload</span><br>
+                    <span class="method-keyword">class function</span> <span class="method-name">NewJsonObject</span>(<span class="method-params">const AJsonString: string</span>): <span class="method-return">IParametersJsonObject</span>; <span class="badge badge-overload">overload</span><br>
+                    <span class="method-keyword">class function</span> <span class="method-name">NewJsonObjectFromFile</span>(<span class="method-params">const AFilePath: string</span>): <span class="method-return">IParametersJsonObject</span>;
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Cria uma nova instância de <code>IParametersJsonObject</code> para acesso
+                    a parâmetros em objetos JSON.
+                    <br><br>
+                    <strong>Parâmetros:</strong>
+                    <table class="params-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td>AJsonObject</td>
+                            <td>TJSONObject</td>
+                            <td>Objeto JSON existente. Se nil, cria novo objeto vazio.</td>
+                        </tr>
+                        <tr>
+                            <td>AJsonString</td>
+                            <td>string</td>
+                            <td>String JSON para parsear e criar objeto.</td>
+                        </tr>
+                        <tr>
+                            <td>AFilePath</td>
+                            <td>string</td>
+                            <td>Caminho do arquivo JSON para carregar.</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Retorno:</strong> Instância de <code>IParametersJsonObject</code>.
+                    <br><br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Cria instância vazia</span>
+<span class="example-keyword">var</span> Json: IParametersJsonObject;
+Json := TParameters.NewJsonObject;
+
+<span class="example-comment">// Cria a partir de string JSON</span>
+Json := TParameters.NewJsonObject('{"ERP":{"host":"localhost"}}');
+
+<span class="example-comment">// Cria a partir de arquivo</span>
+Json := TParameters.NewJsonObjectFromFile('C:\Config\params.json');
+                    </div>
+                </div>
+            </div>
+
+            <div class="method">
+                <h3>DetectEngine</h3>
+                <div class="method-signature">
+                    <span class="method-keyword">class function</span> <span class="method-name">DetectEngine</span>: <span class="method-return">TParameterDatabaseEngine</span>;
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Detecta automaticamente qual engine de banco de dados está disponível
+                    baseado nas diretivas de compilação (<code>USE_UNIDAC</code>, <code>USE_FIREDAC</code>, <code>USE_ZEOS</code>).
+                    <br><br>
+                    <strong>Prioridade:</strong> UNIDAC > FireDAC > Zeos
+                    <br><br>
+                    <strong>Retorno:</strong> <code>TParameterDatabaseEngine</code> (pteUnidac, pteFireDAC, pteZeos ou pteNone).
+                    <br><br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-keyword">var</span> Engine: TParameterDatabaseEngine;
+Engine := TParameters.DetectEngine;
+
+<span class="example-keyword">case</span> Engine <span class="example-keyword">of</span>
+  pteUnidac: ShowMessage('UNIDAC detectado');
+  pteFireDAC: ShowMessage('FireDAC detectado');
+  pteZeos: ShowMessage('Zeos detectado');
+  pteNone: ShowMessage('Nenhum engine disponível');
+<span class="example-keyword">end</span>;
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interface IParameters (Convergência) -->
+        <section id="interface-parameters" class="unit-section">
+            <h2>Interface IParameters (Convergência Unificada)</h2>
+            <p>
+                A interface <code>IParameters</code> é a interface principal que unifica o acesso a múltiplas
+                fontes de dados (Database, INI, JSON) com suporte a fallback automático. Quando uma operação
+                falha em uma fonte, o sistema tenta automaticamente a próxima fonte na ordem de prioridade.
+            </p>
+
+            <div class="info">
+                <strong>Ordem de Fallback Padrão:</strong> Database → INI → JSON
+                <br>
+                <strong>Thread-Safe:</strong> Todas as operações são thread-safe usando <code>TCriticalSection</code>.
+            </div>
+
+            <h3>Gerenciamento de Fontes</h3>
+            
+            <div class="method">
+                <h4>Source</h4>
+                <div class="method-signature">
+                    <span class="method-keyword">function</span> <span class="method-name">Source</span>(<span class="method-params">ASource: TParameterSource</span>): <span class="method-return">IParameters</span>; <span class="badge badge-overload">overload</span> <span class="badge badge-fluent">fluent</span><br>
+                    <span class="method-keyword">function</span> <span class="method-name">Source</span>: <span class="method-return">TParameterSource</span>; <span class="badge badge-overload">overload</span>
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Define ou obtém a fonte ativa de parâmetros. A fonte ativa é usada
+                    como primeira tentativa nas operações unificadas.
+                    <br><br>
+                    <strong>Parâmetros:</strong>
+                    <table class="params-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td>ASource</td>
+                            <td>TParameterSource</td>
+                            <td>Fonte a ser definida: <code>psDatabase</code>, <code>psInifiles</code> ou <code>psJsonObject</code></td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Retorno:</strong> 
+                    <ul>
+                        <li><strong>Setter:</strong> Retorna <code>Self</code> para encadeamento (Fluent Interface)</li>
+                        <li><strong>Getter:</strong> Retorna a fonte ativa atual</li>
+                    </ul>
+                    <br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Define fonte ativa como Database</span>
+Parameters.Source(psDatabase);
+
+<span class="example-comment">// Obtém fonte ativa</span>
+<span class="example-keyword">var</span> ActiveSource: TParameterSource;
+ActiveSource := Parameters.Source;
+                    </div>
+                </div>
+            </div>
+
+            <div class="method">
+                <h4>Priority</h4>
+                <div class="method-signature">
+                    <span class="method-keyword">function</span> <span class="method-name">Priority</span>(<span class="method-params">ASources: TParameterSourceArray</span>): <span class="method-return">IParameters</span>; <span class="badge badge-fluent">fluent</span>
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Define a ordem de prioridade (fallback) para busca de parâmetros.
+                    Quando uma operação falha na primeira fonte, tenta a próxima na ordem especificada.
+                    <br><br>
+                    <strong>Parâmetros:</strong>
+                    <table class="params-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td>ASources</td>
+                            <td>TParameterSourceArray</td>
+                            <td>Array de fontes na ordem de prioridade (ex: [psDatabase, psInifiles])</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Retorno:</strong> Retorna <code>Self</code> para encadeamento.
+                    <br><br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Define ordem: Database primeiro, depois INI, depois JSON</span>
+Parameters.Priority([psDatabase, psInifiles, psJsonObject]);
+
+<span class="example-comment">// Agora Get() tenta Database primeiro, se falhar tenta INI, depois JSON</span>
+<span class="example-keyword">var</span> Param: TParameter;
+Param := Parameters.Get('host'); <span class="example-comment">// Busca em cascata</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Operações Unificadas (com Fallback)</h3>
+
+            <div class="method">
+                <h4>Get</h4>
+                <div class="method-signature">
+                    <span class="method-keyword">function</span> <span class="method-name">Get</span>(<span class="method-params">const AName: string</span>): <span class="method-return">TParameter</span>; <span class="badge badge-overload">overload</span><br>
+                    <span class="method-keyword">function</span> <span class="method-name">Get</span>(<span class="method-params">const AName: string; ASource: TParameterSource</span>): <span class="method-return">TParameter</span>; <span class="badge badge-overload">overload</span>
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Obtém um parâmetro pelo nome. Busca na ordem de prioridade definida
+                    até encontrar o parâmetro ou esgotar todas as fontes.
+                    <br><br>
+                    <strong>Parâmetros:</strong>
+                    <table class="params-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td>AName</td>
+                            <td>string</td>
+                            <td>Nome (chave) do parâmetro a ser buscado</td>
+                        </tr>
+                        <tr>
+                            <td>ASource</td>
+                            <td>TParameterSource</td>
+                            <td>(Opcional) Fonte específica para buscar (ignora fallback)</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Retorno:</strong> Instância de <code>TParameter</code> com os dados encontrados.
+                    Se não encontrado, retorna parâmetro vazio (não nil).
+                    <br><br>
+                    <strong>Comportamento de Fallback:</strong>
+                    <ol>
+                        <li>Tenta buscar na primeira fonte da ordem de prioridade</li>
+                        <li>Se não encontrar ou falhar, tenta a próxima fonte</li>
+                        <li>Repete até encontrar ou esgotar todas as fontes</li>
+                        <li>Retorna parâmetro vazio se não encontrar em nenhuma fonte</li>
+                    </ol>
+                    <br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Busca com fallback automático</span>
+<span class="example-keyword">var</span> Param: TParameter;
+Param := Parameters.Get('database_host');
+<span class="example-comment">// Tenta Database → INI → JSON</span>
+
+<span class="example-comment">// Busca em fonte específica (sem fallback)</span>
+Param := Parameters.Get('database_host', psInifiles);
+<span class="example-comment">// Busca apenas em INI</span>
+
+<span class="example-comment">// Verifica se encontrou</span>
+<span class="example-keyword">if</span> Param.Name <> '' <span class="example-keyword">then</span>
+  ShowMessage('Valor: ' + Param.Value)
+<span class="example-keyword">else</span>
+  ShowMessage('Parâmetro não encontrado');
+                    </div>
+                </div>
+            </div>
+
+            <div class="method">
+                <h4>List</h4>
+                <div class="method-signature">
+                    <span class="method-keyword">function</span> <span class="method-name">List</span>: <span class="method-return">TParameterList</span>; <span class="badge badge-overload">overload</span><br>
+                    <span class="method-keyword">function</span> <span class="method-name">List</span>(<span class="method-params">out AList: TParameterList</span>): <span class="method-return">IParameters</span>; <span class="badge badge-overload">overload</span>
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Lista todos os parâmetros disponíveis. Por padrão, retorna parâmetros
+                    da fonte ativa. Pode ser configurado para retornar de múltiplas fontes.
+                    <br><br>
+                    <strong>Parâmetros:</strong>
+                    <table class="params-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td>AList</td>
+                            <td>out TParameterList</td>
+                            <td>Lista de parâmetros encontrados (retornada via parâmetro out)</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Retorno:</strong> 
+                    <ul>
+                        <li><strong>Overload 1:</strong> <code>TParameterList</code> com todos os parâmetros</li>
+                        <li><strong>Overload 2:</strong> <code>Self</code> para encadeamento (Fluent Interface)</li>
+                    </ul>
+                    <br>
+                    <div class="warning">
+                        <strong>Importante:</strong> A lista retornada deve ser liberada manualmente chamando
+                        <code>AList.Free</code> ou <code>AList.ClearAll</code> quando não for mais necessária.
+                    </div>
+                    <br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Lista parâmetros da fonte ativa</span>
+<span class="example-keyword">var</span> List: TParameterList;
+List := Parameters.List;
+
+<span class="example-keyword">try</span>
+  <span class="example-keyword">for</span> <span class="example-keyword">var</span> I := 0 <span class="example-keyword">to</span> List.Count - 1 <span class="example-keyword">do</span>
+    ShowMessage(List[I].Name + ' = ' + List[I].Value);
+<span class="example-keyword">finally</span>
+  List.Free;
+<span class="example-keyword">end</span>;
+
+<span class="example-comment">// Usando overload com out</span>
+<span class="example-keyword">var</span> LList: TParameterList;
+Parameters.List(LList);
+<span class="example-keyword">try</span>
+  <span class="example-comment">// Usa LList...</span>
+<span class="example-keyword">finally</span>
+  LList.Free;
+<span class="example-keyword">end</span>;
+                    </div>
+                </div>
+            </div>
+
+            <div class="method">
+                <h4>Insert</h4>
+                <div class="method-signature">
+                    <span class="method-keyword">function</span> <span class="method-name">Insert</span>(<span class="method-params">const AParameter: TParameter</span>): <span class="method-return">IParameters</span>; <span class="badge badge-overload">overload</span> <span class="badge badge-fluent">fluent</span><br>
+                    <span class="method-keyword">function</span> <span class="method-name">Insert</span>(<span class="method-params">const AParameter: TParameter; out ASuccess: Boolean</span>): <span class="method-return">IParameters</span>; <span class="badge badge-overload">overload</span> <span class="badge badge-fluent">fluent</span>
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Insere um novo parâmetro na fonte ativa. Se a inserção falhar,
+                    não tenta outras fontes (inserção é sempre na fonte ativa).
+                    <br><br>
+                    <strong>Parâmetros:</strong>
+                    <table class="params-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td>AParameter</td>
+                            <td>TParameter</td>
+                            <td>Parâmetro a ser inserido (deve ter Name e Value preenchidos)</td>
+                        </tr>
+                        <tr>
+                            <td>ASuccess</td>
+                            <td>out Boolean</td>
+                            <td>Indica se a inserção foi bem-sucedida</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Retorno:</strong> Retorna <code>Self</code> para encadeamento.
+                    <br><br>
+                    <div class="note">
+                        <strong>Nota:</strong> Se o parâmetro já existir, a inserção pode falhar dependendo
+                        da implementação da fonte. Use <code>Update</code> para atualizar parâmetros existentes.
+                    </div>
+                    <br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Cria e insere parâmetro</span>
+<span class="example-keyword">var</span> Param: TParameter;
+Param := TParameter.Create;
+<span class="example-keyword">try</span>
+  Param.Name := 'database_host';
+  Param.Value := 'localhost';
+  Param.Description := 'Host do banco de dados';
+  Param.Titulo := 'ERP';
+  Param.ContratoID := 1;
+  Param.ProdutoID := 1;
+  Param.Ordem := 1;
+  Param.Ativo := True;
+  
+  Parameters.Insert(Param);
+<span class="example-keyword">finally</span>
+  Param.Free;
+<span class="example-keyword">end</span>;
+
+<span class="example-comment">// Com verificação de sucesso</span>
+<span class="example-keyword">var</span> Success: Boolean;
+Parameters.Insert(Param, Success);
+<span class="example-keyword">if</span> Success <span class="example-keyword">then</span>
+  ShowMessage('Parâmetro inserido com sucesso')
+<span class="example-keyword">else</span>
+  ShowMessage('Falha ao inserir parâmetro');
+                    </div>
+                </div>
+            </div>
+
+            <div class="method">
+                <h4>Update</h4>
+                <div class="method-signature">
+                    <span class="method-keyword">function</span> <span class="method-name">Update</span>(<span class="method-params">const AParameter: TParameter</span>): <span class="method-return">IParameters</span>; <span class="badge badge-overload">overload</span> <span class="badge badge-fluent">fluent</span><br>
+                    <span class="method-keyword">function</span> <span class="method-name">Update</span>(<span class="method-params">const AParameter: TParameter; out ASuccess: Boolean</span>): <span class="method-return">IParameters</span>; <span class="badge badge-overload">overload</span> <span class="badge badge-fluent">fluent</span>
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Atualiza um parâmetro existente na fonte ativa. O parâmetro
+                    é identificado pelo campo <code>Name</code>.
+                    <br><br>
+                    <strong>Parâmetros:</strong>
+                    <table class="params-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td>AParameter</td>
+                            <td>TParameter</td>
+                            <td>Parâmetro com Name e novos valores a serem atualizados</td>
+                        </tr>
+                        <tr>
+                            <td>ASuccess</td>
+                            <td>out Boolean</td>
+                            <td>Indica se a atualização foi bem-sucedida</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Retorno:</strong> Retorna <code>Self</code> para encadeamento.
+                    <br><br>
+                    <div class="warning">
+                        <strong>Atenção:</strong> Se o parâmetro não existir, a atualização falhará.
+                        Use <code>Insert</code> para criar novos parâmetros.
+                    </div>
+                    <br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Atualiza parâmetro existente</span>
+<span class="example-keyword">var</span> Param: TParameter;
+Param := Parameters.Get('database_host');
+<span class="example-keyword">try</span>
+  <span class="example-keyword">if</span> Param.Name <> '' <span class="example-keyword">then</span>
+  <span class="example-keyword">begin</span>
+    Param.Value := '192.168.1.100'; <span class="example-comment">// Novo valor</span>
+    Parameters.Update(Param);
+  <span class="example-keyword">end</span>;
+<span class="example-keyword">finally</span>
+  Param.Free;
+<span class="example-keyword">end</span>;
+                    </div>
+                </div>
+            </div>
+
+            <div class="method">
+                <h4>Delete</h4>
+                <div class="method-signature">
+                    <span class="method-keyword">function</span> <span class="method-name">Delete</span>(<span class="method-params">const AName: string</span>): <span class="method-return">IParameters</span>; <span class="badge badge-overload">overload</span> <span class="badge badge-fluent">fluent</span><br>
+                    <span class="method-keyword">function</span> <span class="method-name">Delete</span>(<span class="method-params">const AName: string; out ASuccess: Boolean</span>): <span class="method-return">IParameters</span>; <span class="badge badge-overload">overload</span> <span class="badge badge-fluent">fluent</span>
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Remove um parâmetro da fonte ativa pelo nome.
+                    <br><br>
+                    <strong>Parâmetros:</strong>
+                    <table class="params-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td>AName</td>
+                            <td>string</td>
+                            <td>Nome (chave) do parâmetro a ser removido</td>
+                        </tr>
+                        <tr>
+                            <td>ASuccess</td>
+                            <td>out Boolean</td>
+                            <td>Indica se a remoção foi bem-sucedida</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Retorno:</strong> Retorna <code>Self</code> para encadeamento.
+                    <br><br>
+                    <div class="note">
+                        <strong>Nota:</strong> A remoção é permanente. Em Database, pode ser soft delete
+                        se a tabela tiver campo <code>ativo</code> configurado.
+                    </div>
+                    <br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Remove parâmetro</span>
+Parameters.Delete('database_host');
+
+<span class="example-comment">// Com verificação</span>
+<span class="example-keyword">var</span> Success: Boolean;
+Parameters.Delete('database_host', Success);
+<span class="example-keyword">if</span> Success <span class="example-keyword">then</span>
+  ShowMessage('Parâmetro removido')
+<span class="example-keyword">else</span>
+  ShowMessage('Parâmetro não encontrado');
+                    </div>
+                </div>
+            </div>
+
+            <div class="method">
+                <h4>Exists</h4>
+                <div class="method-signature">
+                    <span class="method-keyword">function</span> <span class="method-name">Exists</span>(<span class="method-params">const AName: string</span>): <span class="method-return">Boolean</span>; <span class="badge badge-overload">overload</span><br>
+                    <span class="method-keyword">function</span> <span class="method-name">Exists</span>(<span class="method-params">const AName: string; out AExists: Boolean</span>): <span class="method-return">IParameters</span>; <span class="badge badge-overload">overload</span> <span class="badge badge-fluent">fluent</span>
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Verifica se um parâmetro existe. Busca na ordem de prioridade
+                    até encontrar ou esgotar todas as fontes.
+                    <br><br>
+                    <strong>Parâmetros:</strong>
+                    <table class="params-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td>AName</td>
+                            <td>string</td>
+                            <td>Nome (chave) do parâmetro a ser verificado</td>
+                        </tr>
+                        <tr>
+                            <td>AExists</td>
+                            <td>out Boolean</td>
+                            <td>Indica se o parâmetro foi encontrado</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Retorno:</strong> 
+                    <ul>
+                        <li><strong>Overload 1:</strong> <code>True</code> se encontrado, <code>False</code> caso contrário</li>
+                        <li><strong>Overload 2:</strong> <code>Self</code> para encadeamento</li>
+                    </ul>
+                    <br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Verifica existência</span>
+<span class="example-keyword">if</span> Parameters.Exists('database_host') <span class="example-keyword">then</span>
+  ShowMessage('Parâmetro existe')
+<span class="example-keyword">else</span>
+  ShowMessage('Parâmetro não encontrado');
+
+<span class="example-comment">// Com out</span>
+<span class="example-keyword">var</span> Exists: Boolean;
+Parameters.Exists('database_host', Exists);
+                    </div>
+                </div>
+            </div>
+
+            <div class="method">
+                <h4>Count</h4>
+                <div class="method-signature">
+                    <span class="method-keyword">function</span> <span class="method-name">Count</span>: <span class="method-return">Integer</span>; <span class="badge badge-overload">overload</span><br>
+                    <span class="method-keyword">function</span> <span class="method-name">Count</span>(<span class="method-params">out ACount: Integer</span>): <span class="method-return">IParameters</span>; <span class="badge badge-overload">overload</span> <span class="badge badge-fluent">fluent</span>
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Retorna a quantidade de parâmetros na fonte ativa.
+                    <br><br>
+                    <strong>Parâmetros:</strong>
+                    <table class="params-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td>ACount</td>
+                            <td>out Integer</td>
+                            <td>Quantidade de parâmetros (retornada via parâmetro out)</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Retorno:</strong> 
+                    <ul>
+                        <li><strong>Overload 1:</strong> Quantidade de parâmetros</li>
+                        <li><strong>Overload 2:</strong> <code>Self</code> para encadeamento</li>
+                    </ul>
+                    <br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Conta parâmetros</span>
+<span class="example-keyword">var</span> Total: Integer;
+Total := Parameters.Count;
+ShowMessage(Format('Total de parâmetros: %d', [Total]));
+
+<span class="example-comment">// Com out</span>
+<span class="example-keyword">var</span> LCount: Integer;
+Parameters.Count(LCount);
+                    </div>
+                </div>
+            </div>
+
+            <h3>Acesso Direto a Fontes</h3>
+
+            <div class="method">
+                <h4>Database</h4>
+                <div class="method-signature">
+                    <span class="method-keyword">function</span> <span class="method-name">Database</span>: <span class="method-return">IParametersDatabase</span>;
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Retorna a interface de acesso direto ao banco de dados.
+                    Permite usar métodos específicos do Database que não estão na interface unificada.
+                    <br><br>
+                    <strong>Retorno:</strong> Instância de <code>IParametersDatabase</code>.
+                    <br><br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+<span class="example-comment">// Acesso direto ao Database</span>
+Parameters.Database
+  .Host('localhost')
+  .Port(5432)
+  .Connect
+  .CreateTable; <span class="example-comment">// Método específico do Database</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="method">
+                <h4>Inifiles</h4>
+                <div class="method-signature">
+                    <span class="method-keyword">function</span> <span class="method-name">Inifiles</span>: <span class="method-return">IParametersInifiles</span>;
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Retorna a interface de acesso direto a arquivos INI.
+                    <br><br>
+                    <strong>Retorno:</strong> Instância de <code>IParametersInifiles</span>.
+                    <br><br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+Parameters.Inifiles
+  .FilePath('C:\Config\params.ini')
+  .Section('Parameters');
+                    </div>
+                </div>
+            </div>
+
+            <div class="method">
+                <h4>JsonObject</h4>
+                <div class="method-signature">
+                    <span class="method-keyword">function</span> <span class="method-name">JsonObject</span>: <span class="method-return">IParametersJsonObject</span>;
+                </div>
+                <div class="description">
+                    <strong>Finalidade:</strong> Retorna a interface de acesso direto a objetos JSON.
+                    <br><br>
+                    <strong>Retorno:</strong> Instância de <code>IParametersJsonObject</span>.
+                    <br><br>
+                    <strong>Exemplo:</strong>
+                    <div class="example">
+Parameters.JsonObject
+  .FilePath('C:\Config\params.json')
+  .LoadFromFile('C:\Config\params.json');
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="note">
+            <strong>Nota:</strong> As seções de <code>IParametersDatabase</code>, <code>IParametersInifiles</code>
+            e <code>IParametersJsonObject</code> serão adicionadas em seguida com todos os métodos detalhados.
+        </div>
+
+    </div>
+</body>
+</html>
+

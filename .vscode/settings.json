@@ -1,0 +1,11 @@
+{
+    "delphiLsp.settingsFile": "file:///e%3A/CSL/ParamentersORM/ConfigCSL.delphilsp.json",
+    "delphiLsp.executable": "C:\\Program Files (x86)\\Embarcadero\\Studio\\23.0\\bin\\DelphiLSP.exe",
+    "chat.instructionsFilesLocations": {
+        ".cursor/rules": true
+    },
+    "delphi.configFile": "file:///e%3A/CSL/ParamentersORM/ConfigCSL.delphilsp.json",
+    "delphiLsp.serverType": "agent",
+    "pascal.formatter.engine": "embarcadero",
+    "vmssoftware.project-dep.buildName": "DEBUG"
+}

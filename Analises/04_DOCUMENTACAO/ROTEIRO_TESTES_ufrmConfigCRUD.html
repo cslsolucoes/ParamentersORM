@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roteiro de Testes - ufrmConfigCRUD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            color: white;
+            border-radius: 5px;
+        }
+        
+        h3 {
+            color: #2980b9;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 4px solid #3498db;
+        }
+        
+        h4 {
+            color: #555;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .test-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-item {
+            background: white;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 3px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .test-item h4 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        
+        .test-steps {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .test-steps ol {
+            margin-left: 20px;
+        }
+        
+        .test-steps li {
+            margin-bottom: 8px;
+        }
+        
+        .expected-result {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 3px;
+        }
+        
+        .expected-result strong {
+            color: #155724;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 3px;
+        }
+        
+        .warning strong {
+            color: #856404;
+        }
+        
+        .error-test {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 3px;
+        }
+        
+        .error-test strong {
+            color: #721c24;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status-implemented {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-pending {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .status-missing {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        
+        .summary h2 {
+            background: transparent;
+            color: white;
+            border: none;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+        
+        .summary ul {
+            margin-left: 20px;
+        }
+        
+        .summary li {
+            margin-bottom: 8px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+        
+        table th {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        
+        table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #e83e8c;
+        }
+        
+        .note {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 3px;
+        }
+        
+        .note strong {
+            color: #1976D2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Roteiro de Testes - ufrmConfigCRUD</h1>
+        
+        <div class="summary">
+            <h2>📊 Resumo Executivo</h2>
+            <p><strong>Versão:</strong> 1.0.0</p>
+            <p><strong>Data:</strong> 02/01/2026</p>
+            <p><strong>Autor:</strong> Claiton de Souza Linhares</p>
+            <p><strong>Objetivo:</strong> Roteiro completo de testes para validação de todas as funcionalidades implementadas no formulário de exemplo VCL do módulo Parameters.</p>
+            
+            <h3 style="color: white; margin-top: 20px;">Funcionalidades Principais:</h3>
+            <ul>
+                <li>✅ <strong>Database:</strong> CRUD completo, conexão, importação/exportação</li>
+                <li>✅ <strong>Inifiles:</strong> CRUD completo, importação/exportação</li>
+                <li>✅ <strong>JsonObject:</strong> CRUD completo, importação/exportação</li>
+                <li>✅ <strong>Convergência:</strong> Interface unificada IParameters</li>
+                <li>✅ <strong>Validações:</strong> Campos obrigatórios, tipos de dados</li>
+                <li>✅ <strong>Tratamento de Erros:</strong> Exceções, mensagens informativas</li>
+            </ul>
+        </div>
+        
+        <h2>1. TESTES DE CONEXÃO E CONFIGURAÇÃO</h2>
+        
+        <div class="test-section">
+            <div class="test-item">
+                <h4>1.1 Teste de Detecção Automática de Engine <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Abrir o formulário <code>ufrmConfigCRUD</code></li>
+                        <li>Verificar o campo <code>edtEngine</code> no topo do formulário</li>
+                        <li>Verificar se o campo está preenchido automaticamente com o engine detectado (UniDAC, FireDAC ou Zeos)</li>
+                        <li>Verificar se o campo está <code>ReadOnly</code> e com cor <code>clBtnFace</code></li>
+                        <li>Verificar se o <code>Hint</code> mostra informações sobre a detecção automática</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O campo <code>edtEngine</code> deve ser preenchido automaticamente com o nome do engine detectado baseado nas diretivas de compilação (<code>USE_UNIDAC</code>, <code>USE_FIREDAC</code>, <code>USE_ZEOS</code>). O campo deve estar somente leitura e mostrar um hint explicativo.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>1.2 Teste de Inicialização Automática de Fontes <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Abrir o formulário</li>
+                        <li>Verificar se <code>FParameters</code> é criado automaticamente com <code>TParameters.New([pcfDataBase, pcfInifile, pcfJsonObject])</code></li>
+                        <li>Verificar se os campos de Inifiles são preenchidos com valores padrão:
+                            <ul>
+                                <li><code>edtInifilesFilePath.Text</code> = valor padrão</li>
+                                <li><code>edtInifilesSection.Text</code> = valor padrão</li>
+                                <li><code>chkInifilesAutoCreate.Checked</code> = valor padrão</li>
+                            </ul>
+                        </li>
+                        <li>Verificar se os campos de JsonObject são preenchidos com valores padrão:
+                            <ul>
+                                <li><code>edtJsonObjectFilePath.Text</code> = valor padrão</li>
+                                <li><code>edtJsonObjectObjectName.Text</code> = valor padrão</li>
+                                <li><code>chkJsonObjectAutoCreate.Checked</code> = valor padrão</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Todas as fontes (Database, Inifiles, JsonObject) devem ser inicializadas automaticamente com valores padrão do arquivo <code>Modulo.Parameters.Consts.pas</code>. Os campos da interface devem refletir esses valores.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>1.3 Teste de Conexão com Banco de Dados (Rede) <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Na aba <strong>Database</strong>, preencher os campos:
+                            <ul>
+                                <li><code>cmbDatabaseType</code>: Selecionar PostgreSQL, MySQL ou SQL Server</li>
+                                <li><code>edtHost</code>: Informar o host (ex: localhost, 10.100.0.7)</li>
+                                <li><code>edtPort</code>: Informar a porta (ex: 5432, 3306, 1433)</li>
+                                <li><code>edtUsername</code>: Informar o usuário</li>
+                                <li><code>edtPassword</code>: Informar a senha</li>
+                                <li><code>edtDatabase</code>: Deixar vazio OU informar um banco existente</li>
+                                <li><code>edtSchema</code>: (Opcional para PostgreSQL/SQL Server)</li>
+                                <li><code>edtTableName</code>: Informar o nome da tabela (ex: config)</li>
+                            </ul>
+                        </li>
+                        <li>Clicar em <strong>"Conectar"</strong></li>
+                        <li>Se <code>edtDatabase</code> estiver vazio:
+                            <ul>
+                                <li>Verificar se o sistema lista os bancos disponíveis</li>
+                                <li>Selecionar um banco da lista</li>
+                                <li>Verificar se a conexão é estabelecida</li>
+                            </ul>
+                        </li>
+                        <li>Verificar se a mensagem de sucesso é exibida</li>
+                        <li>Verificar se <code>lblConexaoInfo</code> mostra informações da conexão</li>
+                        <li>Verificar se os botões <code>btnConectar</code> e <code>btnDesconectar</code> são atualizados</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> A conexão deve ser estabelecida com sucesso. Se o banco estiver vazio, o sistema deve listar os bancos disponíveis e permitir seleção. As informações de conexão devem ser exibidas no topo do formulário.
+                </div>
+                <div class="warning">
+                    <strong>⚠️ Casos Especiais:</strong>
+                    <ul>
+                        <li>Se o banco informado não existir, o sistema deve detectar o erro "Unknown database" e oferecer a lista de bancos disponíveis</li>
+                        <li>Se a tabela não existir e <code>AutoCreateTable</code> estiver ativo, o sistema deve perguntar se deseja criar a tabela</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>1.4 Teste de Conexão com Banco de Dados (Arquivo) <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Na aba <strong>Database</strong>, selecionar:
+                            <ul>
+                                <li><strong>SQLite:</strong> Clicar em "Selecionar Database" → Escolher pasta OU arquivo</li>
+                                <li><strong>Access:</strong> Clicar em "Selecionar Database" → Escolher arquivo .mdb ou .accdb</li>
+                                <li><strong>FireBird:</strong> Se local, clicar em "Selecionar Database" → Escolher arquivo .fdb</li>
+                            </ul>
+                        </li>
+                        <li>Preencher <code>edtTableName</code></li>
+                        <li>Clicar em <strong>"Conectar"</strong></li>
+                        <li>Verificar se a conexão é estabelecida</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Para SQLite, o sistema deve perguntar se deseja selecionar pasta ou arquivo. Para outros bancos baseados em arquivo, deve abrir o diálogo de seleção de arquivo. A conexão deve ser estabelecida após a seleção.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>1.5 Teste de Conexão ODBC <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Na aba <strong>Database</strong>, selecionar <code>cmbDatabaseType</code> = "ODBC"</li>
+                        <li>Verificar se os campos <code>edtHost</code> e <code>edtPort</code> são ocultados</li>
+                        <li>Verificar se o campo <code>edtDatabase</code> é substituído por <code>cmbODBCDSN</code></li>
+                        <li>Verificar se <code>cmbODBCDSN</code> é populado automaticamente com DSNs do sistema</li>
+                        <li>Selecionar um DSN do <code>cmbODBCDSN</code></li>
+                        <li>Selecionar o tipo de banco em <code>cmbODBCDatabaseType</code></li>
+                        <li>Verificar se o campo <code>edtSchema</code> aparece apenas para PostgreSQL e SQL Server</li>
+                        <li>Clicar em <strong>"Conectar"</strong></li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Os campos devem ser ajustados automaticamente conforme o tipo de banco. O DSN deve ser listado do registro do Windows. A conexão deve ser estabelecida usando o DSN selecionado.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>1.6 Teste de Desconexão <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Estabelecer uma conexão com o banco de dados</li>
+                        <li>Clicar em <strong>"Desconectar"</strong></li>
+                        <li>Verificar se a conexão é encerrada</li>
+                        <li>Verificar se os campos são limpos</li>
+                        <li>Verificar se a lista é limpa</li>
+                        <li>Verificar se os botões são atualizados</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> A conexão deve ser encerrada, os campos e a lista devem ser limpos, e os botões devem ser atualizados (Conectar habilitado, Desconectar desabilitado).
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>1.7 Teste de Drop Table (cbApagar) <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Estabelecer uma conexão com o banco de dados</li>
+                        <li>Marcar o checkbox <code>cbApagar</code></li>
+                        <li>Verificar se o sistema pergunta confirmação antes de dropar</li>
+                        <li>Confirmar a exclusão</li>
+                        <li>Verificar se a tabela foi removida</li>
+                        <li>Verificar se os campos são limpos</li>
+                        <li>Verificar se o checkbox é desmarcado automaticamente</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve verificar se a tabela existe, pedir confirmação, dropar a tabela (e objetos relacionados como generators/triggers no Firebird), limpar os campos e desmarcar o checkbox.
+                </div>
+                <div class="warning">
+                    <strong>⚠️ Firebird:</strong> O sistema deve dropar também o generator e trigger relacionados antes de dropar a tabela.
+                </div>
+            </div>
+        </div>
+        
+        <h2>2. TESTES DE DATABASE (CRUD)</h2>
+        
+        <div class="test-section">
+            <div class="test-item">
+                <h4>2.1 Teste de Listagem (List) <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Estabelecer conexão com o banco de dados</li>
+                        <li>Clicar em <strong>"Listar Todos"</strong></li>
+                        <li>Verificar se os registros são exibidos no <code>lvConfig</code></li>
+                        <li>Verificar se a ordenação padrão é aplicada (Contrato → Produto → Título → Ordem)</li>
+                        <li>Verificar se o status mostra a quantidade de registros encontrados</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Todos os registros da tabela devem ser listados no ListView, ordenados por Contrato, Produto, Título e Ordem. O status deve mostrar a quantidade de registros.
+                </div>
+                <div class="note">
+                    <strong>📌 Nota:</strong> A listagem deve usar <code>FParameters.Database.List</code> para garantir que apenas dados do banco sejam exibidos (não mesclar com INI/JSON).
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>2.2 Teste de Filtros <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Preencher <code>edtFiltro</code> com um texto (busca em Chave, Título, Valor, Descrição)</li>
+                        <li>Preencher <code>edtFiltroContrato</code> com um ID de contrato</li>
+                        <li>Preencher <code>edtFiltroProduto</code> com um ID de produto</li>
+                        <li>Clicar em <strong>"Filtrar"</strong></li>
+                        <li>Verificar se apenas os registros que atendem aos filtros são exibidos</li>
+                        <li>Verificar se o status mostra os filtros aplicados</li>
+                        <li>Clicar em <strong>"Limpar Filtro"</strong></li>
+                        <li>Verificar se todos os registros são exibidos novamente</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Os filtros devem ser aplicados com lógica AND (todos os critérios devem ser atendidos). O status deve mostrar quais filtros estão ativos. Ao limpar, todos os registros devem ser exibidos.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>2.3 Teste de Ordenação por Coluna <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Listar todos os registros</li>
+                        <li>Clicar em uma coluna do <code>lvConfig</code> (ex: Contrato, Produto, Título)</li>
+                        <li>Verificar se a ordenação é aplicada (crescente)</li>
+                        <li>Clicar novamente na mesma coluna</li>
+                        <li>Verificar se a ordenação inverte (decrescente)</li>
+                        <li>Verificar se o status mostra a ordenação aplicada</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> A ordenação deve ser hierárquica: primeiro pela coluna clicada, depois por Contrato → Produto → Ordem → Título → Chave. Ao clicar novamente, deve inverter entre crescente e decrescente.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>2.4 Teste de Inserção (Insert) <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Preencher os campos obrigatórios:
+                            <ul>
+                                <li><code>edtContratoID</code>: 1</li>
+                                <li><code>edtProdutoID</code>: 1</li>
+                                <li><code>edtChave</code>: "teste_chave_001"</li>
+                                <li><code>edtTitulo</code>: "TesteTitulo"</li>
+                                <li><code>memoValor</code>: "Valor de teste"</li>
+                                <li><code>memoDescricao</code>: "Descrição de teste"</li>
+                                <li><code>edtOrdem</code>: 1 (ou deixar 0 para auto-renumeração)</li>
+                                <li><code>chkAtivo</code>: Marcado</li>
+                            </ul>
+                        </li>
+                        <li>Clicar em <strong>"Inserir"</strong></li>
+                        <li>Verificar se a mensagem de sucesso é exibida</li>
+                        <li>Verificar se os campos são limpos</li>
+                        <li>Verificar se a lista é atualizada automaticamente</li>
+                        <li>Verificar se o novo registro aparece na lista</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O registro deve ser inserido com sucesso. Se <code>Ordem = 0</code>, o sistema deve calcular automaticamente a próxima ordem disponível. Os campos devem ser limpos e a lista atualizada.
+                </div>
+                <div class="error-test">
+                    <strong>❌ Teste de Erro:</strong> Tentar inserir um registro com uma chave que já existe. O sistema deve mostrar erro informando que a chave já existe.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>2.5 Teste de Atualização (Update) <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Listar todos os registros</li>
+                        <li>Selecionar um registro na lista (clicar no item do <code>lvConfig</code>)</li>
+                        <li>Verificar se os campos são preenchidos automaticamente</li>
+                        <li>Modificar algum campo (ex: <code>memoValor</code>, <code>memoDescricao</code>)</li>
+                        <li>Modificar o <code>edtTitulo</code> para um título que não existe</li>
+                        <li>Clicar em <strong>"Atualizar"</strong></li>
+                        <li>Verificar se a mensagem de sucesso é exibida</li>
+                        <li>Verificar se a lista é atualizada</li>
+                        <li>Verificar se a ordem foi resetada para 1 (se o novo título não existia)</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O registro deve ser atualizado. Se o título foi alterado para um que não existe, a ordem deve ser resetada para 1. Se o título já existir, a lógica de reordenação padrão deve ser aplicada.
+                </div>
+                <div class="error-test">
+                    <strong>❌ Teste de Erro:</strong> Tentar atualizar sem selecionar um registro. O sistema deve mostrar erro informando que é necessário selecionar um registro.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>2.6 Teste de Exclusão (Delete) <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Listar todos os registros</li>
+                        <li>Selecionar um registro na lista</li>
+                        <li>Clicar em <strong>"Deletar"</strong></li>
+                        <li>Confirmar a exclusão no diálogo</li>
+                        <li>Verificar se a mensagem de sucesso é exibida</li>
+                        <li>Verificar se os campos são limpos</li>
+                        <li>Verificar se a lista é atualizada (registro removido)</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve pedir confirmação antes de deletar. Após confirmação, o registro deve ser removido, os campos limpos e a lista atualizada.
+                </div>
+                <div class="error-test">
+                    <strong>❌ Teste de Erro:</strong> Tentar deletar sem selecionar um registro. O sistema deve mostrar erro informando que é necessário selecionar um registro.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>2.7 Teste de Refresh <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Listar todos os registros</li>
+                        <li>Modificar um registro diretamente no banco de dados (usando outra ferramenta)</li>
+                        <li>Clicar em <strong>"Renovar"</strong></li>
+                        <li>Verificar se a lista é atualizada com os dados mais recentes do banco</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> A lista deve ser atualizada com os dados mais recentes do banco de dados, mantendo os filtros ativos.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>2.8 Teste de Validação de Campos <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Tentar inserir sem preencher <code>edtContratoID</code></li>
+                        <li>Verificar se o erro é exibido e o foco vai para o campo</li>
+                        <li>Preencher <code>edtContratoID</code> e tentar inserir sem <code>edtProdutoID</code></li>
+                        <li>Verificar se o erro é exibido</li>
+                        <li>Preencher <code>edtProdutoID</code> e tentar inserir sem <code>edtChave</code></li>
+                        <li>Verificar se o erro é exibido</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve validar todos os campos obrigatórios (ContratoID, ProdutoID, Chave) e mostrar mensagens de erro específicas, focando no campo que está faltando.
+                </div>
+            </div>
+        </div>
+        
+        <h2>3. TESTES DE IMPORTAÇÃO/EXPORTAÇÃO (DATABASE)</h2>
+        
+        <div class="test-section">
+            <div class="test-item">
+                <h4>3.1 Teste de Importação de INI para Database <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Estabelecer conexão com o banco de dados</li>
+                        <li>Na aba <strong>Database</strong>, clicar em <strong>"Importar do INI"</strong></li>
+                        <li>Selecionar um arquivo INI válido no diálogo</li>
+                        <li>Verificar se os parâmetros são importados</li>
+                        <li>Verificar se a mensagem de sucesso é exibida com o caminho do arquivo</li>
+                        <li>Verificar se a lista é atualizada</li>
+                        <li>Verificar se os registros importados aparecem na lista</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve abrir o diálogo de seleção de arquivo, carregar os parâmetros do INI e importá-los para o banco de dados. Se um parâmetro já existir (mesma chave), deve ser atualizado ao invés de inserido.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>3.2 Teste de Exportação de Database para INI <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Estabelecer conexão com o banco de dados</li>
+                        <li>Listar alguns registros</li>
+                        <li>Aplicar filtros (opcional)</li>
+                        <li>Na aba <strong>Database</strong>, clicar em <strong>"Exportar para INI"</strong></li>
+                        <li>Escolher onde salvar o arquivo INI no diálogo</li>
+                        <li>Verificar se a mensagem de sucesso é exibida com o caminho completo do arquivo</li>
+                        <li>Abrir o arquivo INI gerado e verificar se os dados estão corretos</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve abrir o diálogo de salvamento, exportar os parâmetros do banco para o arquivo INI e mostrar o caminho completo do arquivo salvo na mensagem de sucesso.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>3.3 Teste de Importação de JSON para Database <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Estabelecer conexão com o banco de dados</li>
+                        <li>Na aba <strong>Database</strong>, clicar em <strong>"Importar do JSON"</strong></li>
+                        <li>Selecionar um arquivo JSON válido no diálogo</li>
+                        <li>Verificar se o arquivo é carregado (encoding detectado automaticamente)</li>
+                        <li>Verificar se os parâmetros são importados (busca case-insensitive)</li>
+                        <li>Verificar se a mensagem de sucesso é exibida com o caminho do arquivo</li>
+                        <li>Verificar se a lista é atualizada</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve detectar automaticamente o encoding (UTF-8, UTF-16 LE, UTF-16 BE), remover BOM se presente, fazer busca case-insensitive das chaves JSON, e importar os parâmetros. Se nenhum parâmetro for encontrado, deve mostrar uma mensagem informativa com o formato esperado.
+                </div>
+                <div class="warning">
+                    <strong>⚠️ Formato JSON Esperado:</strong>
+                    <pre>{
+  "Contrato": {"Contrato_ID": 1, "Produto_ID": 1},
+  "Titulo1": {
+    "chave1": {"valor": "valor1", "descricao": "desc1", "ativo": true, "ordem": 1}
+  }
+}</pre>
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>3.4 Teste de Exportação de Database para JSON <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Estabelecer conexão com o banco de dados</li>
+                        <li>Listar alguns registros</li>
+                        <li>Aplicar filtros (opcional)</li>
+                        <li>Na aba <strong>Database</strong>, clicar em <strong>"Exportar para JSON"</strong></li>
+                        <li>Escolher onde salvar o arquivo JSON no diálogo</li>
+                        <li>Verificar se a mensagem de sucesso é exibida com o caminho completo do arquivo</li>
+                        <li>Abrir o arquivo JSON gerado e verificar se os dados estão corretos e formatados</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve abrir o diálogo de salvamento, exportar os parâmetros do banco para o arquivo JSON (com formatação e indentação), e mostrar o caminho completo do arquivo salvo na mensagem de sucesso.
+                </div>
+            </div>
+        </div>
+        
+        <h2>4. TESTES DE INIFILES (CRUD)</h2>
+        
+        <div class="test-section">
+            <div class="test-item">
+                <h4>4.1 Teste de Configuração de Arquivo INI <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Na aba <strong>Inifiles</strong>, clicar em <strong>"Selecionar Arquivo"</strong></li>
+                        <li>Selecionar ou criar um arquivo INI</li>
+                        <li>Verificar se o campo <code>edtInifilesFilePath</code> é atualizado</li>
+                        <li>Preencher <code>edtInifilesSection</code> com o nome da seção (ex: "Configuracoes")</li>
+                        <li>Marcar/desmarcar <code>chkInifilesAutoCreate</code> conforme necessário</li>
+                        <li>Clicar em <strong>"Atualizar"</strong></li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O arquivo INI deve ser configurado e, se <code>AutoCreate</code> estiver marcado, o arquivo deve ser criado automaticamente se não existir.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>4.2 Teste de Listagem de Inifiles <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Configurar o arquivo INI e a seção</li>
+                        <li>Clicar em <strong>"Listar"</strong></li>
+                        <li>Verificar se os parâmetros são exibidos no <code>lvInifiles</code></li>
+                        <li>Verificar se os filtros <code>edtInifilesFiltroContrato</code> e <code>edtInifilesFiltroProduto</code> funcionam</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Todos os parâmetros da seção INI devem ser listados. Os filtros devem funcionar corretamente.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>4.3 Teste de Inserção em Inifiles <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Preencher os campos obrigatórios:
+                            <ul>
+                                <li><code>edtInifilesFilePath</code>: Caminho do arquivo INI</li>
+                                <li><code>edtInifilesTitulo</code>: Nome da seção (obrigatório)</li>
+                                <li><code>edtInifilesChave</code>: Nome da chave (obrigatório)</li>
+                                <li>Outros campos opcionais</li>
+                            </ul>
+                        </li>
+                        <li>Clicar em <strong>"Inserir"</strong></li>
+                        <li>Verificar se o parâmetro é salvo no arquivo INI</li>
+                        <li>Abrir o arquivo INI e verificar se a chave foi criada na seção correta</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O parâmetro deve ser inserido no arquivo INI na seção especificada. A validação deve garantir que FilePath, Título e Chave sejam preenchidos.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>4.4 Teste de Atualização em Inifiles <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Listar os parâmetros do INI</li>
+                        <li>Selecionar um parâmetro na lista</li>
+                        <li>Modificar o valor ou descrição</li>
+                        <li>Clicar em <strong>"Atualizar"</strong></li>
+                        <li>Verificar se o arquivo INI é atualizado</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O parâmetro deve ser atualizado no arquivo INI. A seção usada deve ser o Título do parâmetro selecionado.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>4.5 Teste de Exclusão em Inifiles <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Listar os parâmetros do INI</li>
+                        <li>Selecionar um parâmetro na lista</li>
+                        <li>Clicar em <strong>"Deletar"</strong></li>
+                        <li>Confirmar a exclusão</li>
+                        <li>Verificar se a chave é removida do arquivo INI</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> A chave deve ser removida do arquivo INI na seção correta (Título do parâmetro).
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>4.6 Teste de Importação de Database para Inifiles <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Estabelecer conexão com o banco de dados</li>
+                        <li>Configurar o arquivo INI de destino</li>
+                        <li>Na aba <strong>Inifiles</strong>, clicar em <strong>"Importar do Database"</strong></li>
+                        <li>Verificar se os parâmetros são importados</li>
+                        <li>Listar os parâmetros do INI e verificar se aparecem</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Os parâmetros do banco de dados devem ser importados para o arquivo INI, organizados por seções (Títulos).
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>4.7 Teste de Exportação de Inifiles para Database <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Estabelecer conexão com o banco de dados</li>
+                        <li>Configurar o arquivo INI de origem</li>
+                        <li>Na aba <strong>Inifiles</strong>, clicar em <strong>"Exportar para Database"</strong></li>
+                        <li>Verificar se os parâmetros são exportados</li>
+                        <li>Listar os parâmetros do banco e verificar se aparecem</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Os parâmetros do arquivo INI devem ser exportados para o banco de dados.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>4.8 Teste de Importação/Exportação Inifiles ↔ JSON <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Configurar arquivo INI e JSON</li>
+                        <li>Testar <strong>"Importar do JSON"</strong> na aba Inifiles</li>
+                        <li>Testar <strong>"Exportar para JSON"</strong> na aba Inifiles</li>
+                        <li>Verificar se os dados são transferidos corretamente</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Os parâmetros devem ser transferidos bidirecionalmente entre INI e JSON mantendo a estrutura e os dados.
+                </div>
+            </div>
+        </div>
+        
+        <h2>5. TESTES DE JSONOBJECT (CRUD)</h2>
+        
+        <div class="test-section">
+            <div class="test-item">
+                <h4>5.1 Teste de Configuração de Arquivo JSON <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Na aba <strong>JsonObject</strong>, clicar em <strong>"Selecionar Arquivo"</strong></li>
+                        <li>Selecionar ou criar um arquivo JSON</li>
+                        <li>Verificar se o campo <code>edtJsonObjectFilePath</code> é atualizado</li>
+                        <li>Preencher <code>edtJsonObjectObjectName</code> com o nome do objeto raiz (ex: "AppConfig")</li>
+                        <li>Marcar/desmarcar <code>chkJsonObjectAutoCreate</code> conforme necessário</li>
+                        <li>Clicar em <strong>"Atualizar"</strong></li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O arquivo JSON deve ser configurado e, se <code>AutoCreate</code> estiver marcado, o arquivo deve ser criado automaticamente se não existir.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>5.2 Teste de Carregamento de Arquivo JSON <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Na aba <strong>JsonObject</strong>, clicar em <strong>"Carregar Arquivo"</strong></li>
+                        <li>Selecionar um arquivo JSON existente</li>
+                        <li>Verificar se o arquivo é carregado (encoding detectado automaticamente)</li>
+                        <li>Verificar se o campo <code>edtJsonObjectFilePath</code> é atualizado</li>
+                        <li>Listar os parâmetros e verificar se aparecem</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve detectar automaticamente o encoding (UTF-8, UTF-16 LE, UTF-16 BE), remover BOM se presente, e carregar o JSON. A busca de chaves deve ser case-insensitive.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>5.3 Teste de Listagem de JsonObject <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Configurar e carregar o arquivo JSON</li>
+                        <li>Clicar em <strong>"Listar"</strong></li>
+                        <li>Verificar se os parâmetros são exibidos no <code>lvJsonObject</code></li>
+                        <li>Verificar se os filtros <code>edtJsonObjectFiltroContrato</code> e <code>edtJsonObjectFiltroProduto</code> funcionam</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Todos os parâmetros do objeto JSON devem ser listados. Os filtros devem funcionar corretamente. Se o objeto "Contrato" existir no JSON, os IDs devem ser lidos de lá.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>5.4 Teste de Inserção em JsonObject <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Preencher os campos obrigatórios:
+                            <ul>
+                                <li><code>edtJsonObjectFilePath</code>: Caminho do arquivo JSON</li>
+                                <li><code>edtJsonObjectTitulo</code>: Nome do objeto (obrigatório)</li>
+                                <li><code>edtJsonObjectChave</code>: Nome da chave (obrigatório)</li>
+                                <li>Outros campos opcionais</li>
+                            </ul>
+                        </li>
+                        <li>Clicar em <strong>"Inserir"</strong></li>
+                        <li>Verificar se o parâmetro é adicionado ao objeto JSON</li>
+                        <li>Abrir o arquivo JSON e verificar se a estrutura está correta</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O parâmetro deve ser inserido no objeto JSON na estrutura correta. A validação deve garantir que FilePath, Título e Chave sejam preenchidos.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>5.5 Teste de Atualização em JsonObject <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Listar os parâmetros do JSON</li>
+                        <li>Selecionar um parâmetro na lista</li>
+                        <li>Modificar o valor ou descrição</li>
+                        <li>Clicar em <strong>"Atualizar"</strong></li>
+                        <li>Verificar se o arquivo JSON é atualizado</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O parâmetro deve ser atualizado no objeto JSON. O objeto usado deve ser o Título do parâmetro selecionado.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>5.6 Teste de Exclusão em JsonObject <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Listar os parâmetros do JSON</li>
+                        <li>Selecionar um parâmetro na lista</li>
+                        <li>Clicar em <strong>"Deletar"</strong></li>
+                        <li>Confirmar a exclusão</li>
+                        <li>Verificar se a chave é removida do objeto JSON</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> A chave deve ser removida do objeto JSON no objeto correto (Título do parâmetro).
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>5.7 Teste de Salvamento de Arquivo JSON <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Fazer algumas modificações no objeto JSON (inserir, atualizar, deletar)</li>
+                        <li>Clicar em <strong>"Salvar Arquivo"</strong></li>
+                        <li>Se o campo <code>edtJsonObjectFilePath</code> estiver vazio, escolher onde salvar</li>
+                        <li>Verificar se o arquivo é salvo com formatação (indentação)</li>
+                        <li>Abrir o arquivo e verificar se os dados estão corretos</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O arquivo JSON deve ser salvo com formatação adequada (indentação, quebras de linha) para facilitar a leitura.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>5.8 Teste de Importação/Exportação JsonObject ↔ Database/Inifiles <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Estabelecer conexão com o banco de dados</li>
+                        <li>Configurar arquivo JSON</li>
+                        <li>Testar <strong>"Importar do Database"</strong> na aba JsonObject</li>
+                        <li>Testar <strong>"Exportar para Database"</strong> na aba JsonObject</li>
+                        <li>Testar <strong>"Importar do INI"</strong> na aba JsonObject</li>
+                        <li>Testar <strong>"Exportar para INI"</strong> na aba JsonObject</li>
+                        <li>Verificar se os dados são transferidos corretamente</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Os parâmetros devem ser transferidos bidirecionalmente entre JSON e Database/INI mantendo a estrutura e os dados.
+                </div>
+            </div>
+        </div>
+        
+        <h2>6. TESTES DE VALIDAÇÃO E TRATAMENTO DE ERROS</h2>
+        
+        <div class="test-section">
+            <div class="test-item">
+                <h4>6.1 Teste de Validação de Campos Obrigatórios <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Testar validação em Database: tentar inserir sem ContratoID, ProdutoID ou Chave</li>
+                        <li>Testar validação em Inifiles: tentar inserir sem FilePath, Título ou Chave</li>
+                        <li>Testar validação em JsonObject: tentar inserir sem FilePath, Título ou Chave</li>
+                        <li>Verificar se as mensagens de erro são específicas e informativas</li>
+                        <li>Verificar se o foco vai para o campo que está faltando</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Todas as validações devem ser executadas antes de tentar inserir/atualizar. As mensagens devem ser claras e o foco deve ir para o campo com problema.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>6.2 Teste de Validação de Tipos Numéricos <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Tentar inserir valores negativos em ContratoID, ProdutoID ou Ordem</li>
+                        <li>Verificar se o erro é exibido</li>
+                        <li>Tentar inserir valores não numéricos</li>
+                        <li>Verificar se o sistema trata corretamente (usa StrToIntDef com valor padrão)</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve validar que ContratoID, ProdutoID e Ordem sejam >= 0. Valores não numéricos devem ser tratados com valores padrão.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>6.3 Teste de Tratamento de Tabela Não Existente <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Conectar a um banco de dados sem a tabela config</li>
+                        <li>Tentar listar os registros</li>
+                        <li>Verificar se o sistema pergunta se deseja criar a tabela</li>
+                        <li>Confirmar a criação</li>
+                        <li>Verificar se a tabela é criada com a estrutura correta</li>
+                        <li>Verificar se os registros podem ser listados após a criação</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve detectar que a tabela não existe, oferecer a opção de criá-la, e criar com a estrutura correta (incluindo autoincrement para config_id conforme o tipo de banco).
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>6.4 Teste de Tratamento de Banco Não Existente <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Tentar conectar a um banco de dados que não existe (ex: "dbsgp")</li>
+                        <li>Verificar se o sistema detecta o erro "Unknown database"</li>
+                        <li>Verificar se o sistema lista os bancos disponíveis</li>
+                        <li>Selecionar um banco da lista</li>
+                        <li>Verificar se a conexão é estabelecida com o banco selecionado</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve detectar o erro, listar os bancos disponíveis e permitir seleção. Após seleção, deve conectar automaticamente.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>6.5 Teste de Tratamento de Erros de Conexão <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Tentar conectar com credenciais incorretas</li>
+                        <li>Verificar se a mensagem de erro é exibida</li>
+                        <li>Tentar conectar com host inacessível</li>
+                        <li>Verificar se a mensagem de erro é exibida</li>
+                        <li>Tentar conectar a um arquivo SQLite em um diretório sem permissão</li>
+                        <li>Verificar se a mensagem de erro é específica e informativa</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Todas as mensagens de erro devem ser claras e informativas, ajudando o usuário a identificar o problema.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>6.6 Teste de Tratamento de Arquivo JSON Inválido <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Tentar carregar um arquivo JSON com sintaxe inválida</li>
+                        <li>Verificar se o erro é exibido</li>
+                        <li>Tentar carregar um arquivo JSON vazio</li>
+                        <li>Verificar se o sistema trata corretamente</li>
+                        <li>Tentar importar um JSON sem parâmetros</li>
+                        <li>Verificar se a mensagem informa o formato esperado</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve detectar JSON inválido e mostrar mensagens específicas. Se não houver parâmetros, deve informar o formato esperado.
+                </div>
+            </div>
+        </div>
+        
+        <h2>7. TESTES DE FUNCIONALIDADES ESPECIAIS</h2>
+        
+        <div class="test-section">
+            <div class="test-item">
+                <h4>7.1 Teste de Reordenação Automática <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Inserir um parâmetro com Ordem = 0</li>
+                        <li>Verificar se a ordem é calculada automaticamente (próxima disponível)</li>
+                        <li>Inserir um parâmetro com Ordem = 5 em um título que já tem parâmetros</li>
+                        <li>Verificar se as ordens existentes são ajustadas (shift)</li>
+                        <li>Atualizar um parâmetro mudando o Título para um que não existe</li>
+                        <li>Verificar se a ordem é resetada para 1</li>
+                        <li>Atualizar um parâmetro mudando o Título para um que já existe</li>
+                        <li>Verificar se a lógica de reordenação padrão é aplicada</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> A reordenação automática deve funcionar conforme configurado nas constantes do módulo. Se o título não existir, a ordem deve ser resetada para 1.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>7.2 Teste de Ordenação Padrão <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Listar todos os registros</li>
+                        <li>Verificar se a ordenação padrão é aplicada automaticamente</li>
+                        <li>Verificar se a ordem é: Contrato → Produto → Título → Ordem</li>
+                        <li>Clicar em uma coluna para ordenar</li>
+                        <li>Verificar se a ordenação hierárquica é mantida</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> A ordenação padrão deve ser sempre Contrato → Produto → Título → Ordem. Ao clicar em uma coluna, a ordenação hierárquica deve ser mantida.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>7.3 Teste de Detecção de Encoding em JSON (UTF-8 e ANSI) <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Criar arquivos JSON com diferentes encodings:
+                            <ul>
+                                <li>UTF-8 com BOM (EF BB BF)</li>
+                                <li>UTF-8 sem BOM</li>
+                                <li>ANSI (Windows-1252 ou similar)</li>
+                            </ul>
+                        </li>
+                        <li>Carregar cada arquivo</li>
+                        <li>Verificar se o encoding é detectado automaticamente:
+                            <ul>
+                                <li>UTF-8 com BOM: Detecta pelo BOM (EF BB BF) e remove</li>
+                                <li>UTF-8 sem BOM: Detecta pela validação de sequências UTF-8 válidas</li>
+                                <li>ANSI: Usado como fallback se não for UTF-8 válido</li>
+                            </ul>
+                        </li>
+                        <li>Verificar se o BOM é removido (apenas UTF-8 com BOM)</li>
+                        <li>Verificar se os dados são carregados corretamente</li>
+                        <li>Salvar um arquivo JSON e verificar se é salvo em UTF-8 sem BOM</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve detectar automaticamente UTF-8 (com/sem BOM) ou usar ANSI como fallback. O BOM UTF-8 deve ser removido durante a leitura. Todos os arquivos devem ser carregados corretamente. Arquivos salvos devem ser sempre em UTF-8 sem BOM.
+                </div>
+                <div class="note">
+                    <strong>📌 Simplificação Implementada:</strong> O sistema foi simplificado para suportar apenas UTF-8 e ANSI, removendo suporte a UTF-16 (LE/BE) para facilitar manutenção e compatibilidade. Todos os arquivos são salvos em UTF-8 sem BOM.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>7.4 Teste de Busca Case-Insensitive em JSON <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Criar um arquivo JSON com chaves em diferentes casos:
+                            <pre>{
+  "Contrato": {"Contrato_ID": 1, "Produto_ID": 1},
+  "Titulo1": {
+    "chave1": {"valor": "valor1"}
+  }
+}</pre>
+                        </li>
+                        <li>Carregar o arquivo</li>
+                        <li>Verificar se as chaves são encontradas independente do caso</li>
+                        <li>Verificar se "Contrato", "contrato", "CONTRATO" são todos reconhecidos</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> A busca deve ser case-insensitive. Chaves como "Contrato", "contrato", "CONTRATO" devem ser todas reconhecidas.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>7.5 Teste de Ajuste de Campos por Tipo de Banco <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Selecionar diferentes tipos de banco no <code>cmbDatabaseType</code></li>
+                        <li>Verificar se os campos são ajustados automaticamente:
+                            <ul>
+                                <li>SQLite/Access: Host/Port ocultos, botão "Selecionar Database" visível</li>
+                                <li>FireBird: Host/Port visíveis (remoto) ou ocultos (local)</li>
+                                <li>ODBC: Host/Port ocultos, ComboBox DSN visível, Schema condicional</li>
+                                <li>PostgreSQL/SQL Server: Schema visível</li>
+                                <li>MySQL: Schema oculto</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Os campos devem ser ajustados automaticamente conforme o tipo de banco selecionado, mostrando apenas os campos relevantes.
+                </div>
+            </div>
+        </div>
+        
+        <h2>8. FUNCIONALIDADES FALTANTES / MELHORIAS SUGERIDAS</h2>
+        
+        <div class="test-section">
+            <div class="test-item">
+                <h4>8.1 Teste de Thread-Safety <span class="status-badge status-missing">❌ NÃO TESTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li><strong>IMPLEMENTAR:</strong> Criar testes com múltiplas threads acessando o mesmo objeto <code>FParameters</code> simultaneamente</li>
+                        <li>Testar inserção simultânea de múltiplos registros</li>
+                        <li>Testar leitura simultânea enquanto outra thread está escrevendo</li>
+                        <li>Verificar se não há race conditions ou corrupção de dados</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve ser thread-safe, usando <code>TCriticalSection</code> para proteger operações críticas. Não deve haver corrupção de dados ou exceções de acesso concorrente.
+                </div>
+                <div class="note">
+                    <strong>📌 Nota:</strong> O módulo Parameters já implementa thread-safety internamente, mas não há testes automatizados na interface VCL.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>8.2 Teste de Performance com Grandes Volumes <span class="status-badge status-missing">❌ NÃO TESTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li><strong>IMPLEMENTAR:</strong> Criar testes com grandes volumes de dados (10.000+ registros)</li>
+                        <li>Testar tempo de listagem</li>
+                        <li>Testar tempo de inserção em lote</li>
+                        <li>Testar tempo de exportação/importação</li>
+                        <li>Verificar uso de memória</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve manter performance aceitável mesmo com grandes volumes. A listagem deve usar paginação ou virtualização se necessário.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>8.3 Teste de Undo/Redo <span class="status-badge status-missing">❌ NÃO IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li><strong>IMPLEMENTAR:</strong> Adicionar funcionalidade de Undo/Redo</li>
+                        <li>Testar desfazer uma inserção</li>
+                        <li>Testar desfazer uma atualização</li>
+                        <li>Testar desfazer uma exclusão</li>
+                        <li>Testar refazer operações</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve permitir desfazer e refazer operações CRUD, mantendo um histórico de alterações.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>8.4 Teste de Busca Avançada <span class="status-badge status-missing">❌ NÃO IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li><strong>IMPLEMENTAR:</strong> Adicionar funcionalidade de busca avançada com múltiplos critérios</li>
+                        <li>Testar busca por intervalo de datas (CreatedAt, UpdatedAt)</li>
+                        <li>Testar busca por múltiplos valores de ContratoID/ProdutoID</li>
+                        <li>Testar busca por expressões regulares</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve permitir buscas mais complexas com múltiplos critérios e operadores lógicos (AND, OR, NOT).
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>8.5 Teste de Exportação em Múltiplos Formatos <span class="status-badge status-missing">❌ NÃO IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li><strong>IMPLEMENTAR:</strong> Adicionar exportação para CSV, XML, Excel</li>
+                        <li>Testar exportação para CSV</li>
+                        <li>Testar exportação para XML</li>
+                        <li>Testar exportação para Excel</li>
+                        <li>Verificar se os dados são exportados corretamente em cada formato</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve permitir exportação para múltiplos formatos, mantendo a estrutura e os dados corretos.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>8.6 Teste de Validação de Estrutura de Tabela <span class="status-badge status-implemented">✅ IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li>Conectar a um banco com uma tabela "config" que tem estrutura incompatível</li>
+                        <li>Verificar se o sistema detecta a incompatibilidade</li>
+                        <li>Verificar se o sistema sugere renomear a tabela</li>
+                        <li>Verificar se o sistema lista as tabelas disponíveis</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> O sistema deve validar a estrutura da tabela e sugerir renomeação se incompatível. Deve listar tabelas disponíveis para ajudar o usuário.
+                </div>
+            </div>
+            
+            <div class="test-item">
+                <h4>8.7 Teste de Log de Operações <span class="status-badge status-missing">❌ NÃO IMPLEMENTADO</span></h4>
+                <div class="test-steps">
+                    <ol>
+                        <li><strong>IMPLEMENTAR:</strong> Adicionar sistema de log de operações</li>
+                        <li>Realizar operações CRUD</li>
+                        <li>Verificar se as operações são registradas em log</li>
+                        <li>Verificar se o log inclui: usuário, data/hora, operação, dados antes/depois</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>Resultado Esperado:</strong> Todas as operações CRUD devem ser registradas em log para auditoria, incluindo informações detalhadas sobre as alterações.
+                </div>
+            </div>
+        </div>
+        
+        <h2>9. CHECKLIST DE VALIDAÇÃO FINAL</h2>
+        
+        <div class="test-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Categoria</th>
+                        <th>Funcionalidade</th>
+                        <th>Status</th>
+                        <th>Observações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="8"><strong>Database</strong></td>
+                        <td>Conexão (Rede)</td>
+                        <td>✅</td>
+                        <td>Suporta PostgreSQL, MySQL, SQL Server</td>
+                    </tr>
+                    <tr>
+                        <td>Conexão (Arquivo)</td>
+                        <td>✅</td>
+                        <td>Suporta SQLite, Access, FireBird</td>
+                    </tr>
+                    <tr>
+                        <td>Conexão ODBC</td>
+                        <td>✅</td>
+                        <td>Lista DSNs do sistema</td>
+                    </tr>
+                    <tr>
+                        <td>List</td>
+                        <td>✅</td>
+                        <td>Ordenação padrão implementada</td>
+                    </tr>
+                    <tr>
+                        <td>Insert</td>
+                        <td>✅</td>
+                        <td>Reordenação automática</td>
+                    </tr>
+                    <tr>
+                        <td>Update</td>
+                        <td>✅</td>
+                        <td>Lógica de título renomeado</td>
+                    </tr>
+                    <tr>
+                        <td>Delete</td>
+                        <td>✅</td>
+                        <td>Confirmação antes de deletar</td>
+                    </tr>
+                    <tr>
+                        <td>Drop Table</td>
+                        <td>✅</td>
+                        <td>Inclui generators/triggers (Firebird)</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="8"><strong>Inifiles</strong></td>
+                        <td>Configuração</td>
+                        <td>✅</td>
+                        <td>Auto-create implementado</td>
+                    </tr>
+                    <tr>
+                        <td>List</td>
+                        <td>✅</td>
+                        <td>Filtros funcionando</td>
+                    </tr>
+                    <tr>
+                        <td>Insert</td>
+                        <td>✅</td>
+                        <td>Validação completa</td>
+                    </tr>
+                    <tr>
+                        <td>Update</td>
+                        <td>✅</td>
+                        <td>Usa Título como seção</td>
+                    </tr>
+                    <tr>
+                        <td>Delete</td>
+                        <td>✅</td>
+                        <td>Remove chave da seção</td>
+                    </tr>
+                    <tr>
+                        <td>Import/Export Database</td>
+                        <td>✅</td>
+                        <td>Bidirecional</td>
+                    </tr>
+                    <tr>
+                        <td>Import/Export JSON</td>
+                        <td>✅</td>
+                        <td>Bidirecional</td>
+                    </tr>
+                    <tr>
+                        <td>Validação</td>
+                        <td>✅</td>
+                        <td>Campos obrigatórios</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="8"><strong>JsonObject</strong></td>
+                        <td>Configuração</td>
+                        <td>✅</td>
+                        <td>Auto-create implementado</td>
+                    </tr>
+                    <tr>
+                        <td>Load File</td>
+                        <td>✅</td>
+                        <td>Detecção de encoding</td>
+                    </tr>
+                    <tr>
+                        <td>List</td>
+                        <td>✅</td>
+                        <td>Case-insensitive</td>
+                    </tr>
+                    <tr>
+                        <td>Insert</td>
+                        <td>✅</td>
+                        <td>Validação completa</td>
+                    </tr>
+                    <tr>
+                        <td>Update</td>
+                        <td>✅</td>
+                        <td>Usa Título como objeto</td>
+                    </tr>
+                    <tr>
+                        <td>Delete</td>
+                        <td>✅</td>
+                        <td>Remove chave do objeto</td>
+                    </tr>
+                    <tr>
+                        <td>Save File</td>
+                        <td>✅</td>
+                        <td>Formatação JSON</td>
+                    </tr>
+                    <tr>
+                        <td>Import/Export</td>
+                        <td>✅</td>
+                        <td>Database e Inifiles</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="5"><strong>Validações</strong></td>
+                        <td>Campos Obrigatórios</td>
+                        <td>✅</td>
+                        <td>Todas as fontes</td>
+                    </tr>
+                    <tr>
+                        <td>Tipos Numéricos</td>
+                        <td>✅</td>
+                        <td>Validação >= 0</td>
+                    </tr>
+                    <tr>
+                        <td>Tabela Não Existe</td>
+                        <td>✅</td>
+                        <td>Oferece criação</td>
+                    </tr>
+                    <tr>
+                        <td>Banco Não Existe</td>
+                        <td>✅</td>
+                        <td>Lista bancos disponíveis</td>
+                    </tr>
+                    <tr>
+                        <td>JSON Inválido</td>
+                        <td>✅</td>
+                        <td>Mensagens informativas</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3"><strong>Especiais</strong></td>
+                        <td>Reordenação Automática</td>
+                        <td>✅</td>
+                        <td>Lógica completa</td>
+                    </tr>
+                    <tr>
+                        <td>Ordenação Padrão</td>
+                        <td>✅</td>
+                        <td>Contrato → Produto → Título → Ordem</td>
+                    </tr>
+                    <tr>
+                        <td>Ajuste de Campos</td>
+                        <td>✅</td>
+                        <td>Por tipo de banco</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="5"><strong>Faltantes</strong></td>
+                        <td>Thread-Safety (Testes)</td>
+                        <td>❌</td>
+                        <td>Implementar testes automatizados</td>
+                    </tr>
+                    <tr>
+                        <td>Performance (Grandes Volumes)</td>
+                        <td>❌</td>
+                        <td>Implementar testes de carga</td>
+                    </tr>
+                    <tr>
+                        <td>Undo/Redo</td>
+                        <td>❌</td>
+                        <td>Funcionalidade não implementada</td>
+                    </tr>
+                    <tr>
+                        <td>Busca Avançada</td>
+                        <td>❌</td>
+                        <td>Funcionalidade não implementada</td>
+                    </tr>
+                    <tr>
+                        <td>Exportação Múltiplos Formatos</td>
+                        <td>❌</td>
+                        <td>Funcionalidade não implementada</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <h2>10. CONCLUSÃO</h2>
+        
+        <div class="test-section">
+            <div class="note">
+                <h3>Status Geral dos Testes</h3>
+                <p><strong>✅ Implementado e Testado:</strong> ~85% das funcionalidades</p>
+                <p><strong>🟡 Parcialmente Testado:</strong> ~10% das funcionalidades</p>
+                <p><strong>❌ Não Testado/Faltante:</strong> ~5% das funcionalidades</p>
+                
+                <h3 style="margin-top: 20px;">Funcionalidades Principais Validadas:</h3>
+                <ul>
+                    <li>✅ CRUD completo para Database, Inifiles e JsonObject</li>
+                    <li>✅ Importação/Exportação bidirecional entre todas as fontes</li>
+                    <li>✅ Validações de campos e tratamento de erros</li>
+                    <li>✅ Reordenação automática e ordenação padrão</li>
+                    <li>✅ Detecção automática de engine e encoding</li>
+                    <li>✅ Ajuste dinâmico de campos por tipo de banco</li>
+                </ul>
+                
+                <h3 style="margin-top: 20px;">Melhorias Sugeridas:</h3>
+                <ul>
+                    <li>🟡 Implementar testes automatizados de thread-safety</li>
+                    <li>🟡 Implementar testes de performance com grandes volumes</li>
+                    <li>🟡 Adicionar funcionalidade de Undo/Redo</li>
+                    <li>🟡 Adicionar busca avançada com múltiplos critérios</li>
+                    <li>🟡 Adicionar exportação para CSV, XML, Excel</li>
+                    <li>🟡 Adicionar sistema de log de operações</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 5px; text-align: center;">
+            <p><strong>Documento gerado em:</strong> 02/01/2026</p>
+            <p><strong>Versão do Roteiro:</strong> 1.0.0</p>
+            <p><strong>Baseado em:</strong> ufrmConfigCRUD.pas (4617 linhas)</p>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagrama de Hierarquia - Módulo Parameters</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-left: 15px;
+            border-left: 5px solid #667eea;
+            font-size: 1.8em;
+        }
+        .diagram-container {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            margin: 30px 0;
+            position: relative;
+            overflow-x: auto;
+        }
+        .hierarchy-tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 1000px;
+        }
+        .level {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+            margin: 30px 0;
+            position: relative;
+        }
+        .unit-box {
+            background: white;
+            border: 3px solid;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            min-width: 280px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            position: relative;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .unit-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+        .unit-box.level-1 {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #e6f3ff 0%, #cce7ff 100%);
+        }
+        .unit-box.level-2 {
+            border-color: #48bb78;
+            background: linear-gradient(135deg, #e6fff2 0%, #ccffe6 100%);
+        }
+        .unit-box.level-3 {
+            border-color: #ed8936;
+            background: linear-gradient(135deg, #fff4e6 0%, #ffe6cc 100%);
+        }
+        .unit-box.level-4 {
+            border-color: #718096;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+        }
+        .unit-box.future {
+            border-color: #cbd5e0;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            opacity: 0.7;
+        }
+        .unit-header {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .unit-name {
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .unit-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+        .badge-public {
+            background: #667eea;
+            color: white;
+        }
+        .badge-interface {
+            background: #48bb78;
+            color: white;
+        }
+        .badge-implementation {
+            background: #ed8936;
+            color: white;
+        }
+        .badge-private {
+            background: #718096;
+            color: white;
+        }
+        .badge-future {
+            background: #cbd5e0;
+            color: #4a5568;
+        }
+        .unit-desc {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+        .unit-uses {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #ccc;
+            font-size: 0.85em;
+        }
+        .uses-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .uses-list {
+            color: #666;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        .arrow-down {
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #667eea;
+            margin: 10px 0;
+        }
+        .arrow-line {
+            width: 3px;
+            height: 30px;
+            background: #667eea;
+            margin: 5px 0;
+        }
+        .connection-line {
+            position: absolute;
+            border: 2px solid #667eea;
+            opacity: 0.3;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px 0;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 15px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .legend-color {
+            width: 35px;
+            height: 35px;
+            border-radius: 5px;
+            border: 2px solid #333;
+        }
+        .legend-color.level-1 { background: linear-gradient(135deg, #e6f3ff 0%, #cce7ff 100%); border-color: #667eea; }
+        .legend-color.level-2 { background: linear-gradient(135deg, #e6fff2 0%, #ccffe6 100%); border-color: #48bb78; }
+        .legend-color.level-3 { background: linear-gradient(135deg, #fff4e6 0%, #ffe6cc 100%); border-color: #ed8936; }
+        .legend-color.level-4 { background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%); border-color: #718096; }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .dependency-diagram {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .dependency-card {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .dependency-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        .dependency-list {
+            list-style: none;
+            padding: 0;
+        }
+        .dependency-list li {
+            padding: 8px 0;
+            border-bottom: 1px dotted #ddd;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        .dependency-list li:last-child {
+            border-bottom: none;
+        }
+        .dependency-list li:before {
+            content: "→ ";
+            color: #667eea;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Diagrama de Hierarquia - Módulo Parameters</h1>
+        
+        <div class="info-box">
+            <p><strong>Versão:</strong> 1.0.0</p>
+            <p><strong>Data:</strong> 02/01/2026</p>
+            <p><strong>Descrição:</strong> Diagrama mostrando a hierarquia e dependências entre as units do módulo Parameters</p>
+            <p><strong>🔒 Independência:</strong> O módulo Parameters funciona de forma totalmente independente, sem depender de ProvidersORM.DataModule ou Common.Types</p>
+            <p><strong>📦 Units Auxiliares:</strong> Types e Consts são units auxiliares compartilhadas por <strong>TODAS</strong> as units do módulo Parameters</p>
+        </div>
+
+        <h2>🏗️ Hierarquia de Units e Relação com Projeto ORM</h2>
+        
+        <div class="info-box" style="background: #fff3e0; border-left-color: #ff9800;">
+            <p><strong>📌 Contexto:</strong> O Projeto ORM consulta o Parameters para obter as configurações necessárias para o funcionamento do ORM.</p>
+            <p><strong>Exemplos:</strong> Dados de conexão de banco, contrato, produto, entre outros parâmetros necessários para o projeto que está utilizando o módulo ORM.</p>
+        </div>
+        
+        <div class="diagram-container">
+            <div class="hierarchy-tree">
+                <!-- Nível 0: Projeto ORM -->
+                <div class="level">
+                    <div class="unit-box" style="border-color: #9c27b0; background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); min-width: 400px;">
+                        <div class="unit-header">
+                            <span>🏗️</span>
+                            <span class="unit-name" style="color: #9c27b0;">PROJETO PROVIDER ORM</span>
+                            <span class="unit-badge" style="background: #9c27b0; color: white;">CONSUMIDOR</span>
+                        </div>
+                        <div class="unit-desc">
+                            <strong>Sistema Principal</strong><br>
+                            Utiliza o módulo Parameters para obter:<br>
+                            • Configurações de conexão<br>
+                            • Parâmetros de contrato/produto<br>
+                            • Outras configurações necessárias
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow-line" style="background: #9c27b0;"></div>
+                <div class="arrow-down" style="border-top-color: #9c27b0;"></div>
+                <div class="arrow-line" style="background: #9c27b0;"></div>
+
+                <!-- Nível 1: Acesso Externo (Container) -->
+                <div class="level">
+                    <div style="border: 3px dashed #667eea; border-radius: 15px; padding: 30px; background: rgba(102, 126, 234, 0.05); min-width: 900px;">
+                        <div style="text-align: right; margin-bottom: 20px;">
+                            <span class="unit-badge badge-public" style="font-size: 0.9em;">ACESSO EXTERNO</span>
+                        </div>
+                        <div style="display: flex; gap: 20px; justify-content: center;">
+                            <!-- Nível 1: Público (Factory) -->
+                            <div class="unit-box level-1" style="flex: 1;">
+                                <div class="unit-header">
+                                    <span>📄</span>
+                                    <span class="unit-name">Modulo.Parameters.pas</span>
+                                    <span class="unit-badge badge-public">PÚBLICO</span>
+                                </div>
+                                <div class="unit-desc">
+                                    <strong>Factory Class</strong><br>
+                                    Ponto de entrada único do módulo<br>
+                                    Classe: <code>TParameters</code><br>
+                                    Métodos: <code>New()</code> (2 overloads)
+                                </div>
+                                <div class="unit-uses">
+                                    <div class="uses-title">Uses:</div>
+                                    <div class="uses-list">
+                                        • Modulo.Parameters.Intefaces<br>
+                                        • System.SysUtils
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="unit-box level-1" style="flex: 1;">
+                                <div class="unit-header">
+                                    <span>🔌</span>
+                                    <span class="unit-name">Modulo.Parameters.Intefaces.pas</span>
+                                    <span class="unit-badge badge-interface">INTERFACE</span>
+                                </div>
+                                <div class="unit-desc">
+                                    <strong>Interfaces Públicas</strong><br>
+                                    Interface: <code>IParametersDatabase</code><br>
+                                    Expõe tipos: TParameter, TParameterList
+                                </div>
+                                <div class="unit-uses">
+                                    <div class="uses-title">Uses:</div>
+                                    <div class="uses-list">
+                                        • Modulo.Parameters.Types<br>
+                                        • System.SysUtils
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow-line"></div>
+                <div class="arrow-down"></div>
+                <div class="arrow-line"></div>
+
+                <!-- Nível 2: Implementações (Fontes de Dados) -->
+                <div class="level">
+                    <div class="unit-box level-3">
+                        <div class="unit-header">
+                            <span>💾</span>
+                            <span class="unit-name">Modulo.Parameters.Database.pas</span>
+                            <span class="unit-badge badge-implementation">IMPLEMENTAÇÃO</span>
+                        </div>
+                        <div class="unit-desc">
+                            <strong>Fonte: Banco de Dados</strong><br>
+                            Classe: <code>TParametersDatabase</code><br>
+                            Implementa: <code>IParametersDatabase</code><br>
+                            CRUD, Conexão, Queries<br>
+                            <strong>✅ IMPLEMENTADO</strong><br>
+                            <strong>🔒 INDEPENDENTE</strong>
+                        </div>
+                        <div class="unit-uses">
+                            <div class="uses-title">Uses:</div>
+                            <div class="uses-list">
+                                • Modulo.Parameters.Intefaces<br>
+                                • Modulo.Parameters.Types<br>
+                                • Modulo.Parameters.Consts<br>
+                                • Engines (UNIDAC/FireDAC/Zeos)<br>
+                                • DataSet.Serialize<br>
+                                • System.*
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="unit-box level-3 future">
+                        <div class="unit-header">
+                            <span>📦</span>
+                            <span class="unit-name">Modulo.Parameters.JsonObject.pas</span>
+                            <span class="unit-badge badge-future">FUTURO</span>
+                        </div>
+                        <div class="unit-desc">
+                            <strong>Fonte: JSON Object</strong><br>
+                            Acesso a parâmetros via objetos JSON<br>
+                            <em>(Não implementado)</em><br>
+                            <strong>🔒 INDEPENDENTE</strong>
+                        </div>
+                        <div class="unit-uses">
+                            <div class="uses-title">Uses:</div>
+                            <div class="uses-list">
+                                <em>Não definido</em>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="unit-box level-3 future">
+                        <div class="unit-header">
+                            <span>📝</span>
+                            <span class="unit-name">Modulo.Parameters.Inifiles.pas</span>
+                            <span class="unit-badge badge-future">FUTURO</span>
+                        </div>
+                        <div class="unit-desc">
+                            <strong>Fonte: Arquivo INI</strong><br>
+                            Acesso a parâmetros via arquivos INI<br>
+                            <em>(Não implementado)</em><br>
+                            <strong>🔒 INDEPENDENTE</strong>
+                        </div>
+                        <div class="unit-uses">
+                            <div class="uses-title">Uses:</div>
+                            <div class="uses-list">
+                                <em>Não definido</em>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow-line"></div>
+                <div class="arrow-down"></div>
+                <div class="arrow-line"></div>
+
+                <!-- Nível 3: Retaguarda (Units Auxiliares - Compartilhadas) -->
+                <div class="level">
+                    <div style="border: 3px dashed #718096; border-radius: 15px; padding: 30px; background: rgba(113, 128, 150, 0.08); min-width: 900px; position: relative;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <span class="unit-badge badge-private" style="font-size: 1em; padding: 8px 15px;">RETAGUARDA - UNITS AUXILIARES COMPARTILHADAS</span>
+                            <div style="margin-top: 10px; font-size: 0.9em; color: #555; font-style: italic;">
+                                Usadas por <strong>TODAS</strong> as units do módulo Parameters
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 25px; justify-content: center;">
+                            <div class="unit-box level-4" style="flex: 1;">
+                                <div class="unit-header">
+                                    <span>📋</span>
+                                    <span class="unit-name">Modulo.Parameters.Types.pas</span>
+                                    <span class="unit-badge badge-private">AUXILIAR</span>
+                                </div>
+                                <div class="unit-desc">
+                                    <strong>Tipos do Sistema</strong><br>
+                                    Classes: <code>TParameter</code>, <code>TParameterList</code><br>
+                                    Enums: <code>TParameterValueType</code>, <code>TParameterSource</code><br>
+                                    <strong>🔒 INDEPENDENTE</strong><br>
+                                    <strong>📦 COMPARTILHADO</strong> por todas as units
+                                </div>
+                                <div class="unit-uses">
+                                    <div class="uses-title">Usado por:</div>
+                                    <div class="uses-list" style="color: #48bb78; font-weight: bold;">
+                                        • Parameters.pas<br>
+                                        • Parameters.Intefaces.pas<br>
+                                        • Parameters.Database.pas<br>
+                                        • Parameters.Consts.pas<br>
+                                        • Parameters.JsonObject.pas<br>
+                                        • Parameters.Inifiles.pas
+                                    </div>
+                                </div>
+                                <div class="unit-uses" style="margin-top: 10px;">
+                                    <div class="uses-title">Uses:</div>
+                                    <div class="uses-list">
+                                        • System.SysUtils<br>
+                                        • System.Classes<br>
+                                        • System.Generics.Collections<br>
+                                        • DB
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="unit-box level-4" style="flex: 1;">
+                                <div class="unit-header">
+                                    <span>🔧</span>
+                                    <span class="unit-name">Modulo.Parameters.Consts.pas</span>
+                                    <span class="unit-badge badge-private">AUXILIAR</span>
+                                </div>
+                                <div class="unit-desc">
+                                    <strong>Constantes e Configurações</strong><br>
+                                    Constantes: <code>DEFAULT_PARAMETERS_*</code><br>
+                                    SQL Templates, Mensagens<br>
+                                    <strong>🔒 INDEPENDENTE</strong><br>
+                                    <strong>📦 COMPARTILHADO</strong> por todas as units
+                                </div>
+                                <div class="unit-uses">
+                                    <div class="uses-title">Usado por:</div>
+                                    <div class="uses-list" style="color: #48bb78; font-weight: bold;">
+                                        • Parameters.Database.pas<br>
+                                        • Parameters.JsonObject.pas<br>
+                                        • Parameters.Inifiles.pas<br>
+                                        • (outras units conforme necessário)
+                                    </div>
+                                </div>
+                                <div class="unit-uses" style="margin-top: 10px;">
+                                    <div class="uses-title">Uses:</div>
+                                    <div class="uses-list">
+                                        • Modulo.Parameters.Types<br>
+                                        • ParamentersORM.Defines.inc<br>
+                                        • ParamentersORM.Database.inc
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2>🔗 Dependências Detalhadas</h2>
+        
+        <div class="dependency-diagram">
+            <div class="dependency-card">
+                <h3>Modulo.Parameters.pas</h3>
+                <ul class="dependency-list">
+                    <li>Modulo.Parameters.Intefaces</li>
+                    <li>System.SysUtils</li>
+                    <li><em>Implementation:</em></li>
+                    <li>Modulo.Parameters.Database</li>
+                    <li>Data.DB</li>
+                </ul>
+            </div>
+
+            <div class="dependency-card">
+                <h3>Modulo.Parameters.Intefaces.pas</h3>
+                <ul class="dependency-list">
+                    <li>Modulo.Parameters.Types</li>
+                    <li>System.SysUtils</li>
+                    <li>ParamentersORM.Defines.inc</li>
+                </ul>
+            </div>
+
+            <div class="dependency-card">
+                <h3>Modulo.Parameters.Types.pas</h3>
+                <ul class="dependency-list">
+                    <li>System.SysUtils</li>
+                    <li>System.Classes</li>
+                    <li>System.Generics.Collections</li>
+                    <li>DB</li>
+                    <li>ParamentersORM.Defines.inc</li>
+                </ul>
+            </div>
+
+            <div class="dependency-card">
+                <h3>Modulo.Parameters.Database.pas</h3>
+                <ul class="dependency-list">
+                    <li>Modulo.Parameters.Intefaces</li>
+                    <li>Modulo.Parameters.Types</li>
+                    <li>Modulo.Parameters.Consts</li>
+                    <li>System.* (múltiplos)</li>
+                    <li>Engines (UNIDAC/FireDAC/Zeos)</li>
+                    <li>DataSet.Serialize</li>
+                </ul>
+            </div>
+
+            <div class="dependency-card">
+                <h3>Modulo.Parameters.Consts.pas</h3>
+                <ul class="dependency-list">
+                    <li>Modulo.Parameters.Types</li>
+                    <li>System.SysUtils</li>
+                    <li>ParamentersORM.Defines.inc</li>
+                    <li>ParamentersORM.Database.inc</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>📈 Fluxo de Dependências e Relação com ORM</h2>
+        
+        <div class="diagram-container">
+            <div style="text-align: center; padding: 20px;">
+                <div style="display: inline-block; text-align: left;">
+                    <div style="margin: 10px 0; padding: 15px; background: #f3e5f5; border-left: 4px solid #9c27b0; border-radius: 5px;">
+                        <strong>Nível 0 - Consumidor:</strong><br>
+                        <code>PROJETO PROVIDER ORM</code><br>
+                        <small>Consulta Parameters para obter configurações (conexão, contrato, produto, etc.)</small>
+                    </div>
+                    <div style="text-align: center; margin: 10px 0;">⬇️</div>
+                    <div style="margin: 10px 0; padding: 15px; background: #e6f3ff; border-left: 4px solid #667eea; border-radius: 5px;">
+                        <strong>Nível 1 - Acesso Externo:</strong><br>
+                        <code>Modulo.Parameters.pas</code> (Factory) + <code>Modulo.Parameters.Intefaces.pas</code><br>
+                        <small>Ponto de entrada público para o ORM</small>
+                    </div>
+                    <div style="text-align: center; margin: 10px 0;">⬇️</div>
+                    <div style="margin: 10px 0; padding: 15px; background: #fff4e6; border-left: 4px solid #ed8936; border-radius: 5px;">
+                        <strong>Nível 2 - Implementações (Fontes de Dados):</strong><br>
+                        <code>Modulo.Parameters.Database.pas</code> ✅ | <code>Modulo.Parameters.JsonObject.pas</code> ⏳ | <code>Modulo.Parameters.Inifiles.pas</code> ⏳<br>
+                        <small>Diferentes fontes de parâmetros (Banco, JSON, INI) - <strong>🔒 INDEPENDENTES</strong></small>
+                    </div>
+                    <div style="text-align: center; margin: 10px 0;">⬇️</div>
+                    <div style="margin: 10px 0; padding: 15px; background: #f0f0f0; border-left: 4px solid #718096; border-radius: 5px;">
+                        <strong>Nível 3 - Retaguarda (Units Auxiliares Compartilhadas):</strong><br>
+                        <code>Modulo.Parameters.Types.pas</code> + <code>Modulo.Parameters.Consts.pas</code><br>
+                        <small>Tipos e constantes de suporte - <strong>🔒 INDEPENDENTES</strong> | <strong>📦 COMPARTILHADAS</strong> por todas as units do módulo</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2>🎯 Regras de Acesso</h2>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color level-1"></div>
+                <div>
+                    <strong>Nível 1 - Público</strong><br>
+                    <small>Acesso externo permitido</small>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color level-2"></div>
+                <div>
+                    <strong>Nível 2 - Interface</strong><br>
+                    <small>Acesso externo permitido</small>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color level-3"></div>
+                <div>
+                    <strong>Nível 3 - Implementação</strong><br>
+                    <small>Acesso apenas via Factory</small>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color level-4"></div>
+                <div>
+                    <strong>Nível 4 - Privado</strong><br>
+                    <small>Acesso apenas interno</small>
+                </div>
+            </div>
+        </div>
+
+        <h2>📋 Resumo da Hierarquia</h2>
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <thead>
+                <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <th style="padding: 12px; text-align: left;">Unit</th>
+                    <th style="padding: 12px; text-align: left;">Nível</th>
+                    <th style="padding: 12px; text-align: left;">Acesso</th>
+                    <th style="padding: 12px; text-align: left;">Dependências Diretas</th>
+                    <th style="padding: 12px; text-align: left;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background: #e6f3ff;">
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Modulo.Parameters.pas</code></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">1 - Factory</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Público</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Intefaces</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Implementado</td>
+                </tr>
+                <tr style="background: #e6fff2;">
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Modulo.Parameters.Intefaces.pas</code></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">2 - Interface</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Público</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Types</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Implementado</td>
+                </tr>
+                <tr style="background: #e6fff2;">
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Modulo.Parameters.Types.pas</code></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">2 - Tipos</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">⚠️ Via Interfaces</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">System.*, DB</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Implementado</td>
+                </tr>
+                <tr style="background: #fff4e6;">
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Modulo.Parameters.Database.pas</code></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">3 - Implementação</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">❌ Privado</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Intefaces, Types, Consts, Engines</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Implementado</td>
+                </tr>
+                <tr style="background: #f0f0f0;">
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Modulo.Parameters.Consts.pas</code></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">4 - Suporte</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">❌ Privado</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Types, Defines.inc</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Implementado</td>
+                </tr>
+                <tr style="background: #f7fafc; opacity: 0.7;">
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Modulo.Parameters.Inifiles.pas</code></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">4 - Suporte</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">❌ Privado</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">-</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">⏳ Futuro</td>
+                </tr>
+                <tr style="background: #f7fafc; opacity: 0.7;">
+                    <td style="padding: 10px;"><code>Modulo.Parameters.JsonObject.pas</code></td>
+                    <td style="padding: 10px;">4 - Suporte</td>
+                    <td style="padding: 10px;">❌ Privado</td>
+                    <td style="padding: 10px;">-</td>
+                    <td style="padding: 10px;">⏳ Futuro</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>🔄 Ciclo de Dependências e Independência</h2>
+        
+        <div class="info-box">
+            <p><strong>✅ Sem Ciclos:</strong> A hierarquia está bem estruturada sem dependências circulares.</p>
+            <p><strong>Fluxo:</strong> ORM → Acesso Externo → Implementações → Retaguarda (Types + Consts)</p>
+            <p><strong>Isolamento:</strong> Cada nível depende apenas dos níveis inferiores, nunca dos superiores.</p>
+            <p><strong>🔒 Independência Total:</strong> O módulo Parameters funciona de forma totalmente independente:</p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>❌ <strong>NÃO depende</strong> de <code>ProvidersORM.DataModule</code></li>
+                <li>❌ <strong>NÃO depende</strong> de <code>Common.Types</code></li>
+                <li>✅ <strong>Cria sua própria conexão</strong> internamente</li>
+                <li>✅ <strong>Pode aceitar conexão externa</strong> opcionalmente</li>
+                <li>✅ <strong>Types e Consts</strong> são units auxiliares compartilhadas por <strong>TODAS</strong> as units do módulo</li>
+                <li>✅ <strong>Types</strong> é usado por: Parameters.pas, Interfaces.pas, Database.pas, Consts.pas, JsonObject.pas, Inifiles.pas</li>
+                <li>✅ <strong>Consts</strong> é usado por: Database.pas, JsonObject.pas, Inifiles.pas e outras conforme necessário</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 40px; padding: 20px; background: #ecf0f1; border-radius: 5px;">
+            <p><strong>Data da Documentação:</strong> 02/01/2026</p>
+            <p><strong>Versão do Módulo:</strong> 1.0.0</p>
+            <p><strong>Status:</strong> <span style="color: #27ae60; font-weight: bold;">✅ Hierarquia Completa e Bem Estruturada</span></p>
+        </div>
+    </div>
+</body>
+</html>
+

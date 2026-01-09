@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitetura - Módulo Parameters</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-left: 15px;
+            border-left: 5px solid #667eea;
+            font-size: 1.8em;
+        }
+        h3 {
+            color: #555;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        .architecture-diagram {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            position: relative;
+        }
+        .layer {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            position: relative;
+        }
+        .layer-public {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: 3px solid #4a5568;
+        }
+        .layer-interface {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: 3px solid #2f855a;
+        }
+        .layer-implementation {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+            border: 3px solid #c05621;
+        }
+        .layer-private {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+            color: white;
+            border: 3px solid #2d3748;
+        }
+        .file-box {
+            background: rgba(255, 255, 255, 0.95);
+            color: #2c3e50;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .file-box.public {
+            border-left-color: #667eea;
+            background: rgba(255, 255, 255, 0.98);
+        }
+        .file-box.interface {
+            border-left-color: #48bb78;
+        }
+        .file-box.implementation {
+            border-left-color: #ed8936;
+        }
+        .file-box.private {
+            border-left-color: #718096;
+        }
+        .file-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .file-desc {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 5px;
+        }
+        .arrow {
+            text-align: center;
+            font-size: 2em;
+            color: #667eea;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .flow-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px;
+            min-width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .flow-box.public {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #e6f3ff 0%, #cce7ff 100%);
+        }
+        .flow-box.interface {
+            border-color: #48bb78;
+            background: linear-gradient(135deg, #e6fff2 0%, #ccffe6 100%);
+        }
+        .flow-box.implementation {
+            border-color: #ed8936;
+            background: linear-gradient(135deg, #fff4e6 0%, #ffe6cc 100%);
+        }
+        .dependency-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .dependency-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .dependency-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        .dependency-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .dependency-table tr:hover {
+            background: #e8f4f8;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        .badge-public {
+            background: #667eea;
+            color: white;
+        }
+        .badge-interface {
+            background: #48bb78;
+            color: white;
+        }
+        .badge-private {
+            background: #718096;
+            color: white;
+        }
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-line {
+            margin: 5px 0;
+        }
+        .highlight {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            border: 2px solid #333;
+        }
+        .legend-color.public { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .legend-color.interface { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); }
+        .legend-color.implementation { background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); }
+        .legend-color.private { background: linear-gradient(135deg, #718096 0%, #4a5568 100%); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏗️ Arquitetura do Módulo Parameters</h1>
+        
+        <div class="info-box">
+            <p><strong>Versão:</strong> 2.0.0</p>
+            <p><strong>Data:</strong> 02/01/2026</p>
+            <p><strong>Status:</strong> ✅ Implementado e Independente</p>
+            <p><strong>Princípio:</strong> Acesso externo APENAS via <code>Modulo.Parameters.pas</code> e <code>Modulo.Parameters.Intefaces.pas</code></p>
+            <p><strong>Documentação:</strong> <a href="../docs/Parameters.Complete.html" target="_blank" style="color: #2196f3; font-weight: bold;">docs/Parameters.Complete.html</a> - Documentação completa com todos os métodos, variáveis e exemplos</p>
+        </div>
+
+        <h2>📊 Diagrama de Arquitetura em Camadas</h2>
+        
+        <div class="architecture-diagram">
+            <div class="layer layer-public">
+                <h3>🌐 CAMADA PÚBLICA (Acesso Externo)</h3>
+                <div class="file-box public">
+                    <div class="file-name">📄 Modulo.Parameters.pas</div>
+                    <div class="file-desc">
+                        <strong>Ponto de Entrada Único</strong><br>
+                        Factory Class: <code>TParameters</code><br>
+                        Métodos: <code>New()</code> (2 overloads)<br>
+                        <strong>✅ ACESSO PERMITIDO EXTERNAMENTE</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow">⬇️</div>
+            
+            <div class="layer layer-interface">
+                <h3>🔌 CAMADA DE INTERFACES (Tipos Públicos)</h3>
+                <div class="file-box interface">
+                    <div class="file-name">📄 Modulo.Parameters.Intefaces.pas</div>
+                    <div class="file-desc">
+                        <strong>Interfaces e Tipos Públicos</strong><br>
+                        Interface: <code>IParametersDatabase</code><br>
+                        Tipos Expostos: <code>TParameter</code>, <code>TParameterList</code>, <code>TParameterValueType</code><br>
+                        <strong>✅ ACESSO PERMITIDO EXTERNAMENTE</strong>
+                    </div>
+                </div>
+                <div class="file-box interface">
+                    <div class="file-name">📄 Modulo.Parameters.Types.pas</div>
+                    <div class="file-desc">
+                        <strong>Tipos do Sistema</strong><br>
+                        Classes: <code>TParameter</code>, <code>TParameterList</code><br>
+                        Enums: <code>TParameterValueType</code>, <code>TParameterSource</code><br>
+                        <strong>⚠️ Exposto via Interfaces (não usar diretamente)</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow">⬇️</div>
+            
+            <div class="layer layer-implementation">
+                <h3>⚙️ CAMADA DE IMPLEMENTAÇÃO (Privada)</h3>
+                <div class="file-box implementation">
+                    <div class="file-name">📄 Modulo.Parameters.Database.pas</div>
+                    <div class="file-desc">
+                        <strong>Implementação Completa</strong><br>
+                        Classe: <code>TParametersDatabase</code> (implementa <code>IParametersDatabase</code>)<br>
+                        Funcionalidades: CRUD completo, conexão interna, multi-engine<br>
+                        <strong>❌ ACESSO PRIVADO (apenas via Factory)</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow">⬇️</div>
+            
+            <div class="layer layer-private">
+                <h3>🔒 CAMADA PRIVADA (Suporte Interno)</h3>
+                <div class="file-box private">
+                    <div class="file-name">📄 Modulo.Parameters.Consts.pas</div>
+                    <div class="file-desc">
+                        <strong>Constantes e Configurações</strong><br>
+                        Constantes: <code>DEFAULT_PARAMETERS_*</code><br>
+                        SQL Templates, Mensagens, Limites<br>
+                        <strong>❌ ACESSO PRIVADO</strong>
+                    </div>
+                </div>
+                <div class="file-box private">
+                    <div class="file-name">📄 Modulo.Parameters.Inifiles.pas</div>
+                    <div class="file-desc">
+                        <strong>Implementação INI (Futuro)</strong><br>
+                        <strong>❌ ACESSO PRIVADO</strong>
+                    </div>
+                </div>
+                <div class="file-box private">
+                    <div class="file-name">📄 Modulo.Parameters.JsonObject.pas</div>
+                    <div class="file-desc">
+                        <strong>Implementação JSON (Futuro)</strong><br>
+                        <strong>❌ ACESSO PRIVADO</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2>🔄 Fluxo de Acesso</h2>
+        
+        <div class="flow-diagram">
+            <div class="flow-box public">
+                <strong>👤 Código Externo</strong><br>
+                <code>uses Modulo.Parameters;</code>
+            </div>
+            <div class="arrow">⬇️</div>
+            <div class="flow-box public">
+                <strong>🏭 Factory</strong><br>
+                <code>TParameters.New</code><br>
+                <span style="font-size: 0.8em;">Cria instância de IParametersDatabase</span>
+            </div>
+            <div class="arrow">⬇️</div>
+            <div class="flow-box interface">
+                <strong>🔌 Interface</strong><br>
+                <code>IParametersDatabase</code><br>
+                <span style="font-size: 0.8em;">Define contrato público</span>
+            </div>
+            <div class="arrow">⬇️</div>
+            <div class="flow-box implementation">
+                <strong>⚙️ Implementação</strong><br>
+                <code>TParametersDatabase</code><br>
+                <span style="font-size: 0.8em;">Executa lógica interna</span>
+            </div>
+            <div class="arrow">⬇️</div>
+            <div class="flow-box private">
+                <strong>💾 Banco de Dados</strong><br>
+                <code>PostgreSQL / MySQL / etc.</code><br>
+                <span style="font-size: 0.8em;">Tabela: dbcsl.config</span>
+            </div>
+        </div>
+
+        <h2>📦 Estrutura de Arquivos</h2>
+        
+        <table class="dependency-table">
+            <thead>
+                <tr>
+                    <th>Arquivo</th>
+                    <th>Tipo</th>
+                    <th>Acesso</th>
+                    <th>Responsabilidade</th>
+                    <th>Dependências</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Modulo.Parameters.pas</strong></td>
+                    <td><span class="badge badge-public">Público</span></td>
+                    <td>✅ Externo</td>
+                    <td>Factory - Ponto de entrada único</td>
+                    <td>Modulo.Parameters.Intefaces</td>
+                </tr>
+                <tr>
+                    <td><strong>Modulo.Parameters.Intefaces.pas</strong></td>
+                    <td><span class="badge badge-interface">Interface</span></td>
+                    <td>✅ Externo</td>
+                    <td>Interfaces e tipos públicos</td>
+                    <td>Modulo.Parameters.Types</td>
+                </tr>
+                <tr>
+                    <td><strong>Modulo.Parameters.Types.pas</strong></td>
+                    <td><span class="badge badge-interface">Tipos</span></td>
+                    <td>⚠️ Via Interfaces</td>
+                    <td>Tipos: TParameter, TParameterList</td>
+                    <td>System.*, DB</td>
+                </tr>
+                <tr>
+                    <td><strong>Modulo.Parameters.Database.pas</strong></td>
+                    <td><span class="badge badge-private">Implementação</span></td>
+                    <td>❌ Privado</td>
+                    <td>CRUD, conexão, queries</td>
+                    <td>Interfaces, Types, Consts, Engines</td>
+                </tr>
+                <tr>
+                    <td><strong>Modulo.Parameters.Consts.pas</strong></td>
+                    <td><span class="badge badge-private">Constantes</span></td>
+                    <td>❌ Privado</td>
+                    <td>Constantes, SQL templates</td>
+                    <td>Types, ParamentersORM.Defines.inc</td>
+                </tr>
+                <tr>
+                    <td><strong>Modulo.Parameters.Inifiles.pas</strong></td>
+                    <td><span class="badge badge-private">Futuro</span></td>
+                    <td>❌ Privado</td>
+                    <td>Implementação INI (não implementado)</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>Modulo.Parameters.JsonObject.pas</strong></td>
+                    <td><span class="badge badge-private">Futuro</span></td>
+                    <td>❌ Privado</td>
+                    <td>Implementação JSON (não implementado)</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>🔗 Dependências e Fluxo de Dados</h2>
+        
+        <div class="code-block">
+            <div class="code-line"><span class="highlight">// CÓDIGO EXTERNO (Exemplo)</span></div>
+            <div class="code-line">uses Modulo.Parameters;</div>
+            <div class="code-line"></div>
+            <div class="code-line">var Parameters: IParametersDatabase;</div>
+            <div class="code-line">Parameters := TParameters.New;</div>
+            <div class="code-line">  .TableName('config')</div>
+            <div class="code-line">  .Schema('dbcsl');</div>
+            <div class="code-line"></div>
+            <div class="code-line"><span class="highlight">// FLUXO INTERNO:</span></div>
+            <div class="code-line">// 1. TParameters.New → cria TParametersDatabase</div>
+            <div class="code-line">// 2. TParametersDatabase.Create → cria conexão interna</div>
+            <div class="code-line">// 3. Connection() → configura usando Consts</div>
+            <div class="code-line">// 4. List() → executa SQL via Query</div>
+            <div class="code-line">// 5. Retorna TParameterList → tipos expostos via Interfaces</div>
+        </div>
+
+        <h2>🏛️ Hierarquia de Classes e Interfaces</h2>
+        
+        <div class="architecture-diagram">
+            <div class="file-box public">
+                <div class="file-name">TParameters (Factory)</div>
+                <div class="file-desc">
+                    <strong>Métodos Estáticos:</strong><br>
+                    • <code>New(): IParametersDatabase</code><br>
+                    • <code>New(AConnection, AQuery, AExecQuery): IParametersDatabase</code>
+                </div>
+            </div>
+            
+            <div class="arrow">⬇️ retorna</div>
+            
+            <div class="file-box interface">
+                <div class="file-name">IParametersDatabase (Interface)</div>
+                <div class="file-desc">
+                    <strong>Métodos CRUD:</strong><br>
+                    • <code>List(): TParameterList</code><br>
+                    • <code>Get(AName): TParameter</code><br>
+                    • <code>Insert(AParameter): Boolean</code><br>
+                    • <code>Update(AParameter): Boolean</code><br>
+                    • <code>Delete(AName): Boolean</code><br>
+                    • <code>Exists(AName): Boolean</code><br>
+                    • <code>Count(): Integer</code>
+                </div>
+            </div>
+            
+            <div class="arrow">⬇️ implementa</div>
+            
+            <div class="file-box implementation">
+                <div class="file-name">TParametersDatabase (Implementação)</div>
+                <div class="file-desc">
+                    <strong>Propriedades Privadas:</strong><br>
+                    • <code>FConnection: TUniConnection/TFDConnection/TZConnection</code><br>
+                    • <code>FQuery: TUniQuery/TFDQuery/TZQuery</code><br>
+                    • <code>FExecQuery: TUniQuery/TFDQuery/TZQuery</code><br>
+                    • <code>FTableName, FSchema, FAutoCreateTable</code><br>
+                    • <code>FPostgresProvider</code>
+                </div>
+            </div>
+            
+            <div class="arrow">⬇️ usa</div>
+            
+            <div class="file-box private">
+                <div class="file-name">TParameter, TParameterList (Tipos)</div>
+                <div class="file-desc">
+                    <strong>Classes de Dados:</strong><br>
+                    • <code>TParameter</code> - Registro de parâmetro<br>
+                    • <code>TParameterList</code> - Lista gerenciada<br>
+                    • <code>TParameterValueType</code> - Enum de tipos
+                </div>
+            </div>
+        </div>
+
+        <h2>🔌 Conexão e Queries</h2>
+        
+        <div class="info-box">
+            <h3>Modo 1: Conexão Interna (Automática)</h3>
+            <div class="code-block">
+                <div class="code-line">var Parameters: IParametersDatabase;</div>
+                <div class="code-line">Parameters := TParameters.New;</div>
+                <div class="code-line">  <span class="highlight">// Cria conexão internamente usando constantes</span></div>
+                <div class="code-line">  .TableName('config')</div>
+                <div class="code-line">  .Schema('dbcsl');</div>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h3>Modo 2: Conexão Externa (Opcional)</h3>
+            <div class="code-block">
+                <div class="code-line">var Parameters: IParametersDatabase;</div>
+                <div class="code-line">var MyConnection: TUniConnection; // ou TFDConnection, TZConnection</div>
+                <div class="code-line">var MyQuery: TUniQuery;</div>
+                <div class="code-line"></div>
+                <div class="code-line">Parameters := TParameters.New(MyConnection, MyQuery, MyQuery)</div>
+                <div class="code-line">  <span class="highlight">// Usa conexão externa (não cria internamente)</span></div>
+                <div class="code-line">  .TableName('config')</div>
+                <div class="code-line">  .Schema('dbcsl');</div>
+            </div>
+        </div>
+
+        <h2>📋 Métodos Disponíveis</h2>
+        
+        <table class="dependency-table">
+            <thead>
+                <tr>
+                    <th>Categoria</th>
+                    <th>Método</th>
+                    <th>Descrição</th>
+                    <th>Retorno</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan="3"><strong>Factory</strong></td>
+                    <td><code>TParameters.New</code></td>
+                    <td>Cria instância com conexão interna</td>
+                    <td>IParametersDatabase</td>
+                </tr>
+                <tr>
+                    <td><code>TParameters.New(AConnection, AQuery, AExecQuery)</code></td>
+                    <td>Cria instância com conexão externa</td>
+                    <td>IParametersDatabase</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="background: #f0f0f0; font-style: italic;">Configuração (Fluent Interface)</td>
+                </tr>
+                <tr>
+                    <td rowspan="5"><strong>Configuração</strong></td>
+                    <td><code>TableName(Value)</code></td>
+                    <td>Define nome da tabela</td>
+                    <td>IParametersDatabase</td>
+                </tr>
+                <tr>
+                    <td><code>Schema(Value)</code></td>
+                    <td>Define schema</td>
+                    <td>IParametersDatabase</td>
+                </tr>
+                <tr>
+                    <td><code>AutoCreateTable(Value)</code></td>
+                    <td>Auto-criar tabela</td>
+                    <td>IParametersDatabase</td>
+                </tr>
+                <tr>
+                    <td><code>Connection(AConnection)</code></td>
+                    <td>Define conexão externa</td>
+                    <td>IParametersDatabase</td>
+                </tr>
+                <tr>
+                    <td><code>Query(AQuery)</code> / <code>ExecQuery(AExecQuery)</code></td>
+                    <td>Define queries externas</td>
+                    <td>IParametersDatabase</td>
+                </tr>
+                <tr>
+                    <td rowspan="6"><strong>CRUD</strong></td>
+                    <td><code>List()</code></td>
+                    <td>Lista todos os parâmetros ativos</td>
+                    <td>TParameterList</td>
+                </tr>
+                <tr>
+                    <td><code>Get(AName)</code></td>
+                    <td>Busca parâmetro por chave</td>
+                    <td>TParameter</td>
+                </tr>
+                <tr>
+                    <td><code>Insert(AParameter)</code></td>
+                    <td>Insere novo parâmetro</td>
+                    <td>Boolean</td>
+                </tr>
+                <tr>
+                    <td><code>Update(AParameter)</code></td>
+                    <td>Atualiza parâmetro existente</td>
+                    <td>Boolean</td>
+                </tr>
+                <tr>
+                    <td><code>Delete(AName)</code></td>
+                    <td>Soft delete (marca como inativo)</td>
+                    <td>Boolean</td>
+                </tr>
+                <tr>
+                    <td><code>Exists(AName)</code></td>
+                    <td>Verifica se parâmetro existe</td>
+                    <td>Boolean</td>
+                </tr>
+                <tr>
+                    <td rowspan="4"><strong>Utilitários</strong></td>
+                    <td><code>Count()</code></td>
+                    <td>Conta parâmetros ativos</td>
+                    <td>Integer</td>
+                </tr>
+                <tr>
+                    <td><code>IsConnected()</code></td>
+                    <td>Verifica se está conectado</td>
+                    <td>Boolean</td>
+                </tr>
+                <tr>
+                    <td><code>Connect()</code></td>
+                    <td>Conecta ao banco</td>
+                    <td>Boolean</td>
+                </tr>
+                <tr>
+                    <td><code>Disconnect()</code></td>
+                    <td>Desconecta do banco</td>
+                    <td>void</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>📚 Documentação Completa</h2>
+        
+        <div class="info-box">
+            <h3>Documentação HTML Detalhada</h3>
+            <p><strong>Arquivo:</strong> <a href="../docs/Parameters.Complete.html" target="_blank" style="color: #2196f3; font-weight: bold;">docs/Parameters.Complete.html</a></p>
+            <p><strong>Conteúdo Atual:</strong></p>
+            <ul>
+                <li>✅ <strong>Factory Methods (TParameters)</strong> - Todos os métodos documentados com exemplos práticos</li>
+                <li>✅ <strong>Interface IParameters (Convergência)</strong> - Métodos unificados com fallback automático</li>
+                <li>✅ <strong>Estrutura Base</strong> - Visão geral, arquitetura, tipos e constantes</li>
+                <li>⏳ <strong>Interface IParametersDatabase</strong> - Em progresso (CRUD, conexão, gerenciamento de tabela)</li>
+                <li>⏳ <strong>Interface IParametersInifiles</strong> - Pendente</li>
+                <li>⏳ <strong>Interface IParametersJsonObject</strong> - Pendente</li>
+                <li>⏳ <strong>Exemplos Práticos Completos</strong> - Pendente</li>
+            </ul>
+            <p><strong>Formato:</strong> HTML responsivo com exemplos de código, tabelas de parâmetros, descrições detalhadas e notas importantes.</p>
+        </div>
+
+        <div class="info-box">
+            <h3>Comentários no Código</h3>
+            <p><strong>Status:</strong> Em progresso (~20% completo)</p>
+            <ul>
+                <li>✅ <strong>Modulo.Parameters.pas</strong> - Factory Methods com comentários detalhados (finalidade, parâmetros, retorno, exemplos)</li>
+                <li>✅ <strong>Modulo.Parameters.Types.pas</strong> - TParameter e TParameterList documentados</li>
+                <li>⏳ <strong>Modulo.Parameters.Database.pas</strong> - Métodos principais (em progresso)</li>
+                <li>⏳ <strong>Modulo.Parameters.Inifiles.pas</strong> - Métodos principais (pendente)</li>
+                <li>⏳ <strong>Modulo.Parameters.JsonObject.pas</strong> - Métodos principais (pendente)</li>
+            </ul>
+        </div>
+
+        <h2>🎯 Princípios de Design</h2>
+        
+        <div class="success-box">
+            <h3>✅ Encapsulamento</h3>
+            <ul>
+                <li>Apenas <code>Modulo.Parameters.pas</code> e <code>Modulo.Parameters.Intefaces.pas</code> são públicos</li>
+                <li>Implementações estão ocultas no <code>implementation</code></li>
+                <li>Tipos são expostos via Interfaces, não diretamente</li>
+            </ul>
+        </div>
+        
+        <div class="success-box">
+            <h3>✅ Independência</h3>
+            <ul>
+                <li>Não depende de <code>ProvidersORM.DataModule</code></li>
+                <li>Não depende de <code>Common.Types</code></li>
+                <li>Cria sua própria conexão internamente</li>
+                <li>Pode aceitar conexão externa opcionalmente</li>
+            </ul>
+        </div>
+        
+        <div class="success-box">
+            <h3>✅ Factory Pattern</h3>
+            <ul>
+                <li>Factory class <code>TParameters</code> cria instâncias</li>
+                <li>Retorna sempre interface <code>IParametersDatabase</code></li>
+                <li>Implementação <code>TParametersDatabase</code> é privada</li>
+            </ul>
+        </div>
+        
+        <div class="success-box">
+            <h3>✅ Fluent Interface</h3>
+            <ul>
+                <li>Métodos de configuração retornam <code>IParametersDatabase</code></li>
+                <li>Permite encadeamento: <code>.TableName().Schema().List()</code></li>
+                <li>Código mais legível e expressivo</li>
+            </ul>
+        </div>
+
+        <h2>🔒 Regras de Acesso</h2>
+        
+        <div class="warning-box">
+            <h3>❌ NÃO FAZER (Acesso Direto Proibido)</h3>
+            <div class="code-block">
+                <div class="code-line"><span class="highlight">// ❌ ERRADO - Acesso direto à implementação</span></div>
+                <div class="code-line">uses Modulo.Parameters.Database;</div>
+                <div class="code-line">var DB: TParametersDatabase; // ❌ Classe privada!</div>
+                <div class="code-line"></div>
+                <div class="code-line"><span class="highlight">// ❌ ERRADO - Acesso direto a tipos</span></div>
+                <div class="code-line">uses Modulo.Parameters.Types;</div>
+                <div class="code-line">var Param: TParameter; // ⚠️ Use via Interfaces</div>
+            </div>
+        </div>
+        
+        <div class="success-box">
+            <h3>✅ FAZER (Acesso Correto)</h3>
+            <div class="code-block">
+                <div class="code-line"><span class="highlight">// ✅ CORRETO - Acesso via Factory</span></div>
+                <div class="code-line">uses Modulo.Parameters;</div>
+                <div class="code-line">var Parameters: IParametersDatabase;</div>
+                <div class="code-line">Parameters := TParameters.New;</div>
+                <div class="code-line"></div>
+                <div class="code-line"><span class="highlight">// ✅ CORRETO - Tipos via Interfaces</span></div>
+                <div class="code-line">uses Modulo.Parameters.Intefaces;</div>
+                <div class="code-line">var Param: TParameter; // ✅ Exposto via Interfaces</div>
+                <div class="code-line">var List: TParameterList; // ✅ Exposto via Interfaces</div>
+            </div>
+        </div>
+
+        <h2>📊 Dependências Externas</h2>
+        
+        <table class="dependency-table">
+            <thead>
+                <tr>
+                    <th>Dependência</th>
+                    <th>Tipo</th>
+                    <th>Uso</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>ParamentersORM.Defines.inc</strong></td>
+                    <td>Diretivas</td>
+                    <td>Definição de engines (USE_UNIDAC, etc.)</td>
+                    <td>✅ Necessário</td>
+                </tr>
+                <tr>
+                    <td><strong>ParamentersORM.Database.inc</strong></td>
+                    <td>Constantes</td>
+                    <td>Configurações de conexão (host, port, etc.)</td>
+                    <td>✅ Necessário</td>
+                </tr>
+                <tr>
+                    <td><strong>UNIDAC / FireDAC / Zeos</strong></td>
+                    <td>Biblioteca</td>
+                    <td>Engines de acesso a banco de dados</td>
+                    <td>✅ Necessário (um deles)</td>
+                </tr>
+                <tr>
+                    <td><strong>DataSet.Serialize</strong></td>
+                    <td>Biblioteca</td>
+                    <td>Serialização JSON</td>
+                    <td>✅ Usado</td>
+                </tr>
+                <tr>
+                    <td><strong>ProvidersORM.DataModule</strong></td>
+                    <td>Módulo</td>
+                    <td>Conexão de banco</td>
+                    <td>❌ NÃO usado (independente)</td>
+                </tr>
+                <tr>
+                    <td><strong>Common.Types</strong></td>
+                    <td>Módulo</td>
+                    <td>Tipos comuns</td>
+                    <td>❌ NÃO usado (independente)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>🔄 Ciclo de Vida</h2>
+        
+        <div class="flow-diagram">
+            <div class="flow-box public">
+                <strong>1. Criação</strong><br>
+                <code>TParameters.New</code><br>
+                <span style="font-size: 0.8em;">Factory cria instância</span>
+            </div>
+            <div class="arrow">⬇️</div>
+            <div class="flow-box implementation">
+                <strong>2. Inicialização</strong><br>
+                <code>TParametersDatabase.Create</code><br>
+                <span style="font-size: 0.8em;">Cria conexão interna (se necessário)</span>
+            </div>
+            <div class="arrow">⬇️</div>
+            <div class="flow-box implementation">
+                <strong>3. Configuração</strong><br>
+                <code>.TableName().Schema()</code><br>
+                <span style="font-size: 0.8em;">Configura tabela e schema</span>
+            </div>
+            <div class="arrow">⬇️</div>
+            <div class="flow-box implementation">
+                <strong>4. Uso</strong><br>
+                <code>.List(), .Insert(), etc.</code><br>
+                <span style="font-size: 0.8em;">Executa operações CRUD</span>
+            </div>
+            <div class="arrow">⬇️</div>
+            <div class="flow-box implementation">
+                <strong>5. Destruição</strong><br>
+                <code>Interface := nil</code><br>
+                <span style="font-size: 0.8em;">Libera conexão e recursos</span>
+            </div>
+        </div>
+
+        <h2>💡 Exemplo de Uso Completo</h2>
+        
+        <div class="code-block">
+            <div class="code-line"><span class="highlight">// ========== USO BÁSICO (Conexão Interna) ==========</span></div>
+            <div class="code-line">uses Modulo.Parameters;</div>
+            <div class="code-line"></div>
+            <div class="code-line">var Parameters: IParametersDatabase;</div>
+            <div class="code-line">var ParamList: TParameterList;</div>
+            <div class="code-line">var Param: TParameter;</div>
+            <div class="code-line"></div>
+            <div class="code-line"><span class="highlight">// Cria instância (conexão automática)</span></div>
+            <div class="code-line">Parameters := TParameters.New</div>
+            <div class="code-line">  .TableName('config')</div>
+            <div class="code-line">  .Schema('dbcsl');</div>
+            <div class="code-line"></div>
+            <div class="code-line"><span class="highlight">// Lista todos</span></div>
+            <div class="code-line">ParamList := Parameters.List();</div>
+            <div class="code-line">try</div>
+            <div class="code-line">  // Usa ParamList...</div>
+            <div class="code-line">finally</div>
+            <div class="code-line">  ParamList.Free;</div>
+            <div class="code-line">end;</div>
+            <div class="code-line"></div>
+            <div class="code-line"><span class="highlight">// Busca um</span></div>
+            <div class="code-line">Param := Parameters.Get('erp_host');</div>
+            <div class="code-line">try</div>
+            <div class="code-line">  ShowMessage(Param.Value);</div>
+            <div class="code-line">finally</div>
+            <div class="code-line">  Param.Free;</div>
+            <div class="code-line">end;</div>
+            <div class="code-line"></div>
+            <div class="code-line"><span class="highlight">// Insere novo</span></div>
+            <div class="code-line">Param := TParameter.Create;</div>
+            <div class="code-line">Param.ContratoID := 1;</div>
+            <div class="code-line">Param.ProdutoID := 1;</div>
+            <div class="code-line">Param.Name := 'teste_key';</div>
+            <div class="code-line">Param.Value := 'teste_value';</div>
+            <div class="code-line">if Parameters.Insert(Param) then</div>
+            <div class="code-line">  ShowMessage('Inserido!');</div>
+            <div class="code-line">Param.Free;</div>
+        </div>
+
+        <div style="margin-top: 40px; padding: 20px; background: #ecf0f1; border-radius: 5px;">
+            <p><strong>Data da Documentação:</strong> 02/01/2026 (Atualizado: Sistema de Exceções Completo)</p>
+            <p><strong>Versão do Módulo:</strong> 2.0.0</p>
+            <p><strong>Status:</strong> <span style="color: #27ae60; font-weight: bold;">✅ Implementado e Independente</span></p>
+            <p><strong>Princípio:</strong> Encapsulamento total - acesso apenas via Factory e Interfaces</p>
+            <p><strong>Documentação Completa:</strong> <a href="../docs/Parameters.Complete.html" target="_blank" style="color: #667eea; font-weight: bold;">docs/Parameters.Complete.html</a></p>
+            <p><strong>Documentação Inclui:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>✅ Factory Methods (TParameters) - Todos os métodos documentados com exemplos</li>
+                <li>✅ Interface IParameters (Convergência) - Métodos unificados com fallback</li>
+                <li>✅ Interface IParametersDatabase - Métodos CRUD e conexão (em progresso)</li>
+                <li>✅ Interface IParametersInifiles - Métodos CRUD e importação/exportação (em progresso)</li>
+                <li>✅ Interface IParametersJsonObject - Métodos CRUD e serialização (em progresso)</li>
+                <li>✅ Tipos e Constantes - TParameter, TParameterList, constantes documentadas</li>
+                <li>✅ Exceções - Sistema completo de exceções (~600 linhas):
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>✅ 8 tipos de exceções específicas (Connection, SQL, Validation, NotFound, Configuration, File, Inifiles, JsonObject)</li>
+                        <li>✅ 90+ códigos de erro organizados por faixa (1000-1899)</li>
+                        <li>✅ Mensagens padronizadas e formatáveis</li>
+                        <li>✅ Funções auxiliares para criação e conversão de exceções</li>
+                        <li>✅ 100% de cobertura - todas as exceções genéricas convertidas</li>
+                    </ul>
+                </li>
+                <li>✅ Exemplos Práticos - Código completo e funcional</li>
+            </ul>
+            <p><strong>Comentários no Código:</strong> Factory Methods e classes base (TParameter, TParameterList) com comentários detalhados incluindo finalidade, parâmetros, retorno e exemplos.</p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+

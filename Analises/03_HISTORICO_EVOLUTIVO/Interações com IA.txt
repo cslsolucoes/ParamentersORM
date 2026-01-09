@@ -1,0 +1,48 @@
+- necessito que o "ParamentersORM.Defines.inc" quanto ao engine de Unidac/FireDac/Zeus esja feita de forma automática quando for comentado e descomentado, detectar se tem mais de um selecionado e etc.
+- agora faça o paramenters detectar qual engine e já selecionar "TParameterDatabaseEngine = (pteNone, pteUnidac, pteFireDAC, pteZeos, pteLDAP);"no arquivo @src/Modulos/Parameters/Modulo.Parameters.pas  conforme seleção TParameterDatabaseEngine
+- edtEngine @Exemplos/VCL/ufrmConfigCRUD.pas, implemente essa autodetecção, lembrando que quem deve dizer qual está usando é o @src/Modulos/Parameters/Modulo.Parameters.pas em um metodo
+- @Exemplos/VCL/ufrmConfigCRUD.pas que todos os metodos de interação de Parameters seja feito atravez do @src/Modulos/Parameters/Modulo.Parameters.pas 
+- @ParamentersORM.Defines.inc (52-68) tem que emitir uma raise informando que está sendo selecionado mais de um engine
+- vai funcionar se for FPC?
+- reveja as funcionalidades de cada botão na aba Database es está funcionando sendo que:
+	1 - as inserções e reordenação ex.: se for inserido na ordem 2 e já existir a ordem 2 deverá ser renumerado para 3 e assim subsequente os outros parametros 
+	2 - se colocar o valor de ordem = 0(ZERO) o sistema pode renumerar automatico.
+	3 quando for importado algum arquivo ini/json se o a chave já existir no titulo, perguntar de faça a sobre posição ou caso tenho um flag informando que pode sobrepor.
+
+	todo logica destes deve ser feita pelo @src/Modulos/Parameters/Modulo.Parameters.pas  embutido de forma transparente e não na aplicação que utiliza o paramenters, deve ser um funcionalidade do @src/Modulos/Parameters/Modulo.Parameters.pas que podem ser configuradas e já ficam pré-definidas nas constantes
+- ordenação padrão deverá ser Contrato,produto,titulo ordem. crie uma constante para essa ordenação e aplique sempre
+- quando renomear um titulo se já não existir um titulo igual a ordem de inicia ou se tiver siga os critérios já colocados anteriormente
+- essa ultima implementação está no @src/Modulos/Parameters/Modulo.Parameters.pas ?
+- testando conexão com mysql, caso seja suprimido o banco de dados e a conexão estiver correta, liste os banco disponíveis para seleção.
+isso deve ser feito com SQLServer, PostgresSQL, MySQL, Firebird(Abrir a seleção de arquivos), SQLite(Abrir a Seleção de arquivos), Access(Abrir a seleção de arquivos)
+- provavelmente checou se o tabela existe e se ela existir, verificar se a estrutura é igual a que queremos, caso não solicite para entrar com outro nome
+- o metodo setting com os dados de conexão do banco, se não for informado utilizar o dados default caso contrario utilizar o que foi setado.
+- quando clico em import ini não abre para localizar o arquivo para ser importado, fiz o teste também com import jsonestamos
+
+06/01/2026
+- { 7.3 Teste de Detecção de Encoding em JSON ✅ IMPLEMENTADO
+	Criar arquivos JSON com diferentes encodings:
+	UTF-8 com BOM
+	UTF-8 sem BOM
+	UTF-16 LE
+	UTF-16 BE
+	Carregar cada arquivo
+	Verificar se o encoding é detectado automaticamente
+	Verificar se o BOM é removido
+	Verificar se os dados são carregados corretamente
+	tem como unificar o encoder somente para UTF8 e ANSI tando na codificação dos arquivos como no tratamento nos códigos fontes}
+
+- o que está acontecendo é que na criação da tabela não está levando em consideração o tipo de banco, alguns bancos tem compatilidades de types de variáveis, com isso um deles é o tipo boleano, faça com que seja criado conforma o tipo de banco e compatibilidade, a importação seja feita as conversões necessárias para que a informação seja gravada no banco e vise versa.
+se tiver no tipo de banco o tipo boleano que seja feito de forma boleano o que não tiver coloque do tipo compatival para que a funcionalidade fique ok para cada tipo de banco. a importação e exportação pode ser de forma boleano mas na importação tem que fazer distição
+
+mysql -> 
+- tipo banco: Mysql@Dados/config.sql está criando com tinyint
+quando acesso o banco, já verifica se a tabela existe ou não e caso não já cria.
+está criando, quando for importar ini ou json tem que haver conversão.
+- quando desativo um registro ele sai da lista
+- quando clica nos que não estão ativos ele não preencha os dados contrato,produto,ordem,titulo,chave,valor,descrição,ativo ao lado impossibilitando reativar o registro
+ 
+
+
+
+
