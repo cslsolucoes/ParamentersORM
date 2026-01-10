@@ -377,18 +377,18 @@ type
     function Count: Integer; overload;
     function Count(out ACount: Integer): IParameters; overload;
     function Refresh: IParameters;
-    
+
     // ========== CONFIGURAÇÃO UNIFICADA ==========
     function ContratoID(const AValue: Integer): IParameters; overload;
     function ContratoID: Integer; overload;
     function ProdutoID(const AValue: Integer): IParameters; overload;
     function ProdutoID: Integer; overload;
-    
+
     // ========== ACESSO DIRETO A FONTES ==========
     function Database: IParametersDatabase;
     function Inifiles: IParametersInifiles;
     function JsonObject: IParametersJsonObject;
-    
+
     // ========== NAVEGAÇÃO ==========
     function EndParameters: IInterface;
   end;
@@ -396,10 +396,10 @@ type
 { TParametersImpl }
 
 { Construtor da classe TParametersImpl.
-  
+
   Parâmetros:
     AConfig: TParameterConfig - Set de opções de configuração que define quais fontes serão habilitadas
-  
+
   Comportamento:
     - Cria TCriticalSection para thread-safety
     - Inicializa fontes conforme AConfig (Database, INI, JSON)
@@ -414,7 +414,7 @@ begin
   FActiveSource := psDatabase;
   FContratoID := 0;
   FProdutoID := 0;
-  
+
   // Inicializa fontes conforme configuração
   if pcfDataBase in AConfig then
   begin
@@ -422,25 +422,25 @@ begin
     SetLength(FPriority, Length(FPriority) + 1);
     FPriority[High(FPriority)] := psDatabase;
   end;
-  
+
   if pcfInifile in AConfig then
   begin
     FInifiles := TParametersInifiles.Create;
-    // Inicializa automaticamente com valores padrão
-    FInifiles.FilePath(DEFAULT_PARAMETER_INI_FILENAME)
-      .Section(DEFAULT_PARAMETER_INI_SECTION)
-      .AutoCreateFile(DEFAULT_PARAMETER_AUTO_CREATE_INI);
+//    Inicializa automaticamente com valores padrão
+//    FInifiles.FilePath(DEFAULT_PARAMETER_INI_FILENAME)
+//      .Section(DEFAULT_PARAMETER_INI_SECTION)
+//      .AutoCreateFile(DEFAULT_PARAMETER_AUTO_CREATE_INI);
     SetLength(FPriority, Length(FPriority) + 1);
     FPriority[High(FPriority)] := psInifiles;
   end;
-  
+
   if pcfJsonObject in AConfig then
   begin
     FJsonObject := TParametersJsonObject.Create;
-    // Inicializa automaticamente com valores padrão
-    FJsonObject.FilePath(DEFAULT_PARAMETER_JSON_FILENAME)
-      .ObjectName(DEFAULT_PARAMETER_JSON_OBJECT_NAME_ROOT)
-      .AutoCreateFile(DEFAULT_PARAMETER_AUTO_CREATE_JSON);
+//    // Inicializa automaticamente com valores padrão
+//    FJsonObject.FilePath(DEFAULT_PARAMETER_JSON_FILENAME)
+//      .ObjectName(DEFAULT_PARAMETER_JSON_OBJECT_NAME_ROOT)
+//      .AutoCreateFile(DEFAULT_PARAMETER_AUTO_CREATE_JSON);
     // Sincroniza ContratoID e ProdutoID com a configuração unificada
     if FContratoID > 0 then
       FJsonObject.ContratoID(FContratoID);
@@ -449,7 +449,7 @@ begin
     SetLength(FPriority, Length(FPriority) + 1);
     FPriority[High(FPriority)] := psJsonObject;
   end;
-  
+
   // Se nenhuma fonte foi configurada, usa Database como padrão
   if Length(FPriority) = 0 then
   begin
@@ -460,7 +460,7 @@ begin
 end;
 
 { Destrutor da classe TParametersImpl.
-  
+
   Comportamento:
     - Libera TCriticalSection
     - Libera todas as interfaces (Database, INI, JSON)
@@ -1629,7 +1629,7 @@ begin
 end;
 
 { Factory method: Cria nova instância de IParametersInifiles com arquivo.
-  
+
   Parâmetros:
     AFilePath: string - Caminho completo do arquivo INI
   

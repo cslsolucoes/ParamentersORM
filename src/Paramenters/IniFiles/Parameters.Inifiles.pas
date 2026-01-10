@@ -68,6 +68,8 @@ type
     procedure WriteIniFileLines(ALines: TStringList); // Escreve arquivo INI linha por linha preservando comentários
     function FindSectionInLines(ALines: TStringList; const ASection: string): Integer; // Encontra índice da seção
     function FindKeyInSection(ALines: TStringList; AStartIndex: Integer; const AKey: string): Integer; // Encontra índice da chave na seção
+    procedure RemoveEmptySection(ALines: TStringList; ASectionIndex: Integer); // Remove seção vazia (sem chaves válidas)
+    function ExistsInSection(const AName, ASection: string): Boolean; // Verifica se chave existe na seção específica
     function GetKeysCountInSection(ALines: TStringList; ASectionIndex: Integer): Integer; // Conta quantas chaves válidas existem na seção
     function GetInsertPositionByOrder(ALines: TStringList; ASectionIndex: Integer; AOrder: Integer): Integer; // Retorna posição de inserção baseada na ordem
     procedure WriteContratoSection(AContratoID, AProdutoID: Integer); // Escreve seção [Contrato] com Contrato_ID e Produto_ID
@@ -580,6 +582,32 @@ begin
   end;
 end;
 
+function TParametersInifiles.ExistsInSection(const AName, ASection: string): Boolean;
+{ Verifica se a chave existe na seção específica.
+  Permite chaves com mesmo nome em seções (títulos) diferentes. }
+var
+  LLines: TStringList;
+  LSectionIndex: Integer;
+  LKeyIndex: Integer;
+begin
+  Result := False;
+  
+  if not EnsureFile then
+    Exit;
+  
+  LLines := ReadIniFileLines;
+  try
+    LSectionIndex := FindSectionInLines(LLines, ASection);
+    if LSectionIndex < 0 then
+      Exit; // Seção não existe
+    
+    LKeyIndex := FindKeyInSection(LLines, LSectionIndex, AName);
+    Result := LKeyIndex >= 0;
+  finally
+    LLines.Free;
+  end;
+end;
+
 function TParametersInifiles.GetKeysCountInSection(ALines: TStringList; ASectionIndex: Integer): Integer;
 var
   I: Integer;
@@ -601,6 +629,46 @@ begin
     // Conta apenas linhas com chave=valor (chaves válidas)
     if Pos('=', LLine) > 0 then
       Inc(Result);
+  end;
+end;
+
+procedure TParametersInifiles.RemoveEmptySection(ALines: TStringList; ASectionIndex: Integer);
+{ Remove uma seção vazia do arquivo INI.
+  Remove a linha da seção [Nome] e todas as linhas vazias/comentários até a próxima seção ou fim do arquivo. }
+var
+  I: Integer;
+  LLine: string;
+  LStartIndex: Integer;
+  LEndIndex: Integer;
+begin
+  if (ASectionIndex < 0) or (ASectionIndex >= ALines.Count) then
+    Exit;
+  
+  // Encontra o início da seção (linha [Nome])
+  LStartIndex := ASectionIndex;
+  
+  // Encontra o fim da seção (próxima seção ou fim do arquivo)
+  LEndIndex := ALines.Count;
+  for I := ASectionIndex + 1 to ALines.Count - 1 do
+  begin
+    LLine := Trim(ALines[I]);
+    if (LLine <> '') and (LLine[1] = '[') then
+    begin
+      LEndIndex := I;
+      Break;
+    end;
+  end;
+  
+  // Remove todas as linhas da seção (incluindo a linha [Nome] e linhas vazias/comentários seguintes)
+  // Remove de trás para frente para não alterar os índices
+  for I := LEndIndex - 1 downto LStartIndex do
+  begin
+    LLine := Trim(ALines[I]);
+    // Remove linha da seção, linhas vazias e comentários até encontrar outra seção
+    if (I = LStartIndex) or (LLine = '') or ((LLine[1] = ';') and (Pos('=', LLine) = 0)) then
+      ALines.Delete(I)
+    else
+      Break; // Para se encontrar conteúdo válido
   end;
 end;
 
@@ -981,6 +1049,9 @@ begin
 end;
 
 function TParametersInifiles.Insert(const AParameter: TParameter; out ASuccess: Boolean): IParametersInifiles;
+var
+  LSection: string;
+  LExists: Boolean;
 begin
   Result := Self;
   ASuccess := False;
@@ -990,6 +1061,24 @@ begin
   
   FLock.Enter;
   try
+    // Determina seção baseada no título
+    if AParameter.Titulo <> '' then
+      LSection := GetSectionName(AParameter.Titulo)
+    else if FSection <> '' then
+      LSection := FSection
+    else
+      LSection := 'Default';
+    
+    // Verifica se a chave já existe na mesma seção (título)
+    // Permite chaves com mesmo nome em seções (títulos) diferentes
+    LExists := ExistsInSection(AParameter.Name, LSection);
+    
+    if LExists then
+    begin
+      ASuccess := False;
+      Exit;
+    end;
+    
     WriteParameterToIni(AParameter);
     ASuccess := True;
   finally
@@ -1076,6 +1165,14 @@ begin
             // Remove a linha
             LLines.Delete(LKeyIndex);
             LFound := True;
+            
+            // Verifica se a seção ficou vazia (sem chaves válidas) e remove se necessário
+            // Ignora seções especiais como [Contrato]
+            if (GetKeysCountInSection(LLines, LSectionIndex) = 0) and 
+               (not SameText(LSection, 'Contrato')) then
+            begin
+              RemoveEmptySection(LLines, LSectionIndex);
+            end;
           end;
         end;
       end
@@ -1099,6 +1196,15 @@ begin
                 // Remove a linha
                 LLines.Delete(LKeyIndex);
                 LFound := True;
+                
+                // Verifica se a seção ficou vazia (sem chaves válidas) e remove se necessário
+                // Ignora seções especiais como [Contrato]
+                if (GetKeysCountInSection(LLines, LSectionIndex) = 0) and 
+                   (not SameText(LSection, 'Contrato')) then
+                begin
+                  RemoveEmptySection(LLines, LSectionIndex);
+                end;
+                
                 Break; // Remove apenas a primeira ocorrência
               end;
             end;

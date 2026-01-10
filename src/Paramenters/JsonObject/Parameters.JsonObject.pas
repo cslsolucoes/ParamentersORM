@@ -76,6 +76,7 @@ type
     function EnsureFile: Boolean;
     function GetObjectName(const ATitulo: string): string;
     function GetTituloFromObjectName(const AObjectName: string): string;
+    function ExistsInObject(const AName, AObjectName: string): Boolean; // Verifica se chave existe no objeto específico
     function ReadParameterFromJson(const AObjectName, AKey: string): TParameter;
     procedure WriteParameterToJson(const AParameter: TParameter);
     function GetAllObjectNames: TStringList;
@@ -292,6 +293,26 @@ function TParametersJsonObject.GetTituloFromObjectName(const AObjectName: string
 begin
   // Título é o nome do objeto JSON
   Result := Trim(AObjectName);
+end;
+
+function TParametersJsonObject.ExistsInObject(const AName, AObjectName: string): Boolean;
+{ Verifica se a chave existe no objeto específico.
+  Permite chaves com mesmo nome em objetos (títulos) diferentes. }
+var
+  LJsonValue: TJSONValue;
+  LJsonObj: TJSONObject;
+begin
+  Result := False;
+  
+  if not EnsureJsonObject then
+    Exit;
+  
+  LJsonValue := GetJsonValue(FJsonObject, AObjectName);
+  if not Assigned(LJsonValue) or not (LJsonValue is TJSONObject) then
+    Exit; // Objeto não existe
+  
+  LJsonObj := TJSONObject(LJsonValue);
+  Result := (GetJsonValue(LJsonObj, AName) <> nil);
 end;
 
 function TParametersJsonObject.ReadParameterFromJson(const AObjectName, AKey: string): TParameter;
@@ -1256,6 +1277,9 @@ begin
 end;
 
 function TParametersJsonObject.Insert(const AParameter: TParameter; out ASuccess: Boolean): IParametersJsonObject;
+var
+  LObjectName: string;
+  LExists: Boolean;
 begin
   FLock.Enter;
   try
@@ -1269,6 +1293,20 @@ begin
     
     if FFilePath <> '' then
       EnsureFile;
+    
+    // Determina objeto baseado no título
+    LObjectName := GetObjectName(AParameter.Titulo);
+    
+    // Verifica se a chave já existe no mesmo objeto (título)
+    // Permite chaves com mesmo nome em objetos (títulos) diferentes
+    LExists := ExistsInObject(AParameter.Name, LObjectName);
+    
+    if LExists then
+    begin
+      ASuccess := False;
+      Result := Self;
+      Exit;
+    end;
     
     try
       WriteParameterToJson(AParameter);
@@ -1402,6 +1440,15 @@ begin
         begin
           RemoveJsonPair(LJsonObj, AName);
           ASuccess := True;
+          
+          // Verifica se o objeto ficou vazio e remove se necessário
+          // Ignora objeto "Contrato" que é especial
+          if (GetKeysCountInObject(LJsonObj) = 0) and 
+             (not SameText(LObjectName, 'Contrato')) then
+          begin
+            RemoveJsonPair(FJsonObject, LObjectName);
+          end;
+          
           Break;
         end;
       end;
@@ -1420,6 +1467,14 @@ begin
         begin
           RemoveJsonPair(LJsonObj, AName);
           ASuccess := True;
+          
+          // Verifica se o objeto ficou vazio e remove se necessário
+          // Ignora objeto "Contrato" que é especial
+          if (GetKeysCountInObject(LJsonObj) = 0) and 
+             (not SameText(FObjectName, 'Contrato')) then
+          begin
+            RemoveJsonPair(FJsonObject, FObjectName);
+          end;
         end;
       end;
     end;

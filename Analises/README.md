@@ -1,7 +1,7 @@
 # 📚 Análises do Módulo Parameters
 
 **Data de Organização:** 02/01/2026  
-**Versão:** 1.0.0
+**Versão:** 1.0.1
 
 ---
 

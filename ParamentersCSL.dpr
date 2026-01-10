@@ -12,7 +12,7 @@
   - Free Pascal / Lazarus (Windows, Linux, macOS)
 
   Author: Claiton de Souza Linhares
-  Version: 1.0.0
+  Version: 1.0.1
   Date: 02/01/2026
   ============================================================================= }
 

@@ -1,6 +1,6 @@
-# 📚 Parameters versão 1.0.0 - Documentação Completa
+# 📚 Parameters versão 1.0.1 - Documentação Completa
 
-**Versão:** 1.0.0  
+**Versão:** 1.0.1  
 **Data de Criação:** 01/01/2026  
 **Data de Atualização:** 02/01/2026  
 **Status Geral:** ✅ **~99% COMPLETO** - Pronto para uso em produção (multithread)  
@@ -33,7 +33,7 @@
 
 ## 📋 DESCRIÇÃO GERAL
 
-O **Parameters versão 1.0.0** é um sistema unificado de gerenciamento de parâmetros de configuração com suporte a múltiplas fontes de dados (Banco de Dados, Arquivos INI, Objetos JSON) e fallback automático para contingência.
+O **Parameters versão 1.0.1** é um sistema unificado de gerenciamento de parâmetros de configuração com suporte a múltiplas fontes de dados (Banco de Dados, Arquivos INI, Objetos JSON) e fallback automático para contingência.
 
 ### 🎯 Objetivo Principal
 
@@ -2701,6 +2701,41 @@ Parameters := TParameters.NewDatabase
 
 **Nota:** FireDAC não está disponível no FPC. Use Zeos ou UniDAC.
 
+### Posso ter chaves com o mesmo nome em títulos diferentes?
+
+**Sim!** A partir da versão 1.0.1, é possível ter chaves com o mesmo nome em títulos diferentes. A validação considera `Nome + Título + ContratoID + ProdutoID` como chave única.
+
+```pascal
+// Exemplo: Mesma chave em títulos diferentes
+var Param1, Param2: TParameter;
+Param1 := TParameter.Create;
+Param1.Name := 'host';
+Param1.Titulo := 'ERP';
+Param1.Value := 'erp.example.com';
+
+Param2 := TParameter.Create;
+Param2.Name := 'host';  // Mesmo nome!
+Param2.Titulo := 'CRM'; // Título diferente
+Param2.Value := 'crm.example.com';
+
+// Ambos podem ser inseridos com sucesso
+Parameters.Insert(Param1, Success1);
+Parameters.Insert(Param2, Success2);
+```
+
+### O que acontece quando deleto a última chave de um título?
+
+A partir da versão 1.0.1, a seção (INI) ou objeto (JSON) é **removida automaticamente** quando você deleta a última chave. Isso mantém os arquivos limpos e organizados.
+
+```pascal
+// Se você deletar a última chave de um título:
+Parameters.Delete('ultima_chave');
+
+// A seção [Titulo] no INI será removida automaticamente
+// O objeto "Titulo" no JSON será removido automaticamente
+// Nota: Seções/objetos especiais como [Contrato] são preservados
+```
+
 ---
 
 ## 📊 ESTATÍSTICAS DO PROJETO
@@ -2924,6 +2959,6 @@ Compiled\
 **Autor:** Claiton de Souza Linhares  
 **Data de Criação:** 01/01/2026  
 **Última Atualização:** 02/01/2026  
-**Versão:** 1.0.0  
+**Versão:** 1.0.1  
 **Compatibilidade:** ✅ Delphi 10.3+ | ✅ FPC 3.2.2+ / Lazarus 2.0+
 

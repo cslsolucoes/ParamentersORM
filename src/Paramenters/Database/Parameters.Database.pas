@@ -209,6 +209,7 @@ type
     function ValidateTableStructure: Boolean; // Valida se a estrutura da tabela corresponde à esperada
     function GetNextOrder(const ATitulo: string; AContratoID, AProdutoID: Integer): Integer; // Obtém próxima ordem disponível
     function TituloExistsForContratoProduto(const ATitulo: string; AContratoID, AProdutoID: Integer; const AExcludeChave: string = ''): Boolean; // Verifica se título existe para Contrato/Produto (excluindo chave específica)
+    function ExistsWithTitulo(const AName, ATitulo: string; AContratoID, AProdutoID: Integer): Boolean; // Verifica se chave existe com mesmo nome, título, contrato e produto
     procedure AdjustOrdersForInsert(const ATitulo: string; AContratoID, AProdutoID, AOrder: Integer); // Ajusta ordens existentes ao inserir
     procedure AdjustOrdersForUpdate(const ATitulo: string; AContratoID, AProdutoID, AOldOrder, ANewOrder: Integer; const AChave: string); // Ajusta ordens existentes ao atualizar
     function ListAvailableDatabasesInternal: TStringList; // Lista bancos disponíveis (método privado)
@@ -3489,6 +3490,53 @@ begin
   end;
 end;
 
+function TParametersDatabase.ExistsWithTitulo(const AName, ATitulo: string; AContratoID, AProdutoID: Integer): Boolean;
+{ Verifica se existe um registro com a mesma chave, título, contrato e produto.
+  Usado para permitir chaves duplicadas em títulos diferentes. }
+var
+  LSQL: string;
+  LDataSet: TDataSet;
+  LCount: Integer;
+begin
+  Result := False;
+
+  try
+    // Garante que a tabela existe antes de fazer SELECT
+    EnsureTableExists;
+    
+    // Monta SQL para contar registros com chave + título + contrato + produto
+    // IMPORTANTE: Não filtra por ativo - verifica TODOS os registros (ativos e inativos)
+    LSQL := Format(
+      'SELECT COUNT(*) as cnt FROM %s ' +
+      'WHERE chave = ''%s'' AND titulo = ''%s'' AND contrato_id = %d AND produto_id = %d',
+      [
+        GetFullTableName,
+        EscapeSQL(AName),
+        EscapeSQL(ATitulo),
+        AContratoID,
+        AProdutoID
+      ]
+    );
+    
+    LDataSet := QuerySQL(LSQL);
+    if Assigned(LDataSet) then
+    begin
+      try
+        if not LDataSet.Eof then
+        begin
+          LCount := LDataSet.FieldByName('cnt').AsInteger;
+          Result := LCount > 0;
+        end;
+      finally
+        LDataSet.Close;
+      end;
+    end;
+  except
+    // Em caso de erro, retorna False (assume que não existe)
+    Result := False;
+  end;
+end;
+
 procedure TParametersDatabase.AdjustOrdersForInsert(const ATitulo: string; AContratoID, AProdutoID, AOrder: Integer);
 var
   LSQL: string;
@@ -4691,8 +4739,9 @@ begin
   
   ASuccess := False;
   try
-    // Verifica se já existe
-    if Exists(AParameter.Name) then
+    // Verifica se já existe com mesmo nome, título, contrato e produto
+    // Permite chaves com mesmo nome em títulos diferentes
+    if ExistsWithTitulo(AParameter.Name, AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID) then
       Exit;
     
     // Determina a ordem desejada
