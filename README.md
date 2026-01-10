@@ -4,7 +4,7 @@
 **Data de Criação:** 01/01/2026  
 **Data de Atualização:** 02/01/2026  
 **Status Geral:** ✅ **~99% COMPLETO** - Pronto para uso em produção (multithread)  
-**Compatibilidade:** ✅ Delphi 10.3+ | ✅ FPC 3.2.2+ / Lazarus 2.0+
+**Compatibilidade:** ✅ Delphi 10.3+ | ✅ FPC 3.2.2+ / Lazarus 4.4+
 
 ---
 
@@ -26,8 +26,9 @@
 6. [Tratamento de Erros](#tratamento-de-erros)
 7. [FAQ](#faq)
 8. [Compatibilidade FPC/Lazarus](#-compatibilidade-fpclazarus)
-9. [Estatísticas do Projeto](#-estatísticas-do-projeto)
-10. [Documentação Adicional](#-documentação-adicional)
+9. [Castle Engine (Opcional)](#-castle-engine-opcional)
+10. [Estatísticas do Projeto](#-estatísticas-do-projeto)
+11. [Documentação Adicional](#-documentação-adicional)
 
 ---
 
@@ -2747,6 +2748,7 @@ Parameters.Delete('ultima_chave');
 | **Fases Concluídas** | 5 de 7 (71%) |
 | **Progresso Geral** | ~99% |
 | **Status** | ✅ Pronto para uso |
+| **O Que Falta para 100%** | Ver `docs/O_QUE_FALTA_100_PORCENTO.md` |
 | **Compatibilidade Delphi** | ✅ 100% |
 | **Compatibilidade FPC/Lazarus** | ✅ 100% |
 | **Plataformas Suportadas** | Windows, Linux, macOS |
@@ -2785,7 +2787,7 @@ O módulo Parameters foi **totalmente adaptado** para funcionar com **Free Pasca
 ### 📋 Requisitos para FPC/Lazarus
 
 1. **Free Pascal Compiler (FPC)** 3.2.2 ou superior
-2. **Lazarus IDE** 2.0+ (recomendado)
+2. **Lazarus IDE** 4.4+ (recomendado) - Versão detectada: 4.4
 3. **Zeos Library** (recomendado) ou UniDAC
 4. **Diretivas de compilação:** `USE_ZEOS` e `FPC`
 
@@ -2893,6 +2895,8 @@ end.
 
 ### 📁 Estrutura de Diretórios (FPC/Lazarus)
 
+#### Estrutura de Compilação do Projeto
+
 ```
 Compiled\
 ├── EXE\
@@ -2910,6 +2914,36 @@ Compiled\
         ├── win32\
         └── win64\
 ```
+
+#### Estrutura de Instalação do FPC/Lazarus (Detectada)
+
+```
+D:\fpc\
+├── fpc\                      # Free Pascal Compiler 3.2.2
+│   ├── bin\
+│   │   └── x86_64-win64\     # Binários 64-bit
+│   │       ├── fpc.exe       # Compilador principal
+│   │       └── ...
+│   ├── units\                # Units compiladas
+│   │   ├── i386-win32\       # Units 32-bit
+│   │   ├── x86_64-win64\     # Units 64-bit
+│   │   └── x86_64-linux\     # Units Linux (cross-compilation)
+│   └── ...
+├── fpcsrc\                   # Código-fonte do FPC
+├── lazarus\                  # IDE Lazarus
+│   ├── lazarus.exe           # Executável principal
+│   └── ...
+├── config_lazarus\          # Configurações do Lazarus
+│   └── onlinepackagemanager\ # Pacotes OPM
+├── ccr\                      # Componentes e bibliotecas
+├── cross\                    # Ferramentas de cross-compilation
+└── projects\                # Projetos de exemplo
+```
+
+**Caminhos Principais:**
+- **Lazarus IDE:** `D:\fpc\lazarus\lazarus.exe`
+- **FPC Compiler:** `D:\fpc\fpc\bin\x86_64-win64\fpc.exe`
+- **Versão FPC:** 3.2.2
 
 ### 🔧 Variáveis do Projeto
 
@@ -2932,10 +2966,113 @@ Compiled\
 ### 🧪 Testes de Compatibilidade
 
 - ✅ Compilação no FPC 3.2.2
-- ✅ Compilação no Lazarus 2.0+
+- ✅ Compilação no Lazarus 4.4 (detectado)
 - ✅ Testes de unidades condicionais
 - ✅ Testes de thread-safety
 - ✅ Testes de importação/exportação
+
+---
+
+## 🏰 CASTLE ENGINE (OPCIONAL)
+
+O **Castle Game Engine** é um framework de desenvolvimento de jogos 3D para Pascal/Object Pascal, compatível com Free Pascal e Delphi. Ele foi configurado no ambiente de desenvolvimento para permitir a criação de projetos de jogos separados.
+
+### ✅ Status de Configuração
+
+- ✅ **Castle Engine instalado:** `D:\castle-engine`
+- ✅ **Versão:** 7.0-alpha.3.snapshot
+- ✅ **Variável de ambiente:** `CASTLE_ENGINE_PATH` configurada
+- ✅ **Build-tool:** Adicionado ao PATH
+- ✅ **Configurações VSCode/Cursor:** Aplicadas
+- ✅ **Tasks de build:** Configuradas
+
+### 📋 O que é o Castle Engine?
+
+O Castle Game Engine fornece:
+
+- ✅ Renderização 3D (OpenGL, Vulkan)
+- ✅ Física (usando Physics Integration)
+- ✅ Áudio (OpenAL)
+- ✅ Input (teclado, mouse, joystick, touch)
+- ✅ Multi-plataforma (Windows, Linux, macOS, Android, iOS)
+- ✅ Editor visual integrado
+
+### 🔧 Configuração
+
+A configuração completa está documentada em:
+
+- 📄 [`.vscode/CASTLE_ENGINE_SETUP.md`](.vscode/CASTLE_ENGINE_SETUP.md) - Guia completo de configuração
+
+### 🚀 Uso Rápido
+
+#### Verificar Instalação
+
+```powershell
+# Verificar versão
+castle-engine --version
+
+# Verificar variável de ambiente
+echo $env:CASTLE_ENGINE_PATH
+```
+
+#### Compilar um Projeto Castle Engine
+
+```powershell
+# Compilar em modo debug
+castle-engine compile --mode=debug
+
+# Compilar em modo release
+castle-engine compile --mode=release
+
+# Compilar para plataforma específica
+castle-engine compile --os=win64
+castle-engine compile --os=linux
+castle-engine compile --os=android
+```
+
+#### Via Build Tasks no Cursor/VSCode
+
+- `Ctrl+Shift+B` → Selecionar task:
+  - **Castle Engine: Verificar Versão**
+  - **Castle Engine: Compilar (Debug)**
+  - **Castle Engine: Compilar (Release)**
+  - **Castle Engine: Limpar Projeto**
+
+### 🎮 Integração com Parameters
+
+O Castle Engine pode usar o módulo Parameters para gerenciar configurações de jogos:
+
+```pascal
+uses
+  Parameters,  // Módulo Parameters
+  CastleWindow;
+
+var
+  Window: TCastleWindowBase;
+  Params: IParameters;
+begin
+  // Carregar parâmetros do jogo
+  Params := TParameters.NewInifiles
+    .FilePath('game_config.ini')
+    .Section('Game');
+  
+  // Usar parâmetros
+  Window.Width := StrToInt(Params.Get('window_width').Value);
+  Window.Height := StrToInt(Params.Get('window_height').Value);
+  
+  Window.Open;
+  Application.Run;
+end.
+```
+
+### ⚠️ Nota Importante
+
+O Castle Engine é **opcional** e não é necessário para o projeto ParametersORM atual. Ele foi configurado caso você queira criar projetos de jogos separados usando o mesmo ambiente de desenvolvimento.
+
+Para habilitar o Castle Engine no projeto:
+1. Configure `CASTLE_ENGINE_PATH` (já configurado)
+2. Defina `"castleEngine.enabled": true` no `.vscode/settings.json` (se necessário)
+3. Recarregue o Cursor: `Ctrl+Shift+P` → "Reload Window"
 
 ---
 
@@ -2956,9 +3093,43 @@ Compiled\
 
 ---
 
+## 🔗 REPOSITÓRIO GIT
+
+### GitHub
+
+**Repositório:** [https://github.com/cslsolucoes/ParamentersORM.git](https://github.com/cslsolucoes/ParamentersORM.git)
+
+**Organização:** [cslsolucoes](https://github.com/cslsolucoes)
+
+**Projeto:** ParamentersORM
+
+### Clonar o Repositório
+
+```bash
+git clone https://github.com/cslsolucoes/ParamentersORM.git
+cd ParamentersORM
+```
+
+### Contribuindo
+
+Contribuições são bem-vindas! Por favor:
+
+1. Faça um fork do repositório
+2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
+4. Push para a branch (`git push origin feature/MinhaFeature`)
+5. Abra um Pull Request
+
+### Licença
+
+Este projeto está licenciado sob a **GPL-3.0 License** - veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+---
+
 **Autor:** Claiton de Souza Linhares  
 **Data de Criação:** 01/01/2026  
 **Última Atualização:** 02/01/2026  
 **Versão:** 1.0.1  
-**Compatibilidade:** ✅ Delphi 10.3+ | ✅ FPC 3.2.2+ / Lazarus 2.0+
+**Compatibilidade:** ✅ Delphi 10.3+ | ✅ FPC 3.2.2+ / Lazarus 4.4+  
+**Castle Engine:** ✅ Configurado (Opcional)
 

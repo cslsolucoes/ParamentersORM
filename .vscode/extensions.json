@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "alefragnani.pascal",
+    "alefragnani.project-manager",
+    "alefragnani.pascal-formatter",
+    "alefragnani.delphi-keybindings",
+    "embarcaderotechnologies.delphilsp",
+    "theangryepicbanana.language-pascal",
+    "formulahendry.code-runner",
+    "github.vscode-pull-request-github",
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    "vmssoftwareinc.vms-ide"
+  ]
+}

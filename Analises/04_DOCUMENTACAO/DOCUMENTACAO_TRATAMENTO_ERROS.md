@@ -14,7 +14,7 @@ Implementar tratamento completo e consistente de erros em todo o módulo Paramet
 
 ## ✨ ARQUIVOS CRIADOS
 
-### 1. `Modulo.Parameters.Exceptions.pas`
+### 1. `Parameters.Exceptions.pas`
 
 **Nova unit dedicada a exceções e mensagens de erro.**
 

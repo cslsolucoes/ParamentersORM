@@ -1,0 +1,190 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "FPC: Compilar (Debug)",
+      "type": "shell",
+      "command": "D:\\fpc\\fpc\\bin\\x86_64-win64\\fpc.exe",
+      "args": [
+        "-dUSE_ZEOS",
+        "-dFPC",
+        "-gl",
+        "-gw",
+        "-Fu${workspaceFolder}\\src",
+        "-Fu${workspaceFolder}\\src\\Modulo",
+        "-Fu${workspaceFolder}\\src\\View",
+        "-FU${workspaceFolder}\\Compiled\\DCU\\Debug\\win64",
+        "-FE${workspaceFolder}\\Compiled\\EXE\\Debug\\win64",
+        "${workspaceFolder}\\ParamentersCSL.lpr"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": {
+        "owner": "fpc",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": {
+          "regexp": "^(.+)\\((\\d+),(\\d+)\\)\\s+(Fatal|Error|Warning|Hint|Note):\\s+(.+)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      }
+    },
+    {
+      "label": "FPC: Compilar (Release)",
+      "type": "shell",
+      "command": "D:\\fpc\\fpc\\bin\\x86_64-win64\\fpc.exe",
+      "args": [
+        "-dUSE_ZEOS",
+        "-dFPC",
+        "-O3",
+        "-Fu${workspaceFolder}\\src",
+        "-Fu${workspaceFolder}\\src\\Modulo",
+        "-Fu${workspaceFolder}\\src\\View",
+        "-FU${workspaceFolder}\\Compiled\\DCU\\Release\\win64",
+        "-FE${workspaceFolder}\\Compiled\\EXE\\Release\\win64",
+        "${workspaceFolder}\\ParamentersCSL.lpr"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": {
+        "owner": "fpc",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": {
+          "regexp": "^(.+)\\((\\d+),(\\d+)\\)\\s+(Fatal|Error|Warning|Hint|Note):\\s+(.+)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      }
+    },
+    {
+      "label": "FPC: Limpar Arquivos Compilados",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Remove-Item -Path '${workspaceFolder}\\Compiled\\**\\*' -Include *.dcu,*.exe,*.o,*.ppu -Recurse -Force -ErrorAction SilentlyContinue"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "FPC: Verificar Versão",
+      "type": "shell",
+      "command": "D:\\fpc\\fpc\\bin\\x86_64-win64\\fpc.exe",
+      "args": [
+        "-iV"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Castle Engine: Verificar Versão",
+      "type": "shell",
+      "command": "castle-engine",
+      "args": [
+        "--version"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Castle Engine: Compilar (Debug)",
+      "type": "shell",
+      "command": "castle-engine",
+      "args": [
+        "compile",
+        "--mode=debug"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": {
+        "owner": "castle",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": {
+          "regexp": "^(.+)\\((\\d+),(\\d+)\\)\\s+(Fatal|Error|Warning|Hint|Note):\\s+(.+)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      }
+    },
+    {
+      "label": "Castle Engine: Compilar (Release)",
+      "type": "shell",
+      "command": "castle-engine",
+      "args": [
+        "compile",
+        "--mode=release"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": {
+        "owner": "castle",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": {
+          "regexp": "^(.+)\\((\\d+),(\\d+)\\)\\s+(Fatal|Error|Warning|Hint|Note):\\s+(.+)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      }
+    },
+    {
+      "label": "Castle Engine: Limpar Projeto",
+      "type": "shell",
+      "command": "castle-engine",
+      "args": [
+        "clean"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

@@ -1,11 +1,434 @@
 {
-    "delphiLsp.settingsFile": "file:///e%3A/CSL/ParamentersORM/ConfigCSL.delphilsp.json",
-    "delphiLsp.executable": "C:\\Program Files (x86)\\Embarcadero\\Studio\\23.0\\bin\\DelphiLSP.exe",
-    "chat.instructionsFilesLocations": {
-        ".cursor/rules": true
-    },
-    "delphi.configFile": "file:///e%3A/CSL/ParamentersORM/ConfigCSL.delphilsp.json",
-    "delphiLsp.serverType": "agent",
-    "pascal.formatter.engine": "embarcadero",
-    "vmssoftware.project-dep.buildName": "DEBUG"
+  // ============================================
+  // Informações do Projeto
+  // ============================================
+  // Repositório Git: https://github.com/cslsolucoes/ParamentersORM.git
+  // Organização: cslsolucoes
+  // Projeto: ParamentersORM
+  // Versão: 1.0.1
+  // Compatibilidade: Delphi 10.3+ | FPC 3.2.2+ / Lazarus 4.4+
+  // Versões Detectadas: FPC 3.2.2 | Lazarus 4.4 (Build: 2026-01-10)
+  // ============================================
+  // Configurações do Delphi LSP
+  // ============================================
+  "delphiLsp.settingsFile": "file:///e%3A/CSL/ParamentersORM/ConfigCSL.delphilsp.json",
+  "delphiLsp.executable": "C:\\Program Files (x86)\\Embarcadero\\Studio\\23.0\\bin\\DelphiLSP.exe",
+  "delphiLsp.serverType": "agent",
+  "delphi.configFile": "file:///e%3A/CSL/ParamentersORM/ConfigCSL.delphilsp.json",
+  // ============================================
+  // Configurações do Pascal Language Server
+  // ============================================
+  "pascal.formatter.engine": "embarcadero",
+  "pascal.formatting.enabled": true,
+  "pascal.codeGeneration.enabled": true,
+  "pascal.completion.enabled": true,
+  "pascal.hover.enabled": true,
+  "pascal.signatureHelp.enabled": true,
+  "pascal.diagnostics.enabled": true,
+  // ============================================
+  // Configurações Específicas Free Pascal (FPC)
+  // ============================================
+  "fpc.compilerPath": "D:\\fpc\\fpc\\bin\\x86_64-win64\\fpc.exe",
+  "fpc.compilerVersion": "3.2.2",
+  "fpc.lazarusVersion": "4.4",
+  "fpc.lazarusPath": "D:\\fpc\\lazarus",
+  "fpc.lazarusBuildDate": "2026-01-10",
+  "fpc.lazarusRevision": "lazarus_4_4",
+  "fpc.fpcSourcePath": "D:\\fpc\\fpcsrc",
+  "fpc.unitsPath": "D:\\fpc\\fpc\\units",
+  "fpc.configFile": "D:\\fpc\\fpc\\bin\\x86_64-win64\\fpc.cfg",
+  "fpc.defaultPlatform": "x86_64-win64",
+  "fpc.defaultMode": "DELPHI",
+  "fpc.defaultAppType": "GUI",
+  "fpc.defines": [
+    "USE_ZEOS",
+    "FPC"
+  ],
+  // ============================================
+  // Configurações Castle Engine (Opcional)
+  // ============================================
+  "castleEngine.path": "${env:CASTLE_ENGINE_PATH}",
+  "castleEngine.buildTool": "${env:CASTLE_ENGINE_PATH}/tools/build-tool/castle-engine.exe",
+  "castleEngine.editor": "${env:CASTLE_ENGINE_PATH}/bin/castle-editor.exe",
+  "castleEngine.enabled": false,
+  "castleEngine.platforms": [
+    "win64",
+    "linux",
+    "android",
+    "ios"
+  ],
+  "fpc.searchPaths": [
+    "src",
+    "src/Modulo",
+    "src/View",
+    "D:\\fpc\\fpc\\units\\x86_64-win64",
+    "D:\\fpc\\lazarus\\components",
+    "D:\\fpc\\ccr",
+    "${env:CASTLE_ENGINE_PATH}/src",
+    "${env:CASTLE_ENGINE_PATH}/tools/build-tool/data/units"
+  ],
+  "fpc.includePaths": [
+    "src"
+  ],
+  // ============================================
+  // Configurações de Arquivos
+  // ============================================
+  "files.associations": {
+    "*.pas": "pascal",
+    "*.pp": "pascal",
+    "*.p": "pascal",
+    "*.inc": "pascal",
+    "*.dpr": "pascal",
+    "*.dproj": "xml",
+    "*.lpr": "pascal",
+    "*.lpi": "xml",
+    "*.lfm": "pascal",
+    "*.dfm": "pascal",
+    "*.dpk": "pascal",
+    "*.lpk": "pascal"
+  },
+  "files.encoding": "utf8",
+  "files.eol": "\r\n",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Compiled": true,
+    "**/*.dcu": true,
+    "**/*.~*": true,
+    "**/*.local": true,
+    "**/node_modules": true
+  },
+  "files.watcherExclude": {
+    "**/Compiled/**": true,
+    "**/*.dcu": true,
+    "**/*.exe": true,
+    "**/*.dll": true,
+    "**/*.so": true,
+    "**/*.dylib": true,
+    "**/*.app": true,
+    "**/*.apk": true,
+    "**/*.ipa": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true
+  },
+  // ============================================
+  // Configurações de Busca
+  // ============================================
+  "search.exclude": {
+    "**/Compiled": true,
+    "**/node_modules": true,
+    "**/*.dcu": true,
+    "**/*.exe": true,
+    "**/*.dll": true,
+    "**/*.so": true,
+    "**/*.dylib": true,
+    "**/.git": true
+  },
+  // ============================================
+  // Configurações do Editor
+  // ============================================
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "editor.rulers": [
+    80,
+    120
+  ],
+  "editor.wordWrap": "off",
+  "editor.trimAutoWhitespace": true,
+  "editor.trimFinalNewlines": true,
+  "editor.insertFinalNewline": true,
+  "editor.renderWhitespace": "boundary",
+  "editor.renderControlCharacters": false,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+  "editor.suggestSelection": "first",
+  "editor.acceptSuggestionOnCommitCharacter": true,
+  "editor.acceptSuggestionOnEnter": "on",
+  "editor.snippetSuggestions": "top",
+  "editor.wordBasedSuggestions": "off",
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": false
+  },
+  "editor.suggest.localityBonus": true,
+  "editor.suggest.showKeywords": true,
+  "editor.suggest.showSnippets": true,
+  "editor.suggest.preview": true,
+  "editor.suggest.showMethods": true,
+  "editor.suggest.showFunctions": true,
+  "editor.suggest.showConstructors": true,
+  "editor.suggest.showFields": true,
+  "editor.suggest.showVariables": true,
+  "editor.suggest.showProperties": true,
+  "editor.suggest.showEvents": true,
+  "editor.suggest.showOperators": true,
+  "editor.suggest.showUnits": true,
+  "editor.suggest.showText": true,
+  "editor.suggest.showColors": true,
+  "editor.suggest.showFiles": true,
+  "editor.suggest.showReferences": true,
+  "editor.suggest.showCustomcolors": true,
+  "editor.suggest.showFolders": true,
+  "editor.suggest.showTypeParameters": true,
+  // ============================================
+  // Configurações de Linguagem Pascal
+  // ============================================
+  "[pascal]": {
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "alefragnani.pascal-formatter",
+    "editor.wordSeparators": "`~!@#$%^&*()=+[{]}\\|;:'\",.<>/?",
+    "editor.suggest.insertMode": "replace",
+    "editor.bracketPairColorization.enabled": true,
+    "editor.semanticHighlighting.enabled": true
+  },
+  // ============================================
+  // Configurações Específicas para Arquivos FPC
+  // ============================================
+  "[fpc]": {
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "alefragnani.pascal-formatter"
+  },
+  // ============================================
+  // Configurações de Build (VMS Software)
+  // ============================================
+  "vmssoftware.project-dep.buildName": "DEBUG",
+  "vmssoftware.project-dep.platform": "Win32",
+  "vmssoftware.project-dep.config": "Debug",
+  // ============================================
+  // Configurações de Cursor/IA
+  // ============================================
+  "chat.instructionsFilesLocations": {
+    ".cursor/rules": true
+  },
+  "cursor.ai.enabled": true,
+  "cursor.ai.languageSupport": {
+    "pascal": {
+      "enabled": true,
+      "codeCompletion": true,
+      "codeGeneration": true,
+      "refactoring": true,
+      "documentation": true
+    }
+  },
+  "cursor.ai.context": {
+    "includeProjectFiles": true,
+    "includeGitFiles": true,
+    "maxFileSize": 100000,
+    "excludePatterns": [
+      "**/Compiled/**",
+      "**/*.dcu",
+      "**/*.exe",
+      "**/*.dll"
+    ]
+  },
+  "cursor.ai.codebaseIndexing": {
+    "enabled": true,
+    "languages": [
+      "pascal",
+      "delphi"
+    ],
+    "includePaths": [
+      "src",
+      "src/Modulo",
+      "src/View"
+    ]
+  },
+  // ============================================
+  // Configurações de Terminal (Multi-plataforma)
+  // ============================================
+  "terminal.integrated.env.windows": {
+    "PATH": "${env:PATH};C:\\Program Files (x86)\\Embarcadero\\Studio\\23.0\\bin;D:\\fpc\\fpc\\bin\\x86_64-win64;D:\\fpc\\lazarus;${env:CASTLE_ENGINE_PATH}/tools/build-tool",
+    "FPC": "D:\\fpc\\fpc\\bin\\x86_64-win64\\fpc.exe",
+    "FPCDIR": "D:\\fpc\\fpcsrc",
+    "LAZARUS_DIR": "D:\\fpc\\lazarus",
+    "FPCTARGET": "x86_64-win64",
+    "FPCTARGETCPU": "x86_64",
+    "FPCTARGETOS": "win64",
+    "CASTLE_ENGINE_PATH": "${env:CASTLE_ENGINE_PATH}",
+    "CASTLE_FPC": "D:\\fpc\\fpc\\bin\\x86_64-win64\\fpc.exe"
+  },
+  "terminal.integrated.env.linux": {
+    "PATH": "${env:PATH}:/usr/local/bin:/usr/bin:/opt/fpc/bin:/usr/lib/fpc/3.2.2",
+    "FPC": "/usr/bin/fpc",
+    "FPCDIR": "/usr/lib/fpc/3.2.2",
+    "FPCTARGET": "x86_64-linux",
+    "FPCTARGETCPU": "x86_64",
+    "FPCTARGETOS": "linux"
+  },
+  "terminal.integrated.env.osx": {
+    "PATH": "${env:PATH}:/usr/local/bin:/opt/fpc/bin:/usr/local/lib/fpc/3.2.2",
+    "FPC": "/usr/local/bin/fpc",
+    "FPCDIR": "/usr/local/lib/fpc/3.2.2",
+    "FPCTARGET": "x86_64-darwin",
+    "FPCTARGETCPU": "x86_64",
+    "FPCTARGETOS": "darwin"
+  },
+  // ============================================
+  // Configurações de Extensões Recomendadas
+  // ============================================
+  "extensions.recommendations": [
+    "alefragnani.pascal",
+    "alefragnani.project-manager",
+    "alefragnani.pascal-formatter",
+    "alefragnani.delphi-keybindings",
+    "embarcaderotechnologies.delphilsp",
+    "theangryepicbanana.language-pascal",
+    "formulahendry.code-runner",
+    "github.vscode-pull-request-github",
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    "vmssoftwareinc.vms-ide"
+  ],
+  // ============================================
+  // Configurações de Compilação Multi-plataforma
+  // ============================================
+  // Windows: Delphi e FPC
+  // Linux: FPC apenas
+  // macOS: FPC apenas
+  // Android: FPC com NDK
+  // iOS: FPC com Xcode
+  // ============================================
+  // Configurações de Build Tasks (FPC)
+  // ============================================
+  "tasks.version": "2.0.0",
+  // ============================================
+  // Configurações de Debug
+  // ============================================
+  "debug.allowBreakpointsEverywhere": true,
+  "debug.showBreakpointsInOverviewRuler": true,
+  "debug.showInlineBreakpointCandidates": true,
+  // ============================================
+  // Configurações de Git/GitHub
+  // ============================================
+  "git.enabled": true,
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+  "git.suggestSmartCommit": true,
+  "git.autoRepositoryDetection": true,
+  "git.detectSubmodules": true,
+  "git.detectSubmodulesLimit": 10,
+  "git.ignoreLimitWarning": false,
+  "git.ignoreWindowsGit27Warning": false,
+  "git.path": null,
+  "git.scanRepositories": [
+    "e:\\CSL"
+  ],
+  "git.useEditorAsCommitInput": true,
+  "git.validate.enable": true,
+  "git.allowForcePush": false,
+  "git.allowNoVerifyCommit": false,
+  "git.branchSortOrder": "alphabetically",
+  "git.defaultCloneDirectory": null,
+  "git.openRepositoryInParentFolders": "always",
+  "git.pruneOnFetch": false,
+  "git.rememberPostCommitCommand": false,
+  "git.showPushSuccessNotification": true,
+  "git.similarityThreshold": 50,
+  "git.timeline.enabled": true,
+  "git.timeline.date": "committed",
+  "git.terminalAuthentication": false,
+  "git.useCommitInputAsStashMessage": false,
+  "git.verboseCommit": true,
+  "github.gitProtocol": "https",
+  "github.branchProtection": false,
+  "github.gitAuthentication": true,
+  "github.repository": "cslsolucoes/ParamentersORM",
+  // ============================================
+  // Configurações de Workspace
+  // ============================================
+  "files.maxMemoryForLargeFilesMB": 4096,
+  "editor.largeFileOptimizations": false,
+  // ============================================
+  // Configurações de IntelliSense para FPC
+  // ============================================
+  "pascal.intellisense.enabled": true,
+  "pascal.intellisense.includePaths": [
+    "src",
+    "D:\\fpc\\fpc\\units\\x86_64-win64",
+    "D:\\fpc\\lazarus\\components",
+    "D:\\fpc\\ccr",
+    "${env:CASTLE_ENGINE_PATH}/src",
+    "${env:CASTLE_ENGINE_PATH}/tools/build-tool/data/units"
+  ],
+  "pascal.intellisense.defines": [
+    "FPC",
+    "USE_ZEOS",
+    "WINDOWS",
+    "WIN64"
+  ],
+  // ============================================
+  // Configurações de Code Runner para FPC
+  // ============================================
+  "code-runner.executorMap": {
+    "pascal": "cd $dir && D:\\fpc\\fpc\\bin\\x86_64-win64\\fpc.exe -dUSE_ZEOS -dFPC $fileName && $fileNameWithoutExt.exe"
+  },
+  "code-runner.runInTerminal": true,
+  "code-runner.clearPreviousOutput": true,
+  "code-runner.saveFileBeforeRun": true,
+  // ============================================
+  // Configurações de Problemas/Diagnostics FPC
+  // ============================================
+  "problems.showCurrentInStatus": true,
+  "problems.sortOrder": "severity",
+  // ============================================
+  // Configurações Específicas Cursor para Pascal/FPC
+  // ============================================
+  "cursor.chat.model": "default",
+  "cursor.chat.maxTokens": 4096,
+  "cursor.chat.temperature": 0.7,
+  "cursor.autocomplete.enabled": true,
+  "cursor.autocomplete.languages": {
+    "pascal": {
+      "enabled": true,
+      "suggestOnTriggerCharacters": true,
+      "suggestOnType": true
+    }
+  },
+  "cursor.codebase.indexing": {
+    "enabled": true,
+    "includePatterns": [
+      "**/*.pas",
+      "**/*.pp",
+      "**/*.inc",
+      "**/*.lpr",
+      "**/*.dpr"
+    ],
+    "excludePatterns": [
+      "**/Compiled/**",
+      "**/*.dcu",
+      "**/*.exe",
+      "**/*.dll",
+      "**/node_modules/**"
+    ]
+  },
+  "cursor.fileWatcher": {
+    "enabled": true,
+    "watchPatterns": [
+      "**/*.pas",
+      "**/*.pp",
+      "**/*.inc"
+    ]
+  },
+  // ============================================
+  // Configurações de Snippets para Pascal/FPC
+  // ============================================
+  "editor.tabCompletion": "on",
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  // ============================================
+  // Configurações de Performance para Cursor
+  // ============================================
+  "search.useIgnoreFiles": true,
+  "search.useGlobalIgnoreFiles": true,
+  "search.followSymlinks": false
 }

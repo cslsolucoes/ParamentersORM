@@ -10,10 +10,18 @@
 
 ### Caminhos Configurados
 
-- **Lazarus:** `C:\lazarus`
-- **Free Pascal:** `C:\lazarus\fpc\3.2.2`
-- **Configurações:** `C:\lazarus\Configuracao`
-- **Pacotes:** `C:\lazarus\Configuracao\onlinepackagemanager\packages`
+- **Base de Instalação:** `D:\fpc`
+- **Lazarus IDE:** `D:\fpc\lazarus` (versão 4.4)
+- **Free Pascal Compiler (FPC):** `D:\fpc\fpc` (versão 3.2.2)
+- **Binários FPC:** `D:\fpc\fpc\bin\x86_64-win64` (64-bit)
+- **Build Date:** 2026-01-10 01:46
+- **Revision:** lazarus_4_4
+- **Código-fonte FPC:** `D:\fpc\fpcsrc`
+- **Configurações Lazarus:** `D:\fpc\config_lazarus`
+- **Pacotes OPM:** `D:\fpc\config_lazarus\onlinepackagemanager\packages`
+- **Componentes CCR:** `D:\fpc\ccr`
+- **Cross-compilation:** `D:\fpc\cross`
+- **Projetos:** `D:\fpc\projects`
 
 ---
 
@@ -34,7 +42,7 @@ O módulo Parameters requer a biblioteca **Zeos** para acesso a banco de dados n
 #### Opção B: Instalação Manual
 
 1. Baixe Zeos de: https://sourceforge.net/projects/zeoslib/
-2. Extraia em uma pasta (ex: `C:\lazarus\components\zeos`)
+2. Extraia em uma pasta (ex: `D:\fpc\ccr\zeos` ou `D:\fpc\lazarus\components\zeos`)
 3. No Lazarus: **Package** → **Open Package File**
 4. Abra `packages\lazarus\zeoslib.lpk`
 5. Clique em **Compile**
@@ -119,10 +127,13 @@ O arquivo `src/ParamentersORM.Defines.inc` já está configurado para FPC:
 2. Procure por **"ZeosLib"** ou **"Zeos"**
 3. Se não estiver instalado, instale via Online Package Manager
 
-### Verificar Versão do FPC
+### Verificar Versões
 
 1. **Help** → **About Lazarus**
-2. Verifique a versão do FPC (deve ser 3.2.2 ou superior)
+2. Verifique as versões:
+   - **Lazarus:** 4.4 (detectado)
+   - **FPC:** 3.2.2 (deve ser 3.2.2 ou superior)
+   - **Target Architectures:** x86_64-win64-win32/win64
 
 ---
 
@@ -197,19 +208,30 @@ O arquivo `src/ParamentersORM.Defines.inc` já está configurado para FPC:
 
 ```bash
 # No terminal do Lazarus ou linha de comando
+# Usando o caminho completo do FPC
+D:\fpc\fpc\bin\x86_64-win64\fpc.exe -dUSE_ZEOS -dFPC ParamentersCSL.lpr
+
+# Ou se o PATH estiver configurado:
 fpc -dUSE_ZEOS -dFPC ParamentersCSL.lpr
 ```
 
 ### Teste 2: Compilação com Debug
 
 ```bash
-fpc -dUSE_ZEOS -dFPC -gl -gw ParamentersCSL.lpr
+D:\fpc\fpc\bin\x86_64-win64\fpc.exe -dUSE_ZEOS -dFPC -gl -gw ParamentersCSL.lpr
 ```
 
 ### Teste 3: Verificar Units
 
 ```bash
-fpc -dUSE_ZEOS -dFPC -vu ParamentersCSL.lpr
+D:\fpc\fpc\bin\x86_64-win64\fpc.exe -dUSE_ZEOS -dFPC -vu ParamentersCSL.lpr
+```
+
+### Teste 4: Verificar Versão do FPC
+
+```bash
+D:\fpc\fpc\bin\x86_64-win64\fpc.exe -iV
+# Deve retornar: 3.2.2
 ```
 
 ---
@@ -235,8 +257,8 @@ fpc -dUSE_ZEOS -dFPC -vu ParamentersCSL.lpr
 
 ## ✅ Checklist de Configuração
 
-- [ ] Lazarus instalado
-- [ ] FPC 3.2.2 ou superior instalado
+- [x] Lazarus 4.4 instalado (detectado)
+- [x] FPC 3.2.2 instalado (detectado)
 - [ ] Zeos Library instalado
 - [ ] Arquivo `.lpr` criado/adaptado
 - [ ] Caminhos de bibliotecas configurados
@@ -258,6 +280,53 @@ fpc -dUSE_ZEOS -dFPC -vu ParamentersCSL.lpr
 
 ---
 
-**Status:** 🟡 Em Adaptação  
-**Última Atualização:** 02/01/2026
+---
+
+## 📁 Estrutura de Instalação Detectada
+
+### Estrutura Completa em `D:\fpc`
+
+```
+D:\fpc\
+├── fpc\                      # Free Pascal Compiler
+│   ├── bin\
+│   │   └── x86_64-win64\     # Binários 64-bit
+│   │       ├── fpc.exe       # Compilador principal
+│   │       ├── ppcx64.exe   # Compilador cross-platform
+│   │       └── ...
+│   ├── units\                # Units compiladas
+│   │   ├── i386-win32\       # Units 32-bit
+│   │   ├── x86_64-win64\     # Units 64-bit
+│   │   └── x86_64-linux\     # Units Linux (cross-compilation)
+│   └── ...
+├── fpcsrc\                   # Código-fonte do FPC
+├── lazarus\                  # IDE Lazarus
+│   ├── lazarus.exe           # Executável principal
+│   ├── components\           # Componentes do Lazarus
+│   └── ...
+├── config_lazarus\          # Configurações do Lazarus
+│   ├── onlinepackagemanager\ # Pacotes OPM
+│   └── ...
+├── ccr\                      # Componentes e bibliotecas
+├── cross\                    # Ferramentas de cross-compilation
+│   ├── bin\
+│   └── lib\
+├── packages.fppkg\          # Pacotes FPC
+├── projects\                # Projetos de exemplo
+└── tmp\                     # Arquivos temporários
+```
+
+### Plataformas Disponíveis
+
+- ✅ **x86_64-win64** (Windows 64-bit) - Principal
+- ✅ **i386-win32** (Windows 32-bit) - Units disponíveis
+- ✅ **x86_64-linux** (Linux 64-bit) - Cross-compilation disponível
+
+---
+
+**Status:** ✅ Configurado e Funcional  
+**Última Atualização:** 02/01/2026  
+**Versão FPC:** 3.2.2  
+**Versão Lazarus:** 4.4 (Build: 2026-01-10 01:46, Revision: lazarus_4_4)  
+**Localização:** D:\fpc
 

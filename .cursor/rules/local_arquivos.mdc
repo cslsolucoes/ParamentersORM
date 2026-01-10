@@ -167,10 +167,16 @@ E:\CSL\ParamentersORM\src\
 ## 🦎 LAZARUS / FREE PASCAL COMPILER (FPC)
 
 ### 📍 Caminhos de Instalação
-- **Lazarus IDE** → `C:\lazarus`
-- **Free Pascal Compiler (FPC)** → `C:\lazarus\fpc\3.2.2`
-- **Configurações do Lazarus** → `C:\lazarus\Configuracao`
-- **Pacotes Instalados (OPM)** → `C:\lazarus\Configuracao\onlinepackagemanager\packages`
+- **Base de Instalação** → `D:\fpc`
+- **Lazarus IDE** → `D:\fpc\lazarus`
+- **Free Pascal Compiler (FPC)** → `D:\fpc\fpc` (versão 3.2.2)
+- **Binários FPC (64-bit)** → `D:\fpc\fpc\bin\x86_64-win64`
+- **Código-fonte FPC** → `D:\fpc\fpcsrc`
+- **Configurações do Lazarus** → `D:\fpc\config_lazarus`
+- **Pacotes Instalados (OPM)** → `D:\fpc\config_lazarus\onlinepackagemanager\packages`
+- **Componentes CCR** → `D:\fpc\ccr`
+- **Cross-compilation** → `D:\fpc\cross`
+- **Projetos** → `D:\fpc\projects`
 
 ### 📦 Pacotes Instalados no Lazarus
 

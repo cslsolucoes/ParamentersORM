@@ -260,11 +260,12 @@
         <h1>📊 Diagrama de Hierarquia - Módulo Parameters</h1>
         
         <div class="info-box">
-            <p><strong>Versão:</strong> 1.0.0</p>
+            <p><strong>Versão:</strong> 1.0.1</p>
             <p><strong>Data:</strong> 02/01/2026</p>
             <p><strong>Descrição:</strong> Diagrama mostrando a hierarquia e dependências entre as units do módulo Parameters</p>
             <p><strong>🔒 Independência:</strong> O módulo Parameters funciona de forma totalmente independente, sem depender de ProvidersORM.DataModule ou Common.Types</p>
-            <p><strong>📦 Units Auxiliares:</strong> Types e Consts são units auxiliares compartilhadas por <strong>TODAS</strong> as units do módulo Parameters</p>
+            <p><strong>📦 Units Auxiliares:</strong> Types, Consts e Exceptions são units auxiliares compartilhadas por <strong>TODAS</strong> as units do módulo Parameters</p>
+            <p><strong>✅ Status:</strong> Todas as implementações estão completas (Database, Inifiles, JsonObject)</p>
         </div>
 
         <h2>🏗️ Hierarquia de Units e Relação com Projeto ORM</h2>
@@ -309,19 +310,20 @@
                             <div class="unit-box level-1" style="flex: 1;">
                                 <div class="unit-header">
                                     <span>📄</span>
-                                    <span class="unit-name">Modulo.Parameters.pas</span>
+                                    <span class="unit-name">Parameters.pas</span>
                                     <span class="unit-badge badge-public">PÚBLICO</span>
                                 </div>
                                 <div class="unit-desc">
                                     <strong>Factory Class</strong><br>
                                     Ponto de entrada único do módulo<br>
                                     Classe: <code>TParameters</code><br>
-                                    Métodos: <code>New()</code> (2 overloads)
+                                    Métodos: <code>New()</code>, <code>NewDatabase()</code>, <code>NewInifiles()</code>, <code>NewJsonObject()</code><br>
+                                    <strong>✅ IMPLEMENTADO</strong>
                                 </div>
                                 <div class="unit-uses">
                                     <div class="uses-title">Uses:</div>
                                     <div class="uses-list">
-                                        • Modulo.Parameters.Intefaces<br>
+                                        • Parameters.Intefaces<br>
                                         • System.SysUtils
                                     </div>
                                 </div>
@@ -330,18 +332,22 @@
                             <div class="unit-box level-1" style="flex: 1;">
                                 <div class="unit-header">
                                     <span>🔌</span>
-                                    <span class="unit-name">Modulo.Parameters.Intefaces.pas</span>
+                                    <span class="unit-name">Parameters.Intefaces.pas</span>
                                     <span class="unit-badge badge-interface">INTERFACE</span>
                                 </div>
                                 <div class="unit-desc">
                                     <strong>Interfaces Públicas</strong><br>
-                                    Interface: <code>IParametersDatabase</code><br>
-                                    Expõe tipos: TParameter, TParameterList
+                                    Interfaces: <code>IParameters</code>, <code>IParametersDatabase</code>,<br>
+                                    <code>IParametersInifiles</code>, <code>IParametersJsonObject</code><br>
+                                    Expõe tipos: TParameter, TParameterList<br>
+                                    <strong>✅ IMPLEMENTADO</strong>
                                 </div>
                                 <div class="unit-uses">
                                     <div class="uses-title">Uses:</div>
                                     <div class="uses-list">
-                                        • Modulo.Parameters.Types<br>
+                                        • Parameters.Types<br>
+                                        • Parameters.Exceptions<br>
+                                        • Parameters.Consts<br>
                                         • System.SysUtils
                                     </div>
                                 </div>
@@ -359,7 +365,7 @@
                     <div class="unit-box level-3">
                         <div class="unit-header">
                             <span>💾</span>
-                            <span class="unit-name">Modulo.Parameters.Database.pas</span>
+                            <span class="unit-name">Parameters.Database.pas</span>
                             <span class="unit-badge badge-implementation">IMPLEMENTAÇÃO</span>
                         </div>
                         <div class="unit-desc">
@@ -367,58 +373,76 @@
                             Classe: <code>TParametersDatabase</code><br>
                             Implementa: <code>IParametersDatabase</code><br>
                             CRUD, Conexão, Queries<br>
+                            Multi-engine (UNIDAC/FireDAC/Zeos)<br>
+                            Multi-database (PostgreSQL, MySQL, SQL Server, etc.)<br>
                             <strong>✅ IMPLEMENTADO</strong><br>
                             <strong>🔒 INDEPENDENTE</strong>
                         </div>
                         <div class="unit-uses">
                             <div class="uses-title">Uses:</div>
                             <div class="uses-list">
-                                • Modulo.Parameters.Intefaces<br>
-                                • Modulo.Parameters.Types<br>
-                                • Modulo.Parameters.Consts<br>
+                                • Parameters.Intefaces<br>
+                                • Parameters.Types<br>
+                                • Parameters.Consts<br>
+                                • Parameters.Exceptions<br>
                                 • Engines (UNIDAC/FireDAC/Zeos)<br>
-                                • DataSet.Serialize<br>
                                 • System.*
                             </div>
                         </div>
                     </div>
 
-                    <div class="unit-box level-3 future">
+                    <div class="unit-box level-3">
                         <div class="unit-header">
                             <span>📦</span>
-                            <span class="unit-name">Modulo.Parameters.JsonObject.pas</span>
-                            <span class="unit-badge badge-future">FUTURO</span>
+                            <span class="unit-name">Parameters.JsonObject.pas</span>
+                            <span class="unit-badge badge-implementation">IMPLEMENTAÇÃO</span>
                         </div>
                         <div class="unit-desc">
                             <strong>Fonte: JSON Object</strong><br>
-                            Acesso a parâmetros via objetos JSON<br>
-                            <em>(Não implementado)</em><br>
+                            Classe: <code>TParametersJsonObject</code><br>
+                            Implementa: <code>IParametersJsonObject</code><br>
+                            CRUD em objetos JSON<br>
+                            Formatação JSON com indentação<br>
+                            <strong>✅ IMPLEMENTADO</strong><br>
                             <strong>🔒 INDEPENDENTE</strong>
                         </div>
                         <div class="unit-uses">
                             <div class="uses-title">Uses:</div>
                             <div class="uses-list">
-                                <em>Não definido</em>
+                                • Parameters.Intefaces<br>
+                                • Parameters.Types<br>
+                                • Parameters.Consts<br>
+                                • Parameters.Exceptions<br>
+                                • fpjson / System.JSON<br>
+                                • System.*
                             </div>
                         </div>
                     </div>
 
-                    <div class="unit-box level-3 future">
+                    <div class="unit-box level-3">
                         <div class="unit-header">
                             <span>📝</span>
-                            <span class="unit-name">Modulo.Parameters.Inifiles.pas</span>
-                            <span class="unit-badge badge-future">FUTURO</span>
+                            <span class="unit-name">Parameters.Inifiles.pas</span>
+                            <span class="unit-badge badge-implementation">IMPLEMENTAÇÃO</span>
                         </div>
                         <div class="unit-desc">
                             <strong>Fonte: Arquivo INI</strong><br>
-                            Acesso a parâmetros via arquivos INI<br>
-                            <em>(Não implementado)</em><br>
+                            Classe: <code>TParametersInifiles</code><br>
+                            Implementa: <code>IParametersInifiles</code><br>
+                            CRUD em arquivos INI<br>
+                            Preserva comentários e formatação<br>
+                            <strong>✅ IMPLEMENTADO</strong><br>
                             <strong>🔒 INDEPENDENTE</strong>
                         </div>
                         <div class="unit-uses">
                             <div class="uses-title">Uses:</div>
                             <div class="uses-list">
-                                <em>Não definido</em>
+                                • Parameters.Intefaces<br>
+                                • Parameters.Types<br>
+                                • Parameters.Consts<br>
+                                • Parameters.Exceptions<br>
+                                • System.IniFiles<br>
+                                • System.*
                             </div>
                         </div>
                     </div>
@@ -437,17 +461,18 @@
                                 Usadas por <strong>TODAS</strong> as units do módulo Parameters
                             </div>
                         </div>
-                        <div style="display: flex; gap: 25px; justify-content: center;">
-                            <div class="unit-box level-4" style="flex: 1;">
+                        <div style="display: flex; gap: 25px; justify-content: center; flex-wrap: wrap;">
+                            <div class="unit-box level-4" style="flex: 1; min-width: 280px;">
                                 <div class="unit-header">
                                     <span>📋</span>
-                                    <span class="unit-name">Modulo.Parameters.Types.pas</span>
+                                    <span class="unit-name">Parameters.Types.pas</span>
                                     <span class="unit-badge badge-private">AUXILIAR</span>
                                 </div>
                                 <div class="unit-desc">
                                     <strong>Tipos do Sistema</strong><br>
                                     Classes: <code>TParameter</code>, <code>TParameterList</code><br>
-                                    Enums: <code>TParameterValueType</code>, <code>TParameterSource</code><br>
+                                    Enums: <code>TParameterValueType</code>, <code>TParameterSource</code>,<br>
+                                    <code>TParameterDatabaseEngine</code>, <code>TParameterDatabaseTypes</code><br>
                                     <strong>🔒 INDEPENDENTE</strong><br>
                                     <strong>📦 COMPARTILHADO</strong> por todas as units
                                 </div>
@@ -458,6 +483,7 @@
                                         • Parameters.Intefaces.pas<br>
                                         • Parameters.Database.pas<br>
                                         • Parameters.Consts.pas<br>
+                                        • Parameters.Exceptions.pas<br>
                                         • Parameters.JsonObject.pas<br>
                                         • Parameters.Inifiles.pas
                                     </div>
@@ -473,34 +499,69 @@
                                 </div>
                             </div>
 
-                            <div class="unit-box level-4" style="flex: 1;">
+                            <div class="unit-box level-4" style="flex: 1; min-width: 280px;">
                                 <div class="unit-header">
                                     <span>🔧</span>
-                                    <span class="unit-name">Modulo.Parameters.Consts.pas</span>
+                                    <span class="unit-name">Parameters.Consts.pas</span>
                                     <span class="unit-badge badge-private">AUXILIAR</span>
                                 </div>
                                 <div class="unit-desc">
                                     <strong>Constantes e Configurações</strong><br>
                                     Constantes: <code>DEFAULT_PARAMETERS_*</code><br>
                                     SQL Templates, Mensagens<br>
+                                    Valores padrão do sistema<br>
                                     <strong>🔒 INDEPENDENTE</strong><br>
                                     <strong>📦 COMPARTILHADO</strong> por todas as units
                                 </div>
                                 <div class="unit-uses">
                                     <div class="uses-title">Usado por:</div>
                                     <div class="uses-list" style="color: #48bb78; font-weight: bold;">
+                                        • Parameters.Intefaces.pas<br>
                                         • Parameters.Database.pas<br>
                                         • Parameters.JsonObject.pas<br>
-                                        • Parameters.Inifiles.pas<br>
-                                        • (outras units conforme necessário)
+                                        • Parameters.Inifiles.pas
                                     </div>
                                 </div>
                                 <div class="unit-uses" style="margin-top: 10px;">
                                     <div class="uses-title">Uses:</div>
                                     <div class="uses-list">
-                                        • Modulo.Parameters.Types<br>
+                                        • Parameters.Types<br>
                                         • ParamentersORM.Defines.inc<br>
                                         • ParamentersORM.Database.inc
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="unit-box level-4" style="flex: 1; min-width: 280px;">
+                                <div class="unit-header">
+                                    <span>⚠️</span>
+                                    <span class="unit-name">Parameters.Exceptions.pas</span>
+                                    <span class="unit-badge badge-private">AUXILIAR</span>
+                                </div>
+                                <div class="unit-desc">
+                                    <strong>Exceções Customizadas</strong><br>
+                                    Classes: <code>EParametersException</code>,<br>
+                                    <code>EParametersConnectionException</code>,<br>
+                                    <code>EParametersSQLException</code>, etc.<br>
+                                    Códigos de erro e mensagens<br>
+                                    <strong>🔒 INDEPENDENTE</strong><br>
+                                    <strong>📦 COMPARTILHADO</strong> por todas as units
+                                </div>
+                                <div class="unit-uses">
+                                    <div class="uses-title">Usado por:</div>
+                                    <div class="uses-list" style="color: #48bb78; font-weight: bold;">
+                                        • Parameters.Intefaces.pas<br>
+                                        • Parameters.Database.pas<br>
+                                        • Parameters.JsonObject.pas<br>
+                                        • Parameters.Inifiles.pas
+                                    </div>
+                                </div>
+                                <div class="unit-uses" style="margin-top: 10px;">
+                                    <div class="uses-title">Uses:</div>
+                                    <div class="uses-list">
+                                        • Parameters.Types<br>
+                                        • Parameters.Consts<br>
+                                        • System.SysUtils
                                     </div>
                                 </div>
                             </div>
@@ -514,27 +575,33 @@
         
         <div class="dependency-diagram">
             <div class="dependency-card">
-                <h3>Modulo.Parameters.pas</h3>
+                <h3>Parameters.pas</h3>
                 <ul class="dependency-list">
-                    <li>Modulo.Parameters.Intefaces</li>
+                    <li>Parameters.Intefaces</li>
                     <li>System.SysUtils</li>
                     <li><em>Implementation:</em></li>
-                    <li>Modulo.Parameters.Database</li>
+                    <li>Parameters.Database</li>
+                    <li>Parameters.Inifiles</li>
+                    <li>Parameters.JsonObject</li>
                     <li>Data.DB</li>
                 </ul>
             </div>
 
             <div class="dependency-card">
-                <h3>Modulo.Parameters.Intefaces.pas</h3>
+                <h3>Parameters.Intefaces.pas</h3>
                 <ul class="dependency-list">
-                    <li>Modulo.Parameters.Types</li>
+                    <li>Parameters.Types</li>
+                    <li>Parameters.Exceptions</li>
+                    <li>Parameters.Consts</li>
                     <li>System.SysUtils</li>
+                    <li>System.Classes</li>
+                    <li>System.JSON / fpjson</li>
                     <li>ParamentersORM.Defines.inc</li>
                 </ul>
             </div>
 
             <div class="dependency-card">
-                <h3>Modulo.Parameters.Types.pas</h3>
+                <h3>Parameters.Types.pas</h3>
                 <ul class="dependency-list">
                     <li>System.SysUtils</li>
                     <li>System.Classes</li>
@@ -545,24 +612,57 @@
             </div>
 
             <div class="dependency-card">
-                <h3>Modulo.Parameters.Database.pas</h3>
+                <h3>Parameters.Database.pas</h3>
                 <ul class="dependency-list">
-                    <li>Modulo.Parameters.Intefaces</li>
-                    <li>Modulo.Parameters.Types</li>
-                    <li>Modulo.Parameters.Consts</li>
+                    <li>Parameters.Intefaces</li>
+                    <li>Parameters.Types</li>
+                    <li>Parameters.Consts</li>
+                    <li>Parameters.Exceptions</li>
                     <li>System.* (múltiplos)</li>
                     <li>Engines (UNIDAC/FireDAC/Zeos)</li>
-                    <li>DataSet.Serialize</li>
                 </ul>
             </div>
 
             <div class="dependency-card">
-                <h3>Modulo.Parameters.Consts.pas</h3>
+                <h3>Parameters.Inifiles.pas</h3>
                 <ul class="dependency-list">
-                    <li>Modulo.Parameters.Types</li>
+                    <li>Parameters.Intefaces</li>
+                    <li>Parameters.Types</li>
+                    <li>Parameters.Consts</li>
+                    <li>Parameters.Exceptions</li>
+                    <li>System.IniFiles</li>
+                    <li>System.SysUtils</li>
+                </ul>
+            </div>
+
+            <div class="dependency-card">
+                <h3>Parameters.JsonObject.pas</h3>
+                <ul class="dependency-list">
+                    <li>Parameters.Intefaces</li>
+                    <li>Parameters.Types</li>
+                    <li>Parameters.Consts</li>
+                    <li>Parameters.Exceptions</li>
+                    <li>System.JSON / fpjson</li>
+                    <li>System.SysUtils</li>
+                </ul>
+            </div>
+
+            <div class="dependency-card">
+                <h3>Parameters.Consts.pas</h3>
+                <ul class="dependency-list">
+                    <li>Parameters.Types</li>
                     <li>System.SysUtils</li>
                     <li>ParamentersORM.Defines.inc</li>
                     <li>ParamentersORM.Database.inc</li>
+                </ul>
+            </div>
+
+            <div class="dependency-card">
+                <h3>Parameters.Exceptions.pas</h3>
+                <ul class="dependency-list">
+                    <li>Parameters.Types</li>
+                    <li>Parameters.Consts</li>
+                    <li>System.SysUtils</li>
                 </ul>
             </div>
         </div>
@@ -580,20 +680,20 @@
                     <div style="text-align: center; margin: 10px 0;">⬇️</div>
                     <div style="margin: 10px 0; padding: 15px; background: #e6f3ff; border-left: 4px solid #667eea; border-radius: 5px;">
                         <strong>Nível 1 - Acesso Externo:</strong><br>
-                        <code>Modulo.Parameters.pas</code> (Factory) + <code>Modulo.Parameters.Intefaces.pas</code><br>
+                        <code>Parameters.pas</code> (Factory) + <code>Parameters.Intefaces.pas</code><br>
                         <small>Ponto de entrada público para o ORM</small>
                     </div>
                     <div style="text-align: center; margin: 10px 0;">⬇️</div>
                     <div style="margin: 10px 0; padding: 15px; background: #fff4e6; border-left: 4px solid #ed8936; border-radius: 5px;">
                         <strong>Nível 2 - Implementações (Fontes de Dados):</strong><br>
-                        <code>Modulo.Parameters.Database.pas</code> ✅ | <code>Modulo.Parameters.JsonObject.pas</code> ⏳ | <code>Modulo.Parameters.Inifiles.pas</code> ⏳<br>
-                        <small>Diferentes fontes de parâmetros (Banco, JSON, INI) - <strong>🔒 INDEPENDENTES</strong></small>
+                        <code>Parameters.Database.pas</code> ✅ | <code>Parameters.JsonObject.pas</code> ✅ | <code>Parameters.Inifiles.pas</code> ✅<br>
+                        <small>Diferentes fontes de parâmetros (Banco, JSON, INI) - <strong>🔒 INDEPENDENTES</strong> | <strong>✅ TODAS IMPLEMENTADAS</strong></small>
                     </div>
                     <div style="text-align: center; margin: 10px 0;">⬇️</div>
                     <div style="margin: 10px 0; padding: 15px; background: #f0f0f0; border-left: 4px solid #718096; border-radius: 5px;">
                         <strong>Nível 3 - Retaguarda (Units Auxiliares Compartilhadas):</strong><br>
-                        <code>Modulo.Parameters.Types.pas</code> + <code>Modulo.Parameters.Consts.pas</code><br>
-                        <small>Tipos e constantes de suporte - <strong>🔒 INDEPENDENTES</strong> | <strong>📦 COMPARTILHADAS</strong> por todas as units do módulo</small>
+                        <code>Parameters.Types.pas</code> + <code>Parameters.Consts.pas</code> + <code>Parameters.Exceptions.pas</code><br>
+                        <small>Tipos, constantes e exceções de suporte - <strong>🔒 INDEPENDENTES</strong> | <strong>📦 COMPARTILHADAS</strong> por todas as units do módulo</small>
                     </div>
                 </div>
             </div>
@@ -646,53 +746,60 @@
             </thead>
             <tbody>
                 <tr style="background: #e6f3ff;">
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Modulo.Parameters.pas</code></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Parameters.pas</code></td>
                     <td style="padding: 10px; border-bottom: 1px solid #ddd;">1 - Factory</td>
                     <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Público</td>
                     <td style="padding: 10px; border-bottom: 1px solid #ddd;">Intefaces</td>
                     <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Implementado</td>
                 </tr>
                 <tr style="background: #e6fff2;">
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Modulo.Parameters.Intefaces.pas</code></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">2 - Interface</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Parameters.Intefaces.pas</code></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">1 - Interface</td>
                     <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Público</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Types</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Types, Exceptions, Consts</td>
                     <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Implementado</td>
                 </tr>
-                <tr style="background: #e6fff2;">
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Modulo.Parameters.Types.pas</code></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">2 - Tipos</td>
+                <tr style="background: #fff4e6;">
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Parameters.Database.pas</code></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">2 - Implementação</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">❌ Privado</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Intefaces, Types, Consts, Exceptions, Engines</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Implementado</td>
+                </tr>
+                <tr style="background: #fff4e6;">
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Parameters.Inifiles.pas</code></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">2 - Implementação</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">❌ Privado</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Intefaces, Types, Consts, Exceptions</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Implementado</td>
+                </tr>
+                <tr style="background: #fff4e6;">
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Parameters.JsonObject.pas</code></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">2 - Implementação</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">❌ Privado</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Intefaces, Types, Consts, Exceptions</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Implementado</td>
+                </tr>
+                <tr style="background: #f0f0f0;">
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Parameters.Types.pas</code></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">3 - Suporte</td>
                     <td style="padding: 10px; border-bottom: 1px solid #ddd;">⚠️ Via Interfaces</td>
                     <td style="padding: 10px; border-bottom: 1px solid #ddd;">System.*, DB</td>
                     <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Implementado</td>
                 </tr>
-                <tr style="background: #fff4e6;">
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Modulo.Parameters.Database.pas</code></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">3 - Implementação</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">❌ Privado</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Intefaces, Types, Consts, Engines</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Implementado</td>
-                </tr>
                 <tr style="background: #f0f0f0;">
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Modulo.Parameters.Consts.pas</code></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">4 - Suporte</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Parameters.Consts.pas</code></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">3 - Suporte</td>
                     <td style="padding: 10px; border-bottom: 1px solid #ddd;">❌ Privado</td>
                     <td style="padding: 10px; border-bottom: 1px solid #ddd;">Types, Defines.inc</td>
                     <td style="padding: 10px; border-bottom: 1px solid #ddd;">✅ Implementado</td>
                 </tr>
-                <tr style="background: #f7fafc; opacity: 0.7;">
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><code>Modulo.Parameters.Inifiles.pas</code></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">4 - Suporte</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">❌ Privado</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">-</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">⏳ Futuro</td>
-                </tr>
-                <tr style="background: #f7fafc; opacity: 0.7;">
-                    <td style="padding: 10px;"><code>Modulo.Parameters.JsonObject.pas</code></td>
-                    <td style="padding: 10px;">4 - Suporte</td>
+                <tr style="background: #f0f0f0;">
+                    <td style="padding: 10px;"><code>Parameters.Exceptions.pas</code></td>
+                    <td style="padding: 10px;">3 - Suporte</td>
                     <td style="padding: 10px;">❌ Privado</td>
-                    <td style="padding: 10px;">-</td>
-                    <td style="padding: 10px;">⏳ Futuro</td>
+                    <td style="padding: 10px;">Types, Consts</td>
+                    <td style="padding: 10px;">✅ Implementado</td>
                 </tr>
             </tbody>
         </table>
@@ -701,7 +808,7 @@
         
         <div class="info-box">
             <p><strong>✅ Sem Ciclos:</strong> A hierarquia está bem estruturada sem dependências circulares.</p>
-            <p><strong>Fluxo:</strong> ORM → Acesso Externo → Implementações → Retaguarda (Types + Consts)</p>
+            <p><strong>Fluxo:</strong> ORM → Acesso Externo → Implementações → Retaguarda (Types + Consts + Exceptions)</p>
             <p><strong>Isolamento:</strong> Cada nível depende apenas dos níveis inferiores, nunca dos superiores.</p>
             <p><strong>🔒 Independência Total:</strong> O módulo Parameters funciona de forma totalmente independente:</p>
             <ul style="margin-left: 20px; margin-top: 10px;">
@@ -709,16 +816,20 @@
                 <li>❌ <strong>NÃO depende</strong> de <code>Common.Types</code></li>
                 <li>✅ <strong>Cria sua própria conexão</strong> internamente</li>
                 <li>✅ <strong>Pode aceitar conexão externa</strong> opcionalmente</li>
-                <li>✅ <strong>Types e Consts</strong> são units auxiliares compartilhadas por <strong>TODAS</strong> as units do módulo</li>
-                <li>✅ <strong>Types</strong> é usado por: Parameters.pas, Interfaces.pas, Database.pas, Consts.pas, JsonObject.pas, Inifiles.pas</li>
-                <li>✅ <strong>Consts</strong> é usado por: Database.pas, JsonObject.pas, Inifiles.pas e outras conforme necessário</li>
+                <li>✅ <strong>Types, Consts e Exceptions</strong> são units auxiliares compartilhadas por <strong>TODAS</strong> as units do módulo</li>
+                <li>✅ <strong>Types</strong> é usado por: Parameters.pas, Interfaces.pas, Database.pas, Consts.pas, Exceptions.pas, JsonObject.pas, Inifiles.pas</li>
+                <li>✅ <strong>Consts</strong> é usado por: Interfaces.pas, Database.pas, JsonObject.pas, Inifiles.pas, Exceptions.pas</li>
+                <li>✅ <strong>Exceptions</strong> é usado por: Interfaces.pas, Database.pas, JsonObject.pas, Inifiles.pas</li>
+                <li>✅ <strong>Todas as implementações estão completas:</strong> Database ✅, Inifiles ✅, JsonObject ✅</li>
             </ul>
         </div>
 
         <div style="margin-top: 40px; padding: 20px; background: #ecf0f1; border-radius: 5px;">
             <p><strong>Data da Documentação:</strong> 02/01/2026</p>
-            <p><strong>Versão do Módulo:</strong> 1.0.0</p>
+            <p><strong>Versão do Módulo:</strong> 1.0.1</p>
             <p><strong>Status:</strong> <span style="color: #27ae60; font-weight: bold;">✅ Hierarquia Completa e Bem Estruturada</span></p>
+            <p><strong>Implementações:</strong> <span style="color: #27ae60; font-weight: bold;">✅ Todas as fontes implementadas (Database, Inifiles, JsonObject)</span></p>
+            <p><strong>Compatibilidade:</strong> <span style="color: #27ae60; font-weight: bold;">✅ Delphi 10.3+ e FPC 3.2.2+ / Lazarus 2.0+</span></p>
         </div>
     </div>
 </body>

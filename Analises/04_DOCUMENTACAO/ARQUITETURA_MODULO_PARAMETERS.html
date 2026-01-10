@@ -263,7 +263,7 @@
             <p><strong>Versão:</strong> 2.0.0</p>
             <p><strong>Data:</strong> 02/01/2026</p>
             <p><strong>Status:</strong> ✅ Implementado e Independente</p>
-            <p><strong>Princípio:</strong> Acesso externo APENAS via <code>Modulo.Parameters.pas</code> e <code>Modulo.Parameters.Intefaces.pas</code></p>
+            <p><strong>Princípio:</strong> Acesso externo APENAS via <code>Parameters.pas</code> e <code>Parameters.Intefaces.pas</code></p>
             <p><strong>Documentação:</strong> <a href="../docs/Parameters.Complete.html" target="_blank" style="color: #2196f3; font-weight: bold;">docs/Parameters.Complete.html</a> - Documentação completa com todos os métodos, variáveis e exemplos</p>
         </div>
 
@@ -273,7 +273,7 @@
             <div class="layer layer-public">
                 <h3>🌐 CAMADA PÚBLICA (Acesso Externo)</h3>
                 <div class="file-box public">
-                    <div class="file-name">📄 Modulo.Parameters.pas</div>
+                    <div class="file-name">📄 Parameters.pas</div>
                     <div class="file-desc">
                         <strong>Ponto de Entrada Único</strong><br>
                         Factory Class: <code>TParameters</code><br>
@@ -288,7 +288,7 @@
             <div class="layer layer-interface">
                 <h3>🔌 CAMADA DE INTERFACES (Tipos Públicos)</h3>
                 <div class="file-box interface">
-                    <div class="file-name">📄 Modulo.Parameters.Intefaces.pas</div>
+                    <div class="file-name">📄 Parameters.Intefaces.pas</div>
                     <div class="file-desc">
                         <strong>Interfaces e Tipos Públicos</strong><br>
                         Interface: <code>IParametersDatabase</code><br>
@@ -297,7 +297,7 @@
                     </div>
                 </div>
                 <div class="file-box interface">
-                    <div class="file-name">📄 Modulo.Parameters.Types.pas</div>
+                    <div class="file-name">📄 Parameters.Types.pas</div>
                     <div class="file-desc">
                         <strong>Tipos do Sistema</strong><br>
                         Classes: <code>TParameter</code>, <code>TParameterList</code><br>
@@ -312,7 +312,7 @@
             <div class="layer layer-implementation">
                 <h3>⚙️ CAMADA DE IMPLEMENTAÇÃO (Privada)</h3>
                 <div class="file-box implementation">
-                    <div class="file-name">📄 Modulo.Parameters.Database.pas</div>
+                    <div class="file-name">📄 Parameters.Database.pas</div>
                     <div class="file-desc">
                         <strong>Implementação Completa</strong><br>
                         Classe: <code>TParametersDatabase</code> (implementa <code>IParametersDatabase</code>)<br>
@@ -327,7 +327,7 @@
             <div class="layer layer-private">
                 <h3>🔒 CAMADA PRIVADA (Suporte Interno)</h3>
                 <div class="file-box private">
-                    <div class="file-name">📄 Modulo.Parameters.Consts.pas</div>
+                    <div class="file-name">📄 Parameters.Consts.pas</div>
                     <div class="file-desc">
                         <strong>Constantes e Configurações</strong><br>
                         Constantes: <code>DEFAULT_PARAMETERS_*</code><br>
@@ -336,14 +336,14 @@
                     </div>
                 </div>
                 <div class="file-box private">
-                    <div class="file-name">📄 Modulo.Parameters.Inifiles.pas</div>
+                    <div class="file-name">📄 Parameters.Inifiles.pas</div>
                     <div class="file-desc">
                         <strong>Implementação INI (Futuro)</strong><br>
                         <strong>❌ ACESSO PRIVADO</strong>
                     </div>
                 </div>
                 <div class="file-box private">
-                    <div class="file-name">📄 Modulo.Parameters.JsonObject.pas</div>
+                    <div class="file-name">📄 Parameters.JsonObject.pas</div>
                     <div class="file-desc">
                         <strong>Implementação JSON (Futuro)</strong><br>
                         <strong>❌ ACESSO PRIVADO</strong>
@@ -357,7 +357,7 @@
         <div class="flow-diagram">
             <div class="flow-box public">
                 <strong>👤 Código Externo</strong><br>
-                <code>uses Modulo.Parameters;</code>
+                <code>uses Parameters;</code>
             </div>
             <div class="arrow">⬇️</div>
             <div class="flow-box public">
@@ -399,52 +399,52 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><strong>Modulo.Parameters.pas</strong></td>
+                    <td><strong>Parameters.pas</strong></td>
                     <td><span class="badge badge-public">Público</span></td>
                     <td>✅ Externo</td>
                     <td>Factory - Ponto de entrada único</td>
-                    <td>Modulo.Parameters.Intefaces</td>
+                    <td>Parameters.Intefaces</td>
                 </tr>
                 <tr>
-                    <td><strong>Modulo.Parameters.Intefaces.pas</strong></td>
+                    <td><strong>Parameters.Intefaces.pas</strong></td>
                     <td><span class="badge badge-interface">Interface</span></td>
                     <td>✅ Externo</td>
                     <td>Interfaces e tipos públicos</td>
-                    <td>Modulo.Parameters.Types</td>
+                    <td>Parameters.Types</td>
                 </tr>
                 <tr>
-                    <td><strong>Modulo.Parameters.Types.pas</strong></td>
+                    <td><strong>Parameters.Types.pas</strong></td>
                     <td><span class="badge badge-interface">Tipos</span></td>
                     <td>⚠️ Via Interfaces</td>
                     <td>Tipos: TParameter, TParameterList</td>
                     <td>System.*, DB</td>
                 </tr>
                 <tr>
-                    <td><strong>Modulo.Parameters.Database.pas</strong></td>
+                    <td><strong>Parameters.Database.pas</strong></td>
                     <td><span class="badge badge-private">Implementação</span></td>
                     <td>❌ Privado</td>
                     <td>CRUD, conexão, queries</td>
-                    <td>Interfaces, Types, Consts, Engines</td>
+                    <td>Intefaces, Types, Consts, Exceptions, Engines</td>
                 </tr>
                 <tr>
-                    <td><strong>Modulo.Parameters.Consts.pas</strong></td>
+                    <td><strong>Parameters.Consts.pas</strong></td>
                     <td><span class="badge badge-private">Constantes</span></td>
                     <td>❌ Privado</td>
                     <td>Constantes, SQL templates</td>
                     <td>Types, ParamentersORM.Defines.inc</td>
                 </tr>
                 <tr>
-                    <td><strong>Modulo.Parameters.Inifiles.pas</strong></td>
-                    <td><span class="badge badge-private">Futuro</span></td>
+                    <td><strong>Parameters.Inifiles.pas</strong></td>
+                    <td><span class="badge badge-private">Implementação</span></td>
                     <td>❌ Privado</td>
-                    <td>Implementação INI (não implementado)</td>
-                    <td>-</td>
+                    <td>Implementação INI (completo)</td>
+                    <td>Intefaces, Types, Consts, Exceptions</td>
                 </tr>
                 <tr>
-                    <td><strong>Modulo.Parameters.JsonObject.pas</strong></td>
-                    <td><span class="badge badge-private">Futuro</span></td>
+                    <td><strong>Parameters.JsonObject.pas</strong></td>
+                    <td><span class="badge badge-private">Implementação</span></td>
                     <td>❌ Privado</td>
-                    <td>Implementação JSON (não implementado)</td>
+                    <td>Implementação JSON (completo)</td>
                     <td>-</td>
                 </tr>
             </tbody>
@@ -454,7 +454,7 @@
         
         <div class="code-block">
             <div class="code-line"><span class="highlight">// CÓDIGO EXTERNO (Exemplo)</span></div>
-            <div class="code-line">uses Modulo.Parameters;</div>
+            <div class="code-line">uses Parameters;</div>
             <div class="code-line"></div>
             <div class="code-line">var Parameters: IParametersDatabase;</div>
             <div class="code-line">Parameters := TParameters.New;</div>
@@ -680,11 +680,11 @@
             <h3>Comentários no Código</h3>
             <p><strong>Status:</strong> Em progresso (~20% completo)</p>
             <ul>
-                <li>✅ <strong>Modulo.Parameters.pas</strong> - Factory Methods com comentários detalhados (finalidade, parâmetros, retorno, exemplos)</li>
-                <li>✅ <strong>Modulo.Parameters.Types.pas</strong> - TParameter e TParameterList documentados</li>
-                <li>⏳ <strong>Modulo.Parameters.Database.pas</strong> - Métodos principais (em progresso)</li>
-                <li>⏳ <strong>Modulo.Parameters.Inifiles.pas</strong> - Métodos principais (pendente)</li>
-                <li>⏳ <strong>Modulo.Parameters.JsonObject.pas</strong> - Métodos principais (pendente)</li>
+                <li>✅ <strong>Parameters.pas</strong> - Factory Methods com comentários detalhados (finalidade, parâmetros, retorno, exemplos)</li>
+                <li>✅ <strong>Parameters.Types.pas</strong> - TParameter e TParameterList documentados</li>
+                <li>✅ <strong>Parameters.Database.pas</strong> - Métodos principais (completo)</li>
+                <li>✅ <strong>Parameters.Inifiles.pas</strong> - Métodos principais (completo)</li>
+                <li>✅ <strong>Parameters.JsonObject.pas</strong> - Métodos principais (completo)</li>
             </ul>
         </div>
 
@@ -693,7 +693,7 @@
         <div class="success-box">
             <h3>✅ Encapsulamento</h3>
             <ul>
-                <li>Apenas <code>Modulo.Parameters.pas</code> e <code>Modulo.Parameters.Intefaces.pas</code> são públicos</li>
+                <li>Apenas <code>Parameters.pas</code> e <code>Parameters.Intefaces.pas</code> são públicos</li>
                 <li>Implementações estão ocultas no <code>implementation</code></li>
                 <li>Tipos são expostos via Interfaces, não diretamente</li>
             </ul>
@@ -733,11 +733,11 @@
             <h3>❌ NÃO FAZER (Acesso Direto Proibido)</h3>
             <div class="code-block">
                 <div class="code-line"><span class="highlight">// ❌ ERRADO - Acesso direto à implementação</span></div>
-                <div class="code-line">uses Modulo.Parameters.Database;</div>
+                <div class="code-line">uses Parameters.Database;</div>
                 <div class="code-line">var DB: TParametersDatabase; // ❌ Classe privada!</div>
                 <div class="code-line"></div>
                 <div class="code-line"><span class="highlight">// ❌ ERRADO - Acesso direto a tipos</span></div>
-                <div class="code-line">uses Modulo.Parameters.Types;</div>
+                <div class="code-line">uses Parameters.Types;</div>
                 <div class="code-line">var Param: TParameter; // ⚠️ Use via Interfaces</div>
             </div>
         </div>
@@ -746,12 +746,12 @@
             <h3>✅ FAZER (Acesso Correto)</h3>
             <div class="code-block">
                 <div class="code-line"><span class="highlight">// ✅ CORRETO - Acesso via Factory</span></div>
-                <div class="code-line">uses Modulo.Parameters;</div>
+                <div class="code-line">uses Parameters;</div>
                 <div class="code-line">var Parameters: IParametersDatabase;</div>
                 <div class="code-line">Parameters := TParameters.New;</div>
                 <div class="code-line"></div>
                 <div class="code-line"><span class="highlight">// ✅ CORRETO - Tipos via Interfaces</span></div>
-                <div class="code-line">uses Modulo.Parameters.Intefaces;</div>
+                <div class="code-line">uses Parameters.Intefaces;</div>
                 <div class="code-line">var Param: TParameter; // ✅ Exposto via Interfaces</div>
                 <div class="code-line">var List: TParameterList; // ✅ Exposto via Interfaces</div>
             </div>
@@ -846,7 +846,7 @@
         
         <div class="code-block">
             <div class="code-line"><span class="highlight">// ========== USO BÁSICO (Conexão Interna) ==========</span></div>
-            <div class="code-line">uses Modulo.Parameters;</div>
+            <div class="code-line">uses Parameters;</div>
             <div class="code-line"></div>
             <div class="code-line">var Parameters: IParametersDatabase;</div>
             <div class="code-line">var ParamList: TParameterList;</div>

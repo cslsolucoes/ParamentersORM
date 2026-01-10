@@ -147,6 +147,8 @@
             overflow-x: auto;
             font-family: 'Courier New', monospace;
             font-size: 0.9em;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
         
         .example-keyword {
@@ -309,19 +311,19 @@
             
             <h3>Estrutura de Units</h3>
             <div class="code-block">
-<strong>Modulo.Parameters.pas</strong>              - Factory Methods e ponto de entrada público
-<strong>Modulo.Parameters.Intefaces.pas</strong>   - Interfaces públicas (IParameters, IParametersDatabase, etc.)
-<strong>Modulo.Parameters.Database.pas</strong>    - Implementação de acesso a banco de dados
-<strong>Modulo.Parameters.Inifiles.pas</strong>    - Implementação de acesso a arquivos INI
-<strong>Modulo.Parameters.JsonObject.pas</strong>  - Implementação de acesso a objetos JSON
-<strong>Modulo.Parameters.Types.pas</strong>        - Tipos e classes base (TParameter, TParameterList)
-<strong>Modulo.Parameters.Consts.pas</strong>      - Constantes e valores padrão
-<strong>Modulo.Parameters.Exceptions.pas</strong>  - Exceções customizadas
+<strong>Parameters.pas</strong>              - Factory Methods e ponto de entrada público
+<strong>Parameters.Intefaces.pas</strong>   - Interfaces públicas (IParameters, IParametersDatabase, etc.)
+<strong>Parameters.Database.pas</strong>    - Implementação de acesso a banco de dados
+<strong>Parameters.Inifiles.pas</strong>    - Implementação de acesso a arquivos INI
+<strong>Parameters.JsonObject.pas</strong>  - Implementação de acesso a objetos JSON
+<strong>Parameters.Types.pas</strong>        - Tipos e classes base (TParameter, TParameterList)
+<strong>Parameters.Consts.pas</strong>      - Constantes e valores padrão
+<strong>Parameters.Exceptions.pas</strong>  - Exceções customizadas
             </div>
 
             <div class="note">
-                <strong>Encapsulamento:</strong> Apenas <code>Modulo.Parameters.pas</code> e 
-                <code>Modulo.Parameters.Intefaces.pas</code> devem ser usados externamente. 
+                <strong>Encapsulamento:</strong> Apenas <code>Parameters.pas</code> e 
+                <code>Parameters.Intefaces.pas</code> devem ser usados externamente. 
                 Todas as implementações estão ocultas na seção <code>implementation</code>.
             </div>
         </section>

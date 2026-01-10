@@ -12,7 +12,7 @@
 
 | Módulo | TCriticalSection | Status |
 |--------|------------------|--------|
-| `TParametersImpl` (Modulo.Parameters.pas) | ✅ **IMPLEMENTADO** | ✅ Completo |
+| `TParametersImpl` (Parameters.pas) | ✅ **IMPLEMENTADO** | ✅ Completo |
 | `TParametersInifiles` | ✅ **IMPLEMENTADO** | ✅ Completo |
 | `TParametersJsonObject` | ✅ **IMPLEMENTADO** | ✅ Completo |
 | `TParametersDatabase` | ✅ **IMPLEMENTADO** | ✅ **COMPLETO** |
@@ -32,7 +32,7 @@
 
 ### 1. Implementação de Thread-Safety
 
-#### ✅ TParametersImpl (Modulo.Parameters.pas)
+#### ✅ TParametersImpl (Parameters.pas)
 
 **Status:** ✅ **IMPLEMENTADO CORRETAMENTE**
 
@@ -63,7 +63,7 @@
 
 ---
 
-#### ✅ TParametersInifiles (Modulo.Parameters.Inifiles.pas)
+#### ✅ TParametersInifiles (Parameters.Inifiles.pas)
 
 **Status:** ✅ **IMPLEMENTADO CORRETAMENTE**
 
@@ -82,7 +82,7 @@
 
 ---
 
-#### ✅ TParametersJsonObject (Modulo.Parameters.JsonObject.pas)
+#### ✅ TParametersJsonObject (Parameters.JsonObject.pas)
 
 **Status:** ✅ **IMPLEMENTADO CORRETAMENTE**
 
@@ -102,7 +102,7 @@
 
 ---
 
-#### ✅ TParametersDatabase (Modulo.Parameters.Database.pas)
+#### ✅ TParametersDatabase (Parameters.Database.pas)
 
 **Status:** ✅ **IMPLEMENTADO CORRETAMENTE**
 
