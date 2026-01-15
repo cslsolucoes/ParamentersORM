@@ -1036,7 +1036,7 @@ object frmConfigCRUD: TfrmConfigCRUD
         object pnlInifilesRight: TPanel
           Left = 430
           Top = 89
-          Width = 875
+          Width = 867
           Height = 391
           Align = alClient
           BevelOuter = bvLowered

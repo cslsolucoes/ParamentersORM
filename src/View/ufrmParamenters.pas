@@ -1,4 +1,4 @@
-﻿unit ufrmParamenters_Test;
+﻿unit ufrmParamenters;
 
 {$IF DEFINED(FPC)}
   {$MODE DELPHI} // Ensures DEFINED() and other Delphi features work
@@ -315,7 +315,7 @@ implementation
 
 {$R *.dfm}
 
-{$I ../ParamentersORM.Defines.inc}
+{$I ../Paramenters.Defines.inc}
 
 // Declaração da API ODBC para listar DSNs
 function SQLDataSources(EnvironmentHandle: Pointer; Direction: SmallInt;

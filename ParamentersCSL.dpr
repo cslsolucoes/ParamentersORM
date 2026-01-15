@@ -16,7 +16,7 @@
   Date: 02/01/2026
   ============================================================================= }
 
-{$I src/ParamentersORM.Defines.inc}
+{$I src/Paramenters.Defines.inc}
 
 {$IFDEF FPC}
   {$MODE DELPHI}
@@ -26,11 +26,11 @@
 {$ENDIF}
 
 uses
-{$IFDEF FPC}
-  Interfaces, Forms, LResources,
-{$ELSE}
+  {$IFDEF FPC}
+  Interfaces,
+  {$ELSE}
   Vcl.Forms,
-{$ENDIF}
+  {$ENDIF }
   Parameters.Consts in 'src\Paramenters\Commons\Parameters.Consts.pas',
   Parameters.Exceptions in 'src\Paramenters\Commons\Parameters.Exceptions.pas',
   Parameters.Types in 'src\Paramenters\Commons\Parameters.Types.pas',
@@ -39,7 +39,7 @@ uses
   Parameters.JsonObject in 'src\Paramenters\JsonObject\Parameters.JsonObject.pas',
   Parameters.Intefaces in 'src\Paramenters\Parameters.Intefaces.pas',
   Parameters in 'src\Paramenters\Parameters.pas',
-  ufrmParamenters_Test in 'src\View\ufrmParamenters_Test.pas' {frmConfigCRUD};
+  ufrmParamenters in 'src\View\ufrmParamenters.pas' {frmConfigCRUD};
 
 {$R *.res}
 

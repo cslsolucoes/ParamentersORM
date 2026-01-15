@@ -164,12 +164,12 @@
         <DCCReference Include="src\Paramenters\JsonObject\Parameters.JsonObject.pas"/>
         <DCCReference Include="src\Paramenters\Parameters.Intefaces.pas"/>
         <DCCReference Include="src\Paramenters\Parameters.pas"/>
-        <DCCReference Include="src\View\ufrmParamenters_Test.pas">
+        <DCCReference Include="src\View\ufrmParamenters.pas">
             <Form>frmConfigCRUD</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <None Include="src\ParamentersORM.Database.inc"/>
-        <None Include="src\ParamentersORM.Defines.inc"/>
+        <None Include="src\Paramenters.Database.inc"/>
+        <None Include="src\Paramenters.Defines.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

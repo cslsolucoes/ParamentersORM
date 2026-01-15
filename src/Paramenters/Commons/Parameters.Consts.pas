@@ -18,7 +18,7 @@
 
 interface
 
-{$I ../../ParamentersORM.Defines.inc}
+{$I ../../Paramenters.Defines.inc}
 
 Uses
 {$IF DEFINED(FPC)}
@@ -182,7 +182,7 @@ const
   // Ordem de prioridade padrão (cascata)
   DEFAULT_PARAMETER_PRIORITY: array[0..2] of string = ('Database', 'Inifiles', 'JsonObject');
 
-  {$i ../../ParamentersORM.Database.inc}
+  {$i ../../Paramenters.Database.inc}
 
   { =============================================================================
     CONFIGURAÇÕES DE ARQUIVOS INI

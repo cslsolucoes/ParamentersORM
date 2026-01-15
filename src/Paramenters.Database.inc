@@ -33,7 +33,7 @@
   DEFAULT_PARAMETERS_TABLE          = 'config';
   DEFAULT_PARAMETERS_DATABASE_TYPE  = 'PostgreSQL';
 }
-{
+
   DEFAULT_PARAMETERS_SESSION        = 'Bando de Dados Parameters (' + DEFAULT_PARAMETERS_ENGINE + ')';
   DEFAULT_PARAMETERS_HOST           = '10.100.2.30';
   DEFAULT_PARAMETERS_PORT           = 3050;
@@ -43,7 +43,7 @@
   DEFAULT_PARAMETERS_SCHEMA         = '';
   DEFAULT_PARAMETERS_TABLE          = 'CONFIG';
   DEFAULT_PARAMETERS_DATABASE_TYPE  = 'Firebird';
-}
+
 {
   DEFAULT_PARAMETERS_SESSION        = 'Bando de Dados Parameters (' + DEFAULT_PARAMETERS_ENGINE + ')';
   DEFAULT_PARAMETERS_HOST           = '10.100.0.7';
@@ -66,7 +66,7 @@
   DEFAULT_PARAMETERS_TABLE          = 'config';
   DEFAULT_PARAMETERS_DATABASE_TYPE  = 'SQL Server';
 }
-
+{
 DEFAULT_PARAMETERS_SESSION        = 'Bando de Dados Parameters (' + DEFAULT_PARAMETERS_ENGINE + ')';
 DEFAULT_PARAMETERS_HOST           = '';
 DEFAULT_PARAMETERS_PORT           = -1;
@@ -76,7 +76,7 @@ DEFAULT_PARAMETERS_DATABASE       = 'd:\dados\config.db';
 DEFAULT_PARAMETERS_SCHEMA         = '';
 DEFAULT_PARAMETERS_TABLE          = 'config';
 DEFAULT_PARAMETERS_DATABASE_TYPE  = 'SQLite';
-
+}
 {
   DEFAULT_PARAMETERS_SESSION        = 'Bando de Dados Parameters (' + DEFAULT_PARAMETERS_ENGINE + ')';
   DEFAULT_PARAMETERS_HOST           = '';
