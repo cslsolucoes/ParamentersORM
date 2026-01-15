@@ -34,7 +34,7 @@
 
 interface
 
-{$I ../../ParamentersORM.Defines.inc}
+{$I src/Paramenters.Defines.inc}
 
 Uses
 {$IF DEFINED(FPC)}
