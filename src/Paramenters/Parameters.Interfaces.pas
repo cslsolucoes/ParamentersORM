@@ -86,6 +86,8 @@ type
     function ContratoID: Integer; overload;
     function ProdutoID(const AValue: Integer): IParametersDatabase; overload;
     function ProdutoID: Integer; overload;
+    function Title(const AValue: string): IParametersDatabase; overload;
+    function Title: string; overload;
     
     // ========== CRUD ==========
     function List: TParameterList; overload;
@@ -151,6 +153,8 @@ type
     function ContratoID: Integer; overload;
     function ProdutoID(const AValue: Integer): IParametersInifiles; overload;
     function ProdutoID: Integer; overload;
+    function Title(const AValue: string): IParametersInifiles; overload;
+    function Title: string; overload;
     
     // ========== CRUD ==========
     function List: TParameterList; overload;
@@ -203,6 +207,8 @@ type
     function ContratoID: Integer; overload;
     function ProdutoID(const AValue: Integer): IParametersJsonObject; overload;
     function ProdutoID: Integer; overload;
+    function Title(const AValue: string): IParametersJsonObject; overload;
+    function Title: string; overload;
     
     // ========== CRUD ==========
     function List: TParameterList; overload;

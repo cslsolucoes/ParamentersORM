@@ -153,6 +153,7 @@ type
     FDatabase: string;
     FContratoID: Integer;  // Filtro de ContratoID para List
     FProdutoID: Integer;   // Filtro de ProdutoID para List
+    FTituloFilter: string; // Filtro de Título para Get (temporário, usado apenas no próximo Get)
     {$IF DEFINED(FPC)}
     FLock: SyncObjs.TCriticalSection;  // Thread-safety
     {$ELSE}
@@ -268,6 +269,8 @@ type
     function ContratoID: Integer; overload;
     function ProdutoID(const AValue: Integer): IParametersDatabase; overload;
     function ProdutoID: Integer; overload;
+    function Title(const AValue: string): IParametersDatabase; overload;
+    function Title: string; overload;
 
     // ========== CONFIGURAÇÃO DE CONEXÃO (Independente) ==========
     function Connection(AConnection: TObject): IParametersDatabase; overload;
@@ -369,6 +372,7 @@ begin
   FOwnConnection := True;
   FContratoID := 0;
   FProdutoID := 0;
+  FTituloFilter := '';
 
   // Inicializa configurações de reordenação com valores padrão das constantes
   FAutoReorderOnInsert := DEFAULT_PARAMETER_AUTO_REORDER_ON_INSERT;
@@ -509,6 +513,7 @@ begin
   FOwnConnection := False; // Não gerencia a conexão externa
   FContratoID := 0;
   FProdutoID := 0;
+  FTituloFilter := '';
 
   // Inicializa configurações de reordenação com valores padrão das constantes
   FAutoReorderOnInsert := DEFAULT_PARAMETER_AUTO_REORDER_ON_INSERT;
@@ -4224,6 +4229,17 @@ begin
   Result := FProdutoID;
 end;
 
+function TParametersDatabase.Title(const AValue: string): IParametersDatabase;
+begin
+  FTituloFilter := AValue;
+  Result := Self;
+end;
+
+function TParametersDatabase.Title: string;
+begin
+  Result := FTituloFilter;
+end;
+
 function TParametersDatabase.Database(const AValue: string): IParametersDatabase;
 begin
   FLock.Enter;
@@ -4628,6 +4644,19 @@ begin
       'WHERE chave = ''%s''',
       [BuildSelectFieldsSQL, GetFullTableName, EscapeSQL(AName)]
     );
+    
+    // Adiciona filtro de título se configurado
+    if Trim(FTituloFilter) <> '' then
+      LSQL := LSQL + Format(' AND titulo = ''%s''', [EscapeSQL(FTituloFilter)]);
+    
+    // Adiciona filtros de ContratoID e ProdutoID se configurados
+    if FContratoID > 0 then
+      LSQL := LSQL + Format(' AND contrato_id = %d', [FContratoID]);
+    if FProdutoID > 0 then
+      LSQL := LSQL + Format(' AND produto_id = %d', [FProdutoID]);
+    
+    // Limpa o filtro de título após usar (é temporário)
+    FTituloFilter := '';
     
     LDataSet := QuerySQL(LSQL);
     if Assigned(LDataSet) then

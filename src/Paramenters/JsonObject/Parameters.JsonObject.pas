@@ -34,7 +34,7 @@
 
 interface
 
-{$I E:\CSL\ORM\src\Paramenters\src\Paramenters.Defines.inc}
+{$I E:\Pacote\ORM\Paramenters\src\Paramenters.Defines.inc}
 
 Uses
 {$IF DEFINED(FPC)}
@@ -68,6 +68,7 @@ type
     FAutoCreateFile: Boolean;
     FContratoID: Integer;
     FProdutoID: Integer;
+    FTituloFilter: string; // Filtro de Título para Get (temporário, usado apenas no próximo Get)
     FLock: TCriticalSection;
     FOwnJsonObject: Boolean;
     
@@ -116,6 +117,8 @@ type
     function ContratoID: Integer; overload;
     function ProdutoID(const AValue: Integer): IParametersJsonObject; overload;
     function ProdutoID: Integer; overload;
+    function Title(const AValue: string): IParametersJsonObject; overload;
+    function Title: string; overload;
     
     // ========== CRUD ==========
     function List: TParameterList; overload;
@@ -173,6 +176,7 @@ begin
   FAutoCreateFile := True;
   FContratoID := 0;
   FProdutoID := 0;
+  FTituloFilter := '';
   FLock := TCriticalSection.Create;
 end;
 
@@ -186,6 +190,7 @@ begin
   FAutoCreateFile := False;
   FContratoID := 0;
   FProdutoID := 0;
+  FTituloFilter := '';
   FLock := TCriticalSection.Create;
 end;
 
@@ -199,6 +204,7 @@ begin
   FAutoCreateFile := False;
   FContratoID := 0;
   FProdutoID := 0;
+  FTituloFilter := '';
   FLock := TCriticalSection.Create;
   LoadFromString(AJsonString);
 end;
@@ -213,6 +219,7 @@ begin
   FAutoCreateFile := False;
   FContratoID := 0;
   FProdutoID := 0;
+  FTituloFilter := '';
   FLock := TCriticalSection.Create;
   if (AFilePath <> '') and {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}.FileExists(AFilePath) then
     LoadFromFile(AFilePath);
@@ -996,6 +1003,27 @@ begin
   end;
 end;
 
+function TParametersJsonObject.Title(const AValue: string): IParametersJsonObject;
+begin
+  FLock.Enter;
+  try
+    FTituloFilter := AValue;
+  finally
+    FLock.Leave;
+  end;
+  Result := Self;
+end;
+
+function TParametersJsonObject.Title: string;
+begin
+  FLock.Enter;
+  try
+    Result := FTituloFilter;
+  finally
+    FLock.Leave;
+  end;
+end;
+
 // ========== CRUD ==========
 
 function TParametersJsonObject.List: TParameterList;
@@ -1197,8 +1225,25 @@ begin
       Exit;
     end;
     
-    // Busca em todos os objetos (exceto "Contrato")
-    LObjectNames := GetAllObjectNames;
+    // Se há filtro de título, busca apenas no objeto correspondente
+    if Trim(FTituloFilter) <> '' then
+    begin
+      LObjectName := GetObjectName(FTituloFilter);
+      FTituloFilter := ''; // Limpa o filtro após usar (é temporário)
+      LObjectNames := TStringList.Create;
+      try
+        LObjectNames.Add(LObjectName);
+      except
+        LObjectNames.Free;
+        raise;
+      end;
+    end
+    else
+    begin
+      // Busca em todos os objetos (exceto "Contrato")
+      LObjectNames := GetAllObjectNames;
+    end;
+    
     try
       for I := 0 to LObjectNames.Count - 1 do
       begin

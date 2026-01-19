@@ -26,7 +26,7 @@
 
 interface
 
-{$I E:\CSL\ORM\src\Paramenters\src\Paramenters.Defines.inc}
+{$I E:\Pacote\ORM\Paramenters\src\Paramenters.Defines.inc}
 
 Uses
 {$IF DEFINED(FPC)}
@@ -51,6 +51,7 @@ type
     FAutoCreateFile: Boolean;
     FContratoID: Integer;
     FProdutoID: Integer;
+    FTituloFilter: string; // Filtro de Título para Get (temporário, usado apenas no próximo Get)
     FLock: TCriticalSection;
     
     // Métodos auxiliares privados
@@ -91,6 +92,8 @@ type
     function ContratoID: Integer; overload;
     function ProdutoID(const AValue: Integer): IParametersInifiles; overload;
     function ProdutoID: Integer; overload;
+    function Title(const AValue: string): IParametersInifiles; overload;
+    function Title: string; overload;
     
     // ========== CRUD ==========
     function List: TParameterList; overload;
@@ -136,6 +139,7 @@ begin
   FAutoCreateFile := True;
   FContratoID := 0;
   FProdutoID := 0;
+  FTituloFilter := '';
   FLock := TCriticalSection.Create;
 end;
 
@@ -843,6 +847,27 @@ begin
   end;
 end;
 
+function TParametersInifiles.Title(const AValue: string): IParametersInifiles;
+begin
+  FLock.Enter;
+  try
+    FTituloFilter := AValue;
+  finally
+    FLock.Leave;
+  end;
+  Result := Self;
+end;
+
+function TParametersInifiles.Title: string;
+begin
+  FLock.Enter;
+  try
+    Result := FTituloFilter;
+  finally
+    FLock.Leave;
+  end;
+end;
+
 // ========== CRUD ==========
 
 function TParametersInifiles.List: TParameterList;
@@ -967,16 +992,27 @@ begin
   Result := Self;
   AParameter := nil;
   LFound := False;
+  LSection := '';
   
   if not EnsureFile then
     raise CreateInifilesException(Format(MSG_INI_FILE_CANNOT_READ, [FFilePath]), ERR_INI_FILE_CANNOT_READ, 'Get');
   
   FLock.Enter;
   try
-    if FSection <> '' then
+    // Se há filtro de título, usa ele para buscar na seção correspondente
+    if Trim(FTituloFilter) <> '' then
+    begin
+      LSection := GetSectionName(FTituloFilter);
+      FTituloFilter := ''; // Limpa o filtro após usar (é temporário)
+    end
+    else if FSection <> '' then
     begin
       // Busca apenas na seção especificada
       LSection := FSection;
+    end;
+    
+    if LSection <> '' then
+    begin
       LKeys := TStringList.Create;
       try
         if Assigned(FIniFile) then
