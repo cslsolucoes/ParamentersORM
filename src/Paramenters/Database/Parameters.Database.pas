@@ -34,7 +34,7 @@ Uses
   ComObj, ActiveX, // Para criar arquivo Access via ADOX
   Winapi.Windows, // Para SetEnvironmentVariable
 {$ENDIF}
-  Parameters.Intefaces, Parameters.Types, Parameters.Consts,
+  Parameters.Interfaces, Parameters.Types, Parameters.Consts,
   Parameters.Exceptions,
   // Engines de banco de dados (independente)
 {$IF DEFINED(USE_UNIDAC)}

@@ -73,6 +73,7 @@ type
     ============================================================================= }
   
   TParameterSource = (
+    psNone,
     psDatabase,     // Banco de dados
     psInifiles,     // Arquivo INI
     psJsonObject    // Objeto JSON

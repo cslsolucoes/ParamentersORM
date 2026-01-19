@@ -2,24 +2,14 @@
 // Define o engine baseado nas diretivas de compilação
 {$IF DEFINED(USE_UNIDAC)}
   DEFAULT_PARAMETERS_ENGINE = 'UniDAC';
-{$ELSE}
-  {$IF DEFINED(USE_FIREDAC)}
-    {$IF NOT DEFINED(FPC)}
-      DEFAULT_PARAMETERS_ENGINE = 'FireDAC';
-    {$ELSE}
-      {$IF DEFINED(USE_ZEOS)}
-        DEFAULT_PARAMETERS_ENGINE = 'Zeos';
-      {$ELSE}
-        DEFAULT_PARAMETERS_ENGINE = 'None';
-      {$ENDIF}
-    {$ENDIF}
-  {$ELSE}
-    {$IF DEFINED(USE_ZEOS)}
-      DEFAULT_PARAMETERS_ENGINE = 'Zeos';
-    {$ELSE}
-      DEFAULT_PARAMETERS_ENGINE = 'None';
-    {$ENDIF}
-  {$ENDIF}
+{$ELSE}{$IF DEFINED(USE_FIREDAC) AND NOT DEFINED(FPC)}
+          DEFAULT_PARAMETERS_ENGINE = 'FireDAC';
+       {$ELSE}{$IF DEFINED(USE_ZEOS)}
+                 DEFAULT_PARAMETERS_ENGINE = 'Zeos';
+              {$ELSE}
+                 DEFAULT_PARAMETERS_ENGINE = 'None';
+              {$ENDIF}
+       {$ENDIF}
 {$ENDIF}
 
 {
@@ -33,7 +23,7 @@
   DEFAULT_PARAMETERS_TABLE          = 'config';
   DEFAULT_PARAMETERS_DATABASE_TYPE  = 'PostgreSQL';
 }
-
+{
   DEFAULT_PARAMETERS_SESSION        = 'Bando de Dados Parameters (' + DEFAULT_PARAMETERS_ENGINE + ')';
   DEFAULT_PARAMETERS_HOST           = '10.100.2.30';
   DEFAULT_PARAMETERS_PORT           = 3050;
@@ -43,7 +33,7 @@
   DEFAULT_PARAMETERS_SCHEMA         = '';
   DEFAULT_PARAMETERS_TABLE          = 'CONFIG';
   DEFAULT_PARAMETERS_DATABASE_TYPE  = 'Firebird';
-
+}
 {
   DEFAULT_PARAMETERS_SESSION        = 'Bando de Dados Parameters (' + DEFAULT_PARAMETERS_ENGINE + ')';
   DEFAULT_PARAMETERS_HOST           = '10.100.0.7';
@@ -66,17 +56,17 @@
   DEFAULT_PARAMETERS_TABLE          = 'config';
   DEFAULT_PARAMETERS_DATABASE_TYPE  = 'SQL Server';
 }
-{
+
 DEFAULT_PARAMETERS_SESSION        = 'Bando de Dados Parameters (' + DEFAULT_PARAMETERS_ENGINE + ')';
 DEFAULT_PARAMETERS_HOST           = '';
 DEFAULT_PARAMETERS_PORT           = -1;
 DEFAULT_PARAMETERS_USERNAME       = '';
 DEFAULT_PARAMETERS_PASSWORD       = '';
-DEFAULT_PARAMETERS_DATABASE       = 'd:\dados\config.db';
+DEFAULT_PARAMETERS_DATABASE       = 'E:\CSL\ORM\src\DataBase\data\dbcsl.db';
 DEFAULT_PARAMETERS_SCHEMA         = '';
 DEFAULT_PARAMETERS_TABLE          = 'config';
 DEFAULT_PARAMETERS_DATABASE_TYPE  = 'SQLite';
-}
+
 {
   DEFAULT_PARAMETERS_SESSION        = 'Bando de Dados Parameters (' + DEFAULT_PARAMETERS_ENGINE + ')';
   DEFAULT_PARAMETERS_HOST           = '';

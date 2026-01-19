@@ -37,7 +37,7 @@ Uses
 {$ELSE}
   System.SysUtils, Data.DB, System.JSON,
 {$ENDIF}
-  Parameters.Intefaces, // Expõe IParametersDatabase, IParametersInifiles, IParametersJsonObject, TParameter, TParameterList, TParameterValueType
+  Parameters.Interfaces, // Expõe IParametersDatabase, IParametersInifiles, IParametersJsonObject, TParameter, TParameterList, TParameterValueType
   Parameters.Types,      // Expõe TParameterConfig, TParameterConfigOption, TParameterSourceArray (necessário para factory methods)
   Parameters.Consts;     // Expõe DEFAULT_PARAMETER_CONFIG e outras constantes
 

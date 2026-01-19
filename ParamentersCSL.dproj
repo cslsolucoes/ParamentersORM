@@ -162,7 +162,7 @@
         <DCCReference Include="src\Paramenters\Database\Parameters.Database.pas"/>
         <DCCReference Include="src\Paramenters\IniFiles\Parameters.Inifiles.pas"/>
         <DCCReference Include="src\Paramenters\JsonObject\Parameters.JsonObject.pas"/>
-        <DCCReference Include="src\Paramenters\Parameters.Intefaces.pas"/>
+        <DCCReference Include="src\Paramenters\Parameters.Interfaces.pas"/>
         <DCCReference Include="src\Paramenters\Parameters.pas"/>
         <DCCReference Include="src\View\ufrmParamenters.pas">
             <Form>frmConfigCRUD</Form>

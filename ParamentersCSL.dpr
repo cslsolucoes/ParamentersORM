@@ -37,7 +37,7 @@ uses
   Parameters.Database in 'src\Paramenters\Database\Parameters.Database.pas',
   Parameters.Inifiles in 'src\Paramenters\IniFiles\Parameters.Inifiles.pas',
   Parameters.JsonObject in 'src\Paramenters\JsonObject\Parameters.JsonObject.pas',
-  Parameters.Intefaces in 'src\Paramenters\Parameters.Intefaces.pas',
+  Parameters.Interfaces in 'src\Paramenters\Parameters.Interfaces.pas',
   Parameters in 'src\Paramenters\Parameters.pas',
   ufrmParamenters in 'src\View\ufrmParamenters.pas' {frmConfigCRUD};
 

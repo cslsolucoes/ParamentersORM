@@ -379,7 +379,7 @@ object frmConfigCRUD: TfrmConfigCRUD
       Top = 0
       Width = 1305
       Height = 508
-      ActivePage = tsInifiles
+      ActivePage = tsDatabase
       Align = alClient
       TabOrder = 0
       object tsDatabase: TTabSheet
@@ -554,7 +554,7 @@ object frmConfigCRUD: TfrmConfigCRUD
         object pnlLista: TPanel
           Left = 430
           Top = 0
-          Width = 875
+          Width = 867
           Height = 480
           Align = alClient
           BevelOuter = bvLowered
@@ -806,7 +806,7 @@ object frmConfigCRUD: TfrmConfigCRUD
             Width = 500
             Height = 21
             TabOrder = 0
-            Text = 'D:\Dados\config.ini'
+            Text = 'E:\CSL\ORM\src\DataBase\data\config.ini'
           end
           object btnInifilesSelectFile: TButton
             Left = 576
@@ -1231,7 +1231,7 @@ object frmConfigCRUD: TfrmConfigCRUD
             Width = 400
             Height = 21
             TabOrder = 0
-            Text = 'D:\Dados\config.json'
+            Text = 'E:\CSL\ORM\src\DataBase\data\config.json'
           end
           object btnJsonObjectSelectFile: TButton
             Left = 490
@@ -1458,7 +1458,7 @@ object frmConfigCRUD: TfrmConfigCRUD
         object pnlJsonObjectRight: TPanel
           Left = 430
           Top = 89
-          Width = 875
+          Width = 867
           Height = 391
           Align = alClient
           BevelOuter = bvLowered

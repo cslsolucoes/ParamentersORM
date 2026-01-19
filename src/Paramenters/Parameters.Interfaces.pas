@@ -1,4 +1,4 @@
-﻿unit Parameters.Intefaces;
+﻿unit Parameters.Interfaces;
 
 {$IF DEFINED(FPC)}
   {$MODE DELPHI} // Ensures DEFINED() and other Delphi features work
@@ -45,7 +45,7 @@ type
   { =============================================================================
     FORWARD DECLARATIONS
     ============================================================================= }
-  
+  TParameterSource    = Parameters.Types.TParameterSource;
   IParametersDatabase = interface;
   IParametersInifiles = interface;
   IParametersJsonObject = interface;

@@ -26,7 +26,7 @@
 
 interface
 
-{$I src/Paramenters.Defines.inc}
+{$I E:\CSL\ORM\src\Paramenters\src\Paramenters.Defines.inc}
 
 Uses
 {$IF DEFINED(FPC)}
@@ -35,7 +35,7 @@ Uses
   System.SysUtils, System.Classes, System.IniFiles,
   System.IOUtils,System.SyncObjs, System.StrUtils,
 {$ENDIF}
-  Parameters.Intefaces, Parameters.Types, Parameters.Consts,
+  Parameters.Interfaces, Parameters.Types, Parameters.Consts,
   Parameters.Exceptions;
 
 type

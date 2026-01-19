@@ -5,7 +5,7 @@
 {$ENDIF}
 
 { =============================================================================
-  Modulo.Parameters.JsonObject - Implementação de Acesso a Parâmetros em Objetos JSON
+  Parameters.JsonObject - Implementação de Acesso a Parâmetros em Objetos JSON
   
   Descrição:
   Implementa IParametersJsonObject para acesso a parâmetros em objetos JSON.
@@ -34,7 +34,7 @@
 
 interface
 
-{$I src/Paramenters.Defines.inc}
+{$I E:\CSL\ORM\src\Paramenters\src\Paramenters.Defines.inc}
 
 Uses
 {$IF DEFINED(FPC)}
@@ -43,7 +43,7 @@ Uses
   System.SysUtils, System.Classes, System.JSON,
   System.IOUtils,System.SyncObjs, System.StrUtils,
 {$ENDIF}
-  Parameters.Intefaces, Parameters.Types, Parameters.Consts,
+  Parameters.Interfaces, Parameters.Types, Parameters.Consts,
   Parameters.Exceptions;
 
 type
