@@ -11,6 +11,22 @@ import json
 from pathlib import Path
 from html import escape as escape_html
 
+# Importar conteúdo do roteiro de uso, visão geral e exemplos de units
+try:
+    from usage_guide_content import USAGE_GUIDE_HTML
+except ImportError:
+    USAGE_GUIDE_HTML = '<p>Erro: Não foi possível carregar usage_guide_content.py</p>'
+
+try:
+    from overview_content import OVERVIEW_HTML
+except ImportError:
+    OVERVIEW_HTML = '<p>Erro: Não foi possível carregar overview_content.py</p>'
+
+try:
+    from units_examples_content import UNITS_EXAMPLES
+except ImportError:
+    UNITS_EXAMPLES = {}
+
 # Caminhos
 BASE_DIR = Path(__file__).parent.absolute()
 # BASE_DIR = E:\CSL\ORM\src\Paramenters\docs
@@ -35,7 +51,12 @@ INTERNAL_UNITS = [
     "Commons/Parameters.Exceptions.pas",
     "Database/Parameters.Database.pas",
     "IniFiles/Parameters.Inifiles.pas",
-    "JsonObject/Parameters.JsonObject.pas"
+    "JsonObject/Parameters.JsonObject.pas",
+    "Attributes/Parameters.Attributes.pas",
+    "Attributes/Parameters.Attributes.Interfaces.pas",
+    "Attributes/Parameters.Attributes.Types.pas",
+    "Attributes/Parameters.Attributes.Consts.pas",
+    "Attributes/Parameters.Attributes.Exceptions.pas"
 ]
 
 def extract_methods_from_pascal(file_path):
@@ -141,6 +162,7 @@ def extract_comment_before_interface_or_class(content, pos, name):
 def extract_interfaces_from_pascal(file_path):
     """Extrai interfaces de uma unit Pascal"""
     interfaces = []
+    seen_interfaces = set()  # Para evitar duplicatas (forward declarations)
     
     if not os.path.exists(file_path):
         return interfaces
@@ -148,7 +170,7 @@ def extract_interfaces_from_pascal(file_path):
     with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
         content = f.read()
     
-    # Padrão para interface
+    # Padrão para interface (captura também forward declarations)
     pattern = r'(\w+)\s*=\s*interface'
     
     matches = re.finditer(pattern, content, re.MULTILINE | re.IGNORECASE)
@@ -156,6 +178,30 @@ def extract_interfaces_from_pascal(file_path):
     for match in matches:
         interface_name = match.group(1)
         interface_pos = match.start()
+        
+        # Ignorar se já processamos esta interface (evitar forward declarations)
+        if interface_name in seen_interfaces:
+            continue
+        
+        # Verificar se é forward declaration (não tem 'end;' depois)
+        interface_end = content.find('end;', match.end())
+        if interface_end <= 0:
+            # É forward declaration, pular
+            continue
+        
+        # Verificar se tem métodos ou propriedades (não é apenas forward declaration)
+        interface_content = content[match.end():interface_end]
+        # Se não tem nada além de espaços/comentários/GUID, é forward declaration
+        interface_body = re.sub(r'\{[^}]*\}', '', interface_content)  # Remove GUID
+        interface_body = re.sub(r'//.*', '', interface_body)  # Remove comentários de linha
+        interface_body = re.sub(r'\{[^}]*\}', '', interface_body)  # Remove comentários de bloco
+        interface_body = interface_body.strip()
+        
+        if not interface_body or len(interface_body) < 10:
+            # Provavelmente é forward declaration, pular
+            continue
+        
+        seen_interfaces.add(interface_name)
         
         # Extrair descrição da interface
         description = extract_comment_before_interface_or_class(content, interface_pos, interface_name)
@@ -177,14 +223,129 @@ def extract_interfaces_from_pascal(file_path):
                 description = f"<p>Interface <code>{interface_name}</code> para acesso a parâmetros.</p>"
         
         # Extrai métodos da interface
-        interface_end = content.find('end;', match.end())
+        # Encontrar o 'end;' correto que fecha esta interface específica
+        interface_start = match.end()
+        interface_end = -1
+        
+        # Buscar o primeiro 'end;' após a declaração que:
+        # 1. Não está em comentário
+        # 2. Tem métodos válidos antes dele
+        # 3. Não tem outra declaração de interface diferente antes dele
+        search_pos = interface_start
+        max_search = min(len(content), interface_start + 50000)  # Limitar busca
+        
+        while search_pos < max_search:
+            end_pos = content.find('end;', search_pos)
+            if end_pos < 0:
+                break
+            
+            # Verificar se não está em comentário de linha
+            line_start = content.rfind('\n', max(0, interface_start - 100), end_pos)
+            if line_start >= 0:
+                line = content[line_start:end_pos]
+                if '//' in line:
+                    comment_pos = line.find('//')
+                    end_in_line = line.find('end;')
+                    if end_in_line > comment_pos:
+                        # 'end;' está após comentário, pular
+                        search_pos = end_pos + 4
+                        continue
+            
+            # Verificar conteúdo entre interface_start e end_pos
+            between_content = content[interface_start:end_pos]
+            
+            # Verificar se há outra declaração de interface diferente entre interface_start e end_pos
+            # Padrão: nome = interface (mas não forward declaration que é apenas "nome = interface;")
+            other_interface_pattern = r'(\w+)\s*=\s*interface\b'
+            other_interfaces = list(re.finditer(other_interface_pattern, between_content, re.IGNORECASE))
+            
+            has_other_interface = False
+            for other_match in other_interfaces:
+                other_name = other_match.group(1)
+                if other_name != interface_name:
+                    # Verificar se não é forward declaration
+                    # Forward declarations são apenas "nome = interface;" sem métodos depois
+                    other_pos_in_content = interface_start + other_match.start()
+                    # Procurar o próximo 'end;' após esta outra interface
+                    next_end_after_other = content.find('end;', other_pos_in_content)
+                    if next_end_after_other > 0 and next_end_after_other < end_pos:
+                        # Verificar se há métodos entre a outra interface e seu 'end;'
+                        other_interface_content = content[other_pos_in_content:next_end_after_other]
+                        method_pattern_check = r'(function|procedure)\s+\w+'
+                        if re.search(method_pattern_check, other_interface_content, re.IGNORECASE):
+                            # É uma interface completa com métodos antes deste 'end;'
+                            # Então este 'end;' fecha a interface anterior, não a atual
+                            has_other_interface = True
+                            break
+            
+            if has_other_interface:
+                # Há outra interface completa antes deste 'end;', então este 'end;' fecha a interface anterior
+                search_pos = end_pos + 4
+                continue
+            
+            # Verificar se há métodos válidos antes deste 'end;'
+            method_pattern = r'(function|procedure)\s+\w+(?:\s*\([^)]*\))?\s*(?::\s*[\w\.]+)?\s*;'
+            if re.search(method_pattern, between_content, re.IGNORECASE):
+                # Se não há outra interface antes deste 'end;' e há métodos, aceitar este 'end;'
+                # (a verificação de outra interface já foi feita acima)
+                # Depois vamos filtrar os métodos para garantir que são da interface correta
+                interface_end = end_pos
+                break
+            
+            # Não encontrou métodos, continuar procurando
+            search_pos = end_pos + 4
+        
         if interface_end > 0:
-            interface_content = content[match.end():interface_end]
-            # Extrair métodos do conteúdo da interface, mas usar o conteúdo completo para buscar comentários
-            methods = extract_methods_from_pascal_content(content)
-            # Filtrar apenas métodos que estão dentro da interface
-            interface_start = match.end()
-            methods = [m for m in methods if interface_start <= content.find(m['signature'], interface_start) < interface_end]
+            interface_content = content[interface_start:interface_end]
+            
+            # Extrair métodos diretamente do conteúdo da interface
+            methods = extract_methods_from_pascal_content(interface_content)
+            
+            # Filtrar métodos: apenas os que realmente pertencem a esta interface
+            # Um método pertence à interface se:
+            # 1. Retorna o tipo da interface (ex: : IParametersDatabase) OU
+            # 2. Tem a interface como parâmetro OU
+            # 3. Não referencia nenhuma outra interface conhecida (métodos que retornam tipos primitivos)
+            filtered_methods = []
+            known_interfaces = ['IParametersDatabase', 'IParametersInifiles', 'IParametersJsonObject', 'IParameters']
+            
+            for method in methods:
+                method_sig = method.get('signature', '')
+                # Verificar se o método referencia a interface atual
+                if interface_name in method_sig:
+                    # Método referencia a interface atual, incluir
+                    filtered_methods.append(method)
+                else:
+                    # Método não referencia a interface atual diretamente
+                    # Verificar se referencia outra interface conhecida
+                    references_other_interface = any(
+                        iface_name in method_sig 
+                        for iface_name in known_interfaces 
+                        if iface_name != interface_name
+                    )
+                    
+                    if not references_other_interface:
+                        # Não referencia outra interface conhecida
+                        # Pode ser um método que retorna tipo primitivo (string, Integer, Boolean, etc.)
+                        # ou que não tem tipo de retorno (procedure)
+                        # Incluir apenas se estiver realmente dentro desta interface
+                        # (verificação já feita ao encontrar o 'end;' correto)
+                        filtered_methods.append(method)
+                    # Se referencia outra interface, excluir (não pertence a esta interface)
+            
+            methods = filtered_methods
+            
+            # Ajustar comentários usando o conteúdo completo (para pegar comentários antes da interface)
+            for method in methods:
+                # Encontrar a posição real do método no conteúdo completo
+                method_signature = method['signature']
+                # Buscar a assinatura no conteúdo completo, mas dentro da interface
+                real_pos = content.find(method_signature, interface_start)
+                if real_pos >= 0 and real_pos < interface_end:
+                    # Extrair comentário usando a posição real no conteúdo completo
+                    comment = extract_comment_before_method(content, real_pos)
+                    if comment:
+                        method['comment'] = comment
         else:
             methods = []
         
@@ -335,7 +496,8 @@ def extract_methods_from_pascal_content(content):
     methods = []
     
     # Padrão para function, procedure, constructor, destructor
-    pattern = r'(function|procedure|constructor|destructor)\s+(\w+)\s*\([^)]*\)\s*(?::\s*[\w\.]+)?\s*;'
+    # Torna parâmetros opcionais para capturar métodos sem parâmetros também
+    pattern = r'(function|procedure|constructor|destructor)\s+(\w+)(?:\s*\([^)]*\))?\s*(?::\s*[\w\.]+)?\s*;'
     matches = re.finditer(pattern, content, re.MULTILINE | re.IGNORECASE)
     
     for match in matches:
@@ -522,6 +684,9 @@ def process_unit(unit_path):
     # Extrai métodos (se não estiverem em interfaces)
     methods = extract_methods_from_pascal(str(full_path))
     
+    # Verificar se há exemplos de uso para esta unit
+    unit_example = UNITS_EXAMPLES.get(unit_path, '')
+    
     # Lê descrição da unit
     with open(full_path, 'r', encoding='utf-8', errors='ignore') as f:
         content = f.read()
@@ -578,6 +743,10 @@ def process_unit(unit_path):
             unit_name_from_path = unit_path.split('/')[-1].split('\\')[-1]
             description = f"<p>Unit <code>{unit_name_from_path}</code>.</p>"
     
+    # Adicionar exemplos de uso se disponíveis
+    if unit_example:
+        description += '\n\n' + unit_example
+    
     # Extrai nome da unit do caminho
     unit_name = unit_path.split('/')[-1].split('\\')[-1]  # Pega apenas o nome do arquivo
     
@@ -614,687 +783,20 @@ def generate_docs_data():
         else:
             print(f"  [AVISO] Nao foi possivel processar: {unit_path}")
     
-    # Gera overview
+    # Gera overview (usar conteúdo mesclado de ComoUsar.html)
     overview = {
         'title': 'Visao Geral',
         'path': 'Parameters ORM v1.0.2',
-        'description': '''
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px;">
-                <h2 style="color: white; margin-top: 0;">Parameters ORM v1.0.2</h2>
-                <p style="font-size: 1.1em; line-height: 1.6;">
-                    Sistema unificado de gerenciamento de parametros de configuracao para Delphi/Free Pascal, 
-                    com suporte a multiplas fontes de dados (Banco de Dados, Arquivos INI, Objetos JSON) e fallback automatico.
-                </p>
-            </div>
-            <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin-bottom: 30px; border-radius: 4px;">
-                <h3 style="color: #856404; margin-top: 0;">📋 Regras de Negócio - Hierarquia Completa</h3>
-                <p style="color: #856404; margin-bottom: 10px;"><strong>IMPORTANTE:</strong> Todos os métodos CRUD respeitam a hierarquia completa de identificação:</p>
-                <ul style="color: #856404; margin-bottom: 10px;">
-                    <li><strong>Constraint UNIQUE:</strong> <code>ContratoID + ProdutoID + Title + Name</code></li>
-                    <li><strong>Getter():</strong> Busca específica quando hierarquia configurada, busca ampla quando não configurada (compatibilidade)</li>
-                    <li><strong>Setter():</strong> Sempre requer hierarquia completa. Insere se não existir, atualiza se existir</li>
-                    <li><strong>Delete():</strong> Respeita hierarquia completa</li>
-                    <li><strong>Exists():</strong> Respeita hierarquia completa</li>
-                </ul>
-                <p style="color: #856404; margin-bottom: 0;"><strong>Nomenclatura:</strong> Use <code>Getter()</code> e <code>Setter()</code> em vez de <code>Get()</code> e <code>Update()</code> (deprecated).</p>
-            </div>
-            <div style="background: #d1ecf1; border-left: 4px solid #0c5460; padding: 20px; margin-bottom: 30px; border-radius: 4px;">
-                <h3 style="color: #0c5460; margin-top: 0;">🔑 Exemplo de Uso com Hierarquia</h3>
-                <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 4px; overflow-x: auto;"><code>// Configurar hierarquia
-Parameters
-  .ContratoID(1)
-  .ProdutoID(1)
-  .Database.Title('ERP');
-
-// Buscar com hierarquia completa
-var Param: TParameter;
-Param := Parameters.Getter('database_host');
-// Busca: ContratoID=1, ProdutoID=1, Title='ERP', Name='database_host'
-
-// Inserir/Atualizar com Setter (sempre requer hierarquia completa)
-Param := TParameter.Create;
-Param.ContratoID := 1;
-Param.ProdutoID := 1;
-Param.Titulo := 'ERP';
-Param.Name := 'database_host';
-Param.Value := 'localhost';
-Parameters.Setter(Param); // Insere se não existir, atualiza se existir</code></pre>
-            </div>
-        '''
+        'description': OVERVIEW_HTML
     }
     
     # Gera usage guide
+    # Usar conteúdo importado do arquivo separado
+    # Usar conteúdo importado do arquivo separado (roteiro completo)
     usage_guide = {
         'title': 'Roteiro de Uso',
         'path': 'Guia Prático',
-        'description': '''
-            <h2 style="color: #2c3e50; margin-top: 0;">🚀 Roteiro de Uso - Parameters ORM v1.0.2</h2>
-            
-            <p>Este guia apresenta exemplos práticos de uso do Parameters ORM v1.0.2, desde a configuração básica até operações avançadas com múltiplas fontes de dados.</p>
-            
-            <h3 style="margin-top: 30px; color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px;">1. Configuração Básica</h3>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">1.1. Configuração com Database (PostgreSQL)</h4>
-            <p>Conectar ao banco PostgreSQL e configurar tabela de parâmetros:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  Success: Boolean;
-begin
-  // 1. Criar instância de Database
-  DB := TParameters.NewDatabase;
-  
-  // 2. Configurar conexão
-  DB.Engine('UniDAC')
-    .DatabaseType('PostgreSQL')
-    .Host('localhost')
-    .Port(5432)
-    .Database('mydb')
-    .Schema('public')
-    .Username('postgres')
-    .Password('senha')
-    .TableName('config')
-    .AutoCreateTable(True);  // Cria tabela automaticamente se não existir
-  
-  // 3. Conectar ao banco
-  DB.Connect(Success);
-  if not Success then
-  begin
-    ShowMessage('Erro ao conectar ao banco de dados!');
-    Exit;
-  end;
-  
-  ShowMessage('Conectado com sucesso!');
-end;</code></pre>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">1.2. Configuração com SQLite</h4>
-            <p>Usar SQLite como banco de dados local (arquivo único):</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  Success: Boolean;
-begin
-  DB := TParameters.NewDatabase;
-  
-  DB.DatabaseType('SQLite')
-    .Database('E:\\Data\\config.db')  // Caminho do arquivo SQLite
-    .TableName('config')
-    .AutoCreateTable(True);
-  
-  DB.Connect(Success);
-  if Success then
-    ShowMessage('SQLite conectado!');
-end;</code></pre>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">1.3. Configuração com Arquivo INI</h4>
-            <p>Usar arquivo INI como fonte de parâmetros:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  Ini: IParametersInifiles;
-begin
-  Ini := TParameters.NewInifiles;
-  
-  Ini.FilePath('C:\\Config\\params.ini')
-    .Section('Parameters')  // Seção padrão
-    .AutoCreateFile(True)   // Cria arquivo se não existir
-    .ContratoID(1)
-    .ProdutoID(1);
-  
-  ShowMessage('INI configurado: ' + Ini.FilePath);
-end;</code></pre>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">1.4. Configuração com JSON Object</h4>
-            <p>Usar objeto JSON como fonte de parâmetros:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  Json: IParametersJsonObject;
-begin
-  // Opção 1: Criar JSON vazio
-  Json := TParameters.NewJsonObject;
-  Json.FilePath('C:\\Config\\params.json')
-    .ObjectName('Parameters')
-    .AutoCreateFile(True);
-  
-  // Opção 2: Carregar de arquivo existente
-  Json := TParameters.NewJsonObjectFromFile('C:\\Config\\params.json');
-  
-  // Opção 3: Carregar de string JSON
-  Json := TParameters.NewJsonObject('{"ERP":{"host":"localhost"}}');
-end;</code></pre>
-            
-            <h3 style="margin-top: 30px; color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px;">2. Operações CRUD Básicas</h3>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">2.1. Inserir Parâmetro (com Hierarquia Completa)</h4>
-            <p>Inserir um novo parâmetro respeitando a hierarquia completa (ContratoID, ProdutoID, Title, Name):</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  Param: TParameter;
-  Success: Boolean;
-begin
-  DB := TParameters.NewDatabase
-    .Host('localhost')
-    .Database('mydb')
-    .TableName('config')
-    .Connect;
-  
-  // Criar parâmetro
-  Param := TParameter.Create;
-  try
-    // OBRIGATÓRIO: Preencher hierarquia completa
-    Param.ContratoID := 1;
-    Param.ProdutoID := 1;
-    Param.Titulo := 'ERP';           // Título/Seção
-    Param.Name := 'database_host';   // Chave do parâmetro
-    Param.Value := 'localhost';      // Valor
-    Param.ValueType := pvtString;   // Tipo do valor
-    Param.Description := 'Host do banco de dados ERP';
-    Param.Ordem := 1;                // Ordem de exibição
-    Param.Ativo := True;
-    
-    // Inserir usando Setter (insere se não existir, atualiza se existir)
-    DB.Setter(Param, Success);
-    if Success then
-      ShowMessage('Parâmetro inserido/atualizado com sucesso!');
-  finally
-    Param.Free;
-  end;
-end;</code></pre>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">2.2. Buscar Parâmetro (Getter com Hierarquia)</h4>
-            <p>Buscar um parâmetro específico usando a hierarquia completa:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  Param: TParameter;
-begin
-  DB := TParameters.NewDatabase
-    .Host('localhost')
-    .Database('mydb')
-    .TableName('config')
-    .ContratoID(1)      // Configurar hierarquia
-    .ProdutoID(1)
-    .Title('ERP')       // Título/Seção
-    .Connect;
-  
-  // Buscar parâmetro específico
-  Param := DB.Getter('database_host');
-  try
-    if Assigned(Param) then
-    begin
-      ShowMessage('Valor encontrado: ' + Param.Value);
-      ShowMessage('Descrição: ' + Param.Description);
-    end
-    else
-      ShowMessage('Parâmetro não encontrado!');
-  finally
-    if Assigned(Param) then
-      Param.Free;
-  end;
-end;</code></pre>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">2.3. Listar Todos os Parâmetros</h4>
-            <p>Listar todos os parâmetros ativos de uma fonte:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  ParamList: TParameterList;
-  I: Integer;
-begin
-  DB := TParameters.NewDatabase
-    .Host('localhost')
-    .Database('mydb')
-    .TableName('config')
-    .ContratoID(1)
-    .ProdutoID(1)
-    .Connect;
-  
-  // Listar todos os parâmetros
-  ParamList := DB.List;
-  try
-    ShowMessage(Format('Total de parâmetros: %d', [ParamList.Count]));
-    
-    for I := 0 to ParamList.Count - 1 do
-    begin
-      ShowMessage(Format('%s = %s', [
-        ParamList[I].Name,
-        ParamList[I].Value
-      ]));
-    end;
-  finally
-    ParamList.ClearAll;
-    ParamList.Free;
-  end;
-end;</code></pre>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">2.4. Atualizar Parâmetro Existente</h4>
-            <p>Atualizar um parâmetro existente usando Setter:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  Param: TParameter;
-  Success: Boolean;
-begin
-  DB := TParameters.NewDatabase
-    .Host('localhost')
-    .Database('mydb')
-    .TableName('config')
-    .Connect;
-  
-  // Buscar parâmetro existente
-  Param := DB.Getter('database_host');
-  try
-    if Assigned(Param) then
-    begin
-      // Modificar valor
-      Param.Value := 'novo_host';
-      Param.Description := 'Host atualizado';
-      
-      // Atualizar usando Setter (detecta automaticamente se é INSERT ou UPDATE)
-      DB.Setter(Param, Success);
-      if Success then
-        ShowMessage('Parâmetro atualizado com sucesso!');
-    end;
-  finally
-    if Assigned(Param) then
-      Param.Free;
-  end;
-end;</code></pre>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">2.5. Deletar Parâmetro</h4>
-            <p>Deletar um parâmetro (soft delete - marca como inativo):</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  Success: Boolean;
-begin
-  DB := TParameters.NewDatabase
-    .Host('localhost')
-    .Database('mydb')
-    .TableName('config')
-    .ContratoID(1)
-    .ProdutoID(1)
-    .Title('ERP')
-    .Connect;
-  
-  // Deletar parâmetro (soft delete)
-  DB.Delete('database_host', Success);
-  if Success then
-    ShowMessage('Parâmetro deletado com sucesso!');
-end;</code></pre>
-            
-            <h3 style="margin-top: 30px; color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px;">3. Múltiplas Fontes com Fallback Automático</h3>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">3.1. Configuração com Fallback (Database → INI → JSON)</h4>
-            <p>Configurar múltiplas fontes com fallback automático em cascata:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  Parameters: IParameters;
-  Param: TParameter;
-begin
-  // Criar instância com múltiplas fontes
-  Parameters := TParameters.New([pcfDataBase, pcfInifile, pcfJsonObject]);
-  
-  // Configurar Database (fonte primária)
-  Parameters.Database
-    .Host('localhost')
-    .Port(5432)
-    .Database('mydb')
-    .TableName('config')
-    .Schema('public')
-    .Connect;
-  
-  // Configurar INI (fallback 1)
-  Parameters.Inifiles
-    .FilePath('C:\\Config\\params.ini')
-    .Section('Parameters');
-  
-  // Configurar JSON (fallback 2)
-  Parameters.JsonObject
-    .FilePath('C:\\Config\\params.json')
-    .ObjectName('Parameters');
-  
-  // Definir ordem de prioridade
-  Parameters.Priority([psDatabase, psInifiles, psJsonObject]);
-  
-  // Configurar hierarquia em todas as fontes
-  Parameters
-    .ContratoID(1)
-    .ProdutoID(1)
-    .Database.Title('ERP')
-    .Inifiles.Title('ERP')
-    .JsonObject.Title('ERP');
-  
-  // Buscar em cascata: Database → INI → JSON
-  Param := Parameters.Getter('database_host');
-  try
-    if Assigned(Param) then
-      ShowMessage('Encontrado: ' + Param.Value)
-    else
-      ShowMessage('Não encontrado em nenhuma fonte');
-  finally
-    if Assigned(Param) then
-      Param.Free;
-  end;
-end;</code></pre>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">3.2. Buscar em Fonte Específica</h4>
-            <p>Buscar parâmetro em uma fonte específica (sem fallback):</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  Parameters: IParameters;
-  Param: TParameter;
-begin
-  Parameters := TParameters.New([pcfDataBase, pcfInifile]);
-  
-  // Configurar fontes...
-  Parameters.Database.Host('localhost').Connect;
-  Parameters.Inifiles.FilePath('config.ini');
-  
-  // Buscar apenas no Database
-  Param := Parameters.Getter('database_host', psDatabase);
-  try
-    if Assigned(Param) then
-      ShowMessage('Encontrado no Database: ' + Param.Value);
-  finally
-    if Assigned(Param) then
-      Param.Free;
-  end;
-  
-  // Buscar apenas no INI
-  Param := Parameters.Getter('database_host', psInifiles);
-  try
-    if Assigned(Param) then
-      ShowMessage('Encontrado no INI: ' + Param.Value);
-  finally
-    if Assigned(Param) then
-      Param.Free;
-  end;
-end;</code></pre>
-            
-            <h3 style="margin-top: 30px; color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px;">4. Importação e Exportação</h3>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">4.1. Exportar Database → INI</h4>
-            <p>Exportar todos os parâmetros do Database para arquivo INI:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  Ini: IParametersInifiles;
-  Success: Boolean;
-begin
-  // Configurar Database
-  DB := TParameters.NewDatabase
-    .Host('localhost')
-    .Database('mydb')
-    .TableName('config')
-    .Connect;
-  
-  // Configurar INI
-  Ini := TParameters.NewInifiles
-    .FilePath('C:\\Config\\params_backup.ini')
-    .Section('Parameters');
-  
-  // Exportar Database → INI
-  Ini.ExportToDatabase(DB, Success);
-  if Success then
-    ShowMessage('Exportação concluída com sucesso!');
-end;</code></pre>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">4.2. Importar INI → Database</h4>
-            <p>Importar parâmetros de arquivo INI para Database:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  Ini: IParametersInifiles;
-  Success: Boolean;
-begin
-  // Configurar Database
-  DB := TParameters.NewDatabase
-    .Host('localhost')
-    .Database('mydb')
-    .TableName('config')
-    .Connect;
-  
-  // Configurar INI
-  Ini := TParameters.NewInifiles
-    .FilePath('C:\\Config\\params.ini')
-    .Section('Parameters');
-  
-  // Importar INI → Database
-  Ini.ImportFromDatabase(DB, Success);
-  if Success then
-    ShowMessage('Importação concluída com sucesso!');
-end;</code></pre>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">4.3. Exportar Database → JSON</h4>
-            <p>Exportar todos os parâmetros do Database para arquivo JSON:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  Json: IParametersJsonObject;
-  Success: Boolean;
-begin
-  // Configurar Database
-  DB := TParameters.NewDatabase
-    .Host('localhost')
-    .Database('mydb')
-    .TableName('config')
-    .Connect;
-  
-  // Configurar JSON
-  Json := TParameters.NewJsonObject
-    .FilePath('C:\\Config\\params_backup.json')
-    .ObjectName('Parameters');
-  
-  // Exportar Database → JSON
-  Json.ExportToDatabase(DB, Success);
-  if Success then
-  begin
-    // Salvar arquivo JSON
-    Json.SaveToFile('C:\\Config\\params_backup.json', Success);
-    if Success then
-      ShowMessage('Exportação e salvamento concluídos!');
-  end;
-end;</code></pre>
-            
-            <h3 style="margin-top: 30px; color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px;">5. Gerenciamento de Tabela (Database)</h3>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">5.1. Verificar e Criar Tabela</h4>
-            <p>Verificar se a tabela existe e criá-la se necessário:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  Success: Boolean;
-begin
-  DB := TParameters.NewDatabase
-    .Host('localhost')
-    .Database('mydb')
-    .TableName('config')
-    .Schema('public')
-    .Connect;
-  
-  // Verificar se tabela existe
-  if not DB.TableExists then
-  begin
-    // Criar tabela
-    DB.CreateTable(Success);
-    if Success then
-      ShowMessage('Tabela criada com sucesso!')
-    else
-      ShowMessage('Erro ao criar tabela!');
-  end
-  else
-    ShowMessage('Tabela já existe!');
-end;</code></pre>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">5.2. Listar Tabelas Disponíveis</h4>
-            <p>Listar todas as tabelas disponíveis no banco/schema:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  Tables: TStringList;
-  I: Integer;
-begin
-  DB := TParameters.NewDatabase
-    .Host('localhost')
-    .Database('mydb')
-    .Schema('public')
-    .Connect;
-  
-  // Listar tabelas
-  Tables := DB.ListAvailableTables;
-  try
-    ShowMessage(Format('Total de tabelas: %d', [Tables.Count]));
-    
-    for I := 0 to Tables.Count - 1 do
-      ShowMessage(Tables[I]);
-  finally
-    Tables.Free;
-  end;
-end;</code></pre>
-            
-            <h3 style="margin-top: 30px; color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px;">6. Tratamento de Erros</h3>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">6.1. Tratamento de Exceções</h4>
-            <p>Tratar exceções específicas do Parameters ORM:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters, Parameters.Intefaces;
-
-var
-  DB: IParametersDatabase;
-begin
-  try
-    DB := TParameters.NewDatabase
-      .Host('localhost')
-      .Database('mydb')
-      .TableName('config')
-      .Connect;
-    
-    ShowMessage('Conectado com sucesso!');
-  except
-    on E: EParametersConnectionException do
-    begin
-      ShowMessage(Format('ERRO DE CONEXÃO: %s'#13#10'Código: %d'#13#10'Operação: %s',
-        [E.Message, E.ErrorCode, E.Operation]));
-    end;
-    on E: EParametersSQLException do
-    begin
-      ShowMessage(Format('ERRO DE SQL: %s'#13#10'Código: %d',
-        [E.Message, E.ErrorCode]));
-    end;
-    on E: EParametersException do
-    begin
-      ShowMessage(Format('ERRO: %s'#13#10'Código: %d',
-        [E.Message, E.ErrorCode]));
-    end;
-    on E: Exception do
-    begin
-      ShowMessage('Erro inesperado: ' + E.Message);
-    end;
-  end;
-end;</code></pre>
-            
-            <h3 style="margin-top: 30px; color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px;">7. Casos de Uso Avançados</h3>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">7.1. Múltiplos Títulos (Seções) no Mesmo Banco</h4>
-            <p>Gerenciar parâmetros de múltiplos títulos (ex: ERP, CRM, Financeiro) no mesmo banco:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  Param: TParameter;
-begin
-  DB := TParameters.NewDatabase
-    .Host('localhost')
-    .Database('mydb')
-    .TableName('config')
-    .ContratoID(1)
-    .ProdutoID(1)
-    .Connect;
-  
-  // Parâmetro do ERP
-  DB.Title('ERP');
-  Param := DB.Getter('database_host');
-  // Busca: ContratoID=1, ProdutoID=1, Title='ERP', Name='database_host'
-  
-  // Parâmetro do CRM (mesma chave, título diferente)
-  DB.Title('CRM');
-  Param := DB.Getter('database_host');
-  // Busca: ContratoID=1, ProdutoID=1, Title='CRM', Name='database_host'
-  // ✅ Permite chaves com mesmo nome em títulos diferentes!
-  
-  if Assigned(Param) then
-    Param.Free;
-end;</code></pre>
-            
-            <h4 style="margin-top: 20px; color: #2c3e50;">7.2. Contagem e Verificação</h4>
-            <p>Contar parâmetros e verificar existência:</p>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>uses
-  Parameters;
-
-var
-  DB: IParametersDatabase;
-  Count: Integer;
-  Exists: Boolean;
-begin
-  DB := TParameters.NewDatabase
-    .Host('localhost')
-    .Database('mydb')
-    .TableName('config')
-    .ContratoID(1)
-    .ProdutoID(1)
-    .Title('ERP')
-    .Connect;
-  
-  // Contar parâmetros
-  Count := DB.Count;
-  ShowMessage(Format('Total de parâmetros: %d', [Count]));
-  
-  // Verificar se parâmetro existe
-  if DB.Exists('database_host') then
-    ShowMessage('Parâmetro existe!')
-  else
-    ShowMessage('Parâmetro não existe!');
-  
-  // Versão com parâmetro out
-  DB.Exists('database_host', Exists);
-  if Exists then
-    ShowMessage('Parâmetro encontrado!');
-end;</code></pre>
-        '''
+        'description': USAGE_GUIDE_HTML
     }
     
     # Coletar todas as interfaces de todas as units públicas
@@ -1329,9 +831,7 @@ end;</code></pre>
             interfaces_html += f'<div style="margin-bottom: 15px; color: #555;">{iface["description"]}</div>'
         
         if iface.get('methods'):
-            interfaces_html += '<h4 style="color: #34495e; margin-top: 20px;">Métodos</h4>'
-            interfaces_html += '<div style="background: white; padding: 15px; border-radius: 4px;">'
-            
+            # Cada método terá seu próprio h4 e seção visual individualizada
             for method in iface['methods']:
                 method_example = method.get('example', '')
                 if not method_example and method.get('signature'):
@@ -1340,15 +840,21 @@ end;</code></pre>
                     if method_name:
                         method_example = f'{obj_name}.{method_name}();'
                 
-                interfaces_html += '<div style="margin-bottom: 20px; padding: 15px; background: #ecf0f1; border-radius: 4px;">'
-                interfaces_html += f'<div style="font-family: monospace; font-weight: bold; color: #2c3e50; margin-bottom: 8px;">{escape_html(method.get("signature", ""))}</div>'
+                # Criar h4 individual para cada método (será contado no menu)
+                method_name_display = method.get('name', method.get('signature', 'Método'))
+                interfaces_html += f'<h4 style="color: #34495e; margin-top: 20px; margin-bottom: 15px;">{escape_html(method_name_display)}</h4>'
+                
+                # Envolver conteúdo em <p> e <pre> diretamente (sem div wrapper) para que o JavaScript funcione
+                # Assinatura do método
+                interfaces_html += f'<p style="font-family: monospace; font-weight: bold; color: #2c3e50; margin-bottom: 10px; margin-left: 20px; font-size: 14px;">{escape_html(method.get("signature", ""))}</p>'
+                
+                # Comentário
                 if method.get('comment'):
-                    interfaces_html += f'<div style="color: #555; margin-bottom: 10px;">{escape_html(method["comment"])}</div>'
+                    interfaces_html += f'<p style="color: #555; margin-bottom: 10px; margin-left: 20px;">{escape_html(method["comment"])}</p>'
+                
+                # Exemplo
                 if method_example:
-                    interfaces_html += f'<div style="margin-top: 10px; padding: 10px; background: #2c3e50; border-radius: 4px;"><pre style="margin: 0; color: #ecf0f1; font-size: 12px;"><code>{escape_html(method_example)}</code></pre></div>'
-                interfaces_html += '</div>'
-            
-            interfaces_html += '</div>'
+                    interfaces_html += f'<pre style="margin-top: 10px; margin-bottom: 20px; margin-left: 20px; padding: 15px; background: #2c3e50; border-radius: 4px; overflow-x: auto;"><code style="color: #ecf0f1; font-size: 13px;">{escape_html(method_example)}</code></pre>'
         
         interfaces_html += '</div>'
     
@@ -1365,9 +871,9 @@ end;</code></pre>
             </ul>
             
             <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 4px;">
-                <h3 style="color: #856404; margin-top: 0;">⚠️ Regras de Negócio - Versão 1.0.2</h3>
+                <div style="color: #856404; font-size: 1.25em; font-weight: bold; margin-top: 0; margin-bottom: 15px;">⚠️ Regras de Negócio - Versão 1.0.2</div>
                 <div style="color: #856404;">
-                    <h4>Hierarquia Completa de Identificação</h4>
+                    <div style="font-size: 1.1em; font-weight: bold; margin-top: 15px; margin-bottom: 10px;">Hierarquia Completa de Identificação</div>
                     <p>Todos os métodos CRUD respeitam a constraint UNIQUE: <code>(ContratoID, ProdutoID, Title, Name)</code></p>
                     <ul>
                         <li><strong>Getter():</strong> Busca específica quando hierarquia configurada, busca ampla quando não configurada</li>
@@ -1376,7 +882,7 @@ end;</code></pre>
                         <li><strong>Exists():</strong> Respeita hierarquia completa</li>
                     </ul>
                     
-                    <h4>Nomenclatura de Métodos</h4>
+                    <div style="font-size: 1.1em; font-weight: bold; margin-top: 15px; margin-bottom: 10px;">Nomenclatura de Métodos</div>
                     <ul>
                         <li>Use <code>Getter()</code> em vez de <code>Get()</code> (deprecated)</li>
                         <li>Use <code>Setter()</code> em vez de <code>Update()</code> (deprecated)</li>

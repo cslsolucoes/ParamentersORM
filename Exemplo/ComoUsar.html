@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Como Usar - Módulo Parameters v1.0.0</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f5;
+      padding: 0;
+      margin: 0;
+    }
+
+    .wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 280px;
+      height: 100vh;
+      background: #2c3e50;
+      color: #ecf0f1;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar h2 {
+      color: #ecf0f1;
+      font-size: 1.3em;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3498db;
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .sidebar ol {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .sidebar li {
+      margin: 8px 0;
+    }
+
+    .sidebar a {
+      color: #bdc3c7;
+      text-decoration: none;
+      display: block;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+
+    .sidebar a:hover {
+      background: #34495e;
+      color: #3498db;
+      padding-left: 16px;
+    }
+
+    .container {
+      margin-left: 280px;
+      max-width: calc(100% - 280px);
+      background: white;
+      padding: 40px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      min-height: 100vh;
+    }
+
+    h1 {
+      color: #2c3e50;
+      border-bottom: 4px solid #3498db;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+    }
+
+    h2 {
+      color: #34495e;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      padding-top: 20px;
+      border-top: 2px solid #ecf0f1;
+      font-size: 2em;
+    }
+
+    h3 {
+      color: #555;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+
+    h4 {
+      color: #666;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+
+    .header-info {
+      background: #ecf0f1;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 30px;
+    }
+
+    .header-info p {
+      margin: 5px 0;
+    }
+
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #e74c3c;
+    }
+
+    pre {
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 20px;
+      border-radius: 5px;
+      overflow-x: auto;
+      margin: 20px 0;
+      border-left: 4px solid #3498db;
+    }
+
+    pre code {
+      background: transparent;
+      color: #ecf0f1;
+      padding: 0;
+    }
+
+    .example {
+      background: #fffbf0;
+      border: 1px solid #f0e68c;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 15px 0;
+    }
+
+    .example-title {
+      font-weight: bold;
+      color: #856404;
+      margin-bottom: 10px;
+    }
+
+    .note {
+      background: #e7f3ff;
+      border-left: 4px solid #2196F3;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 5px;
+    }
+
+    .warning {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 5px;
+    }
+
+    .success {
+      background: #d4edda;
+      border-left: 4px solid #28a745;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 5px;
+    }
+
+    ul,
+    ol {
+      margin-left: 30px;
+      margin-bottom: 15px;
+    }
+
+    li {
+      margin: 8px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #3498db;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background: #f8f9fa;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.85em;
+      font-weight: bold;
+    }
+
+    .badge-success {
+      background: #28a745;
+      color: white;
+    }
+
+    hr {
+      border: none;
+      border-top: 2px solid #ecf0f1;
+      margin: 30px 0;
+    }
+
+    .footer {
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 2px solid #ecf0f1;
+      text-align: center;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="sidebar">
+      <h2>📋 Índice</h2>
+      <ol>
+        <li><a href="#configuracao">1. Configuração Inicial</a></li>
+        <li><a href="#create">2. CREATE - Inserir</a></li>
+        <li><a href="#read">3. READ - Buscar</a></li>
+        <li><a href="#update">4. UPDATE - Atualizar</a></li>
+        <li><a href="#delete">5. DELETE - Deletar</a></li>
+        <li><a href="#filtros">6. Filtros</a></li>
+        <li><a href="#tipos">7. Tipos de Valor</a></li>
+        <li><a href="#exemplo-completo">8. Exemplo Completo</a></li>
+        <li><a href="#dicas">9. Dicas Importantes</a></li>
+      </ol>
+    </div>
+
+    <div class="container">
+      <h1>📚 Como Usar - Módulo Parameters</h1>
+
+      <div class="header-info">
+        <p><strong>Versão:</strong> 1.0.0</p>
+        <p><strong>Autor:</strong> Claiton de Souza Linhares</p>
+        <p><strong>Data:</strong> 02/01/2026</p>
+        <p><strong>Status:</strong> <span class="badge badge-success">✅ Pronto para Uso</span></p>
+      </div>
+
+      <hr>
+
+      <h2 id="configuracao">1. Configuração Inicial</h2>
+
+      <h3>1.1. Adicionar Units ao Uses</h3>
+      <pre><code>uses
+  System.SysUtils,
+  Parameters.Types,        // Tipos: TParameter, TParameterList
+  Parameters.Consts,       // Constantes
+  Parameters.Interfaces,   // Interfaces públicas
+  Parameters;              // Ponto de entrada (Factory methods)</code></pre>
+
+      <h3>1.2. Criar Instância do Banco de Dados</h3>
+      <div class="example">
+        <div class="example-title">Exemplo:</div>
+        <pre><code>var
+  DB: IParametersDatabase;
+  LSuccess: Boolean;
+  LDatabasePath: string;
+
+begin
+  // Define caminho do banco SQLite
+  LDatabasePath := 'E:\Pacote\ORM\Data\Config.db';
+  
+  // Cria instância
+  DB := TParameters.NewDatabase;
+  
+  // Configura conexão
+  DB.DatabaseType('SQLite')
+    .Database(LDatabasePath)
+    .TableName('config')
+    .AutoCreateTable(True);  // Cria tabela automaticamente se não existir
+  
+  // Conecta ao banco
+  DB.Connect(LSuccess);
+  
+  if not LSuccess then
+  begin
+    WriteLn('Erro ao conectar ao banco!');
+    Exit;
+  end;
+  
+  // ... usar DB ...
+  
+  // Desconecta ao final
+  DB.Disconnect;
+end;</code></pre>
+      </div>
+
+      <hr>
+
+      <h2 id="create">2. CREATE - Inserir Parâmetros</h2>
+
+      <div class="warning">
+        <strong>⚠️ IMPORTANTE:</strong> Todos os parâmetros devem ter <code>ContratoID > 0</code>,
+        <code>ProdutoID > 0</code> e <code>Titulo</code> preenchido para funcionar com o método <code>Setter</code>.
+      </div>
+
+      <div class="example">
+        <div class="example-title">Exemplo:</div>
+        <pre><code>var
+  Param: TParameter;
+  LSuccess: Boolean;
+
+begin
+  // Cria novo parâmetro
+  Param := TParameter.Create;
+  try
+    // Preenche dados obrigatórios
+    Param.Name := 'erp_host';
+    Param.Value := 'localhost';
+    Param.ValueType := pvtString;
+    Param.Titulo := 'ERP';
+    Param.Description := 'Host do servidor ERP';
+    Param.ContratoID := 1;  // ✅ DEVE SER > 0
+    Param.ProdutoID := 1;   // ✅ DEVE SER > 0
+    Param.Ordem := 1;
+    Param.Ativo := True;
+    
+    // Insere no banco
+    DB.Insert(Param, LSuccess);
+    
+    if LSuccess then
+      WriteLn('Parâmetro inserido com sucesso!')
+    else
+      WriteLn('Falha ao inserir parâmetro (pode já existir)');
+  finally
+    Param.Free;
+  end;
+end;</code></pre>
+      </div>
+
+      <hr>
+
+      <h2 id="read">3. READ - Buscar Parâmetros</h2>
+
+      <h3>3.1. Buscar por Chave Simples</h3>
+      <div class="example">
+        <div class="example-title">Exemplo:</div>
+        <pre><code>var
+  Param: TParameter;
+
+begin
+  // Busca parâmetro por chave
+  Param := DB.Getter('erp_host');
+  
+  if Assigned(Param) then
+  begin
+    try
+      WriteLn('Valor: ' + Param.Value);
+      WriteLn('Título: ' + Param.Titulo);
+      WriteLn('Descrição: ' + Param.Description);
+    finally
+      Param.Free;
+    end;
+  end
+  else
+    WriteLn('Parâmetro não encontrado!');
+end;</code></pre>
+      </div>
+
+      <h3>3.2. Buscar com Filtro de Título</h3>
+      <div class="example">
+        <div class="example-title">Exemplo:</div>
+        <pre><code>var
+  Param: TParameter;
+
+begin
+  // Busca com filtro de título
+  Param := DB.Title('ERP').Getter('host');
+  
+  if Assigned(Param) then
+  begin
+    try
+      WriteLn('Valor: ' + Param.Value);
+    finally
+      Param.Free;
+    end;
+  end;
+end;</code></pre>
+      </div>
+
+      <h3>3.3. Verificar se Existe</h3>
+      <div class="example">
+        <div class="example-title">Exemplo:</div>
+        <pre><code>var
+  LExists: Boolean;
+
+begin
+  LExists := DB.Exists('erp_host');
+  
+  if LExists then
+    WriteLn('Parâmetro existe!')
+  else
+    WriteLn('Parâmetro não existe!');
+end;</code></pre>
+      </div>
+
+      <h3>3.4. Listar Todos os Parâmetros</h3>
+      <div class="example">
+        <div class="example-title">Exemplo:</div>
+        <pre><code>var
+  ParamList: TParameterList;
+  I: Integer;
+  Param: TParameter;
+
+begin
+  ParamList := DB.List;
+  try
+    WriteLn('Total de parâmetros: ' + IntToStr(ParamList.Count));
+    
+    for I := 0 to ParamList.Count - 1 do
+    begin
+      Param := ParamList[I];
+      WriteLn(Format('%d. %s = %s (Título: %s)', 
+        [I + 1, Param.Name, Param.Value, Param.Titulo]));
+    end;
+  finally
+    // IMPORTANTE: Liberar lista e objetos
+    ParamList.ClearAll;
+    ParamList.Free;
+  end;
+end;</code></pre>
+      </div>
+
+      <hr>
+
+      <h2 id="update">4. UPDATE - Atualizar Parâmetros</h2>
+
+      <div class="warning">
+        <strong>⚠️ IMPORTANTE:</strong> O método <code>Setter</code> requer que <code>ContratoID > 0</code>,
+        <code>ProdutoID > 0</code> e <code>Titulo</code> estejam preenchidos. Se o parâmetro foi buscado do banco e não
+        tiver esses valores, defina-os antes de chamar <code>Setter</code>.
+      </div>
+
+      <div class="example">
+        <div class="example-title">Exemplo:</div>
+        <pre><code>var
+  Param: TParameter;
+  LSuccess: Boolean;
+
+begin
+  // Busca parâmetro existente
+  Param := DB.Getter('erp_host');
+  
+  if Assigned(Param) then
+  begin
+    try
+      WriteLn('Valor antigo: ' + Param.Value);
+      
+      // ✅ GARANTIR que ContratoID, ProdutoID e Titulo estão preenchidos
+      if Param.ContratoID <= 0 then
+        Param.ContratoID := 1;
+      if Param.ProdutoID <= 0 then
+        Param.ProdutoID := 1;
+      if Trim(Param.Titulo) = '' then
+        Param.Titulo := 'ERP';
+      
+      // Atualiza valores
+      Param.Value := 'novo-host.com';
+      Param.Description := 'Host atualizado em ' + DateTimeToStr(Now);
+      
+      // Atualiza no banco
+      DB.Setter(Param, LSuccess);
+      
+      if LSuccess then
+        WriteLn('Parâmetro atualizado com sucesso!')
+      else
+        WriteLn('Falha ao atualizar parâmetro!');
+    finally
+      Param.Free;
+    end;
+  end;
+end;</code></pre>
+      </div>
+
+      <hr>
+
+      <h2 id="delete">5. DELETE - Deletar Parâmetros</h2>
+
+      <div class="example">
+        <div class="example-title">Exemplo:</div>
+        <pre><code>var
+  LSuccess: Boolean;
+
+begin
+  // Verifica se existe antes de deletar
+  if DB.Exists('erp_host') then
+  begin
+    DB.Delete('erp_host', LSuccess);
+    
+    if LSuccess then
+      WriteLn('Parâmetro deletado com sucesso!')
+    else
+      WriteLn('Falha ao deletar parâmetro!');
+  end
+  else
+    WriteLn('Parâmetro não existe!');
+end;</code></pre>
+      </div>
+
+      <hr>
+
+      <h2 id="filtros">6. Filtros (ContratoID e ProdutoID)</h2>
+
+      <div class="example">
+        <div class="example-title">Exemplo:</div>
+        <pre><code>var
+  Param: TParameter;
+
+begin
+  // Define filtros
+  DB.ContratoID(1).ProdutoID(1);
+  
+  // Busca com filtros aplicados
+  Param := DB.Getter('erp_host');
+  
+  if Assigned(Param) then
+  begin
+    try
+      WriteLn('ContratoID: ' + IntToStr(Param.ContratoID));
+      WriteLn('ProdutoID: ' + IntToStr(Param.ProdutoID));
+    finally
+      Param.Free;
+    end;
+  end;
+  
+  // Limpa filtros
+  DB.ContratoID(0).ProdutoID(0);
+end;</code></pre>
+      </div>
+
+      <hr>
+
+      <h2 id="tipos">7. Tipos de Valor</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Enum</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>String</td>
+            <td><code>pvtString</code></td>
+            <td>Valor texto</td>
+          </tr>
+          <tr>
+            <td>Integer</td>
+            <td><code>pvtInteger</code></td>
+            <td>Número inteiro</td>
+          </tr>
+          <tr>
+            <td>Float</td>
+            <td><code>pvtFloat</code></td>
+            <td>Número decimal</td>
+          </tr>
+          <tr>
+            <td>Boolean</td>
+            <td><code>pvtBoolean</code></td>
+            <td>Verdadeiro/Falso</td>
+          </tr>
+          <tr>
+            <td>DateTime</td>
+            <td><code>pvtDateTime</code></td>
+            <td>Data e hora</td>
+          </tr>
+          <tr>
+            <td>JSON</td>
+            <td><code>pvtJSON</code></td>
+            <td>Objeto JSON</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <hr>
+
+      <h2 id="exemplo-completo">8. Exemplo Completo</h2>
+
+      <div class="example">
+        <div class="example-title">Exemplo Completo - CRUD:</div>
+        <pre><code>program ExemploCompleto;
+
+{$APPTYPE CONSOLE}
+
+uses
+  System.SysUtils,
+  Parameters.Types,
+  Parameters.Consts,
+  Parameters.Interfaces,
+  Parameters;
+
+var
+  DB: IParametersDatabase;
+  Param: TParameter;
+  ParamList: TParameterList;
+  LSuccess: Boolean;
+  LDatabasePath: string;
+
+begin
+  try
+    // 1. Configuração
+    LDatabasePath := 'E:\Pacote\ORM\Data\Config.db';
+    DB := TParameters.NewDatabase;
+    DB.DatabaseType('SQLite')
+      .Database(LDatabasePath)
+      .TableName('config')
+      .AutoCreateTable(True);
+    
+    // 2. Conecta
+    DB.Connect(LSuccess);
+    if not LSuccess then
+    begin
+      WriteLn('Erro ao conectar!');
+      Exit;
+    end;
+    
+    // 3. CREATE - Insere parâmetro
+    Param := TParameter.Create;
+    try
+      Param.Name := 'teste_exemplo';
+      Param.Value := 'valor_teste';
+      Param.ValueType := pvtString;
+      Param.Titulo := 'Exemplos';
+      Param.Description := 'Parâmetro de exemplo';
+      Param.ContratoID := 1;
+      Param.ProdutoID := 1;
+      Param.Ordem := 1;
+      Param.Ativo := True;
+      
+      DB.Insert(Param, LSuccess);
+      if LSuccess then
+        WriteLn('✓ Inserido com sucesso!');
+    finally
+      Param.Free;
+    end;
+    
+    // 4. READ - Busca parâmetro
+    Param := DB.Getter('teste_exemplo');
+    if Assigned(Param) then
+    begin
+      try
+        WriteLn('Valor encontrado: ' + Param.Value);
+      finally
+        Param.Free;
+      end;
+    end;
+    
+    // 5. UPDATE - Atualiza parâmetro
+    Param := DB.Getter('teste_exemplo');
+    if Assigned(Param) then
+    begin
+      try
+        // Garante valores obrigatórios
+        if Param.ContratoID <= 0 then Param.ContratoID := 1;
+        if Param.ProdutoID <= 0 then Param.ProdutoID := 1;
+        if Trim(Param.Titulo) = '' then Param.Titulo := 'Exemplos';
+        
+        Param.Value := 'valor_atualizado';
+        DB.Setter(Param, LSuccess);
+        if LSuccess then
+          WriteLn('✓ Atualizado com sucesso!');
+      finally
+        Param.Free;
+      end;
+    end;
+    
+    // 6. DELETE - Deleta parâmetro
+    if DB.Exists('teste_exemplo') then
+    begin
+      DB.Delete('teste_exemplo', LSuccess);
+      if LSuccess then
+        WriteLn('✓ Deletado com sucesso!');
+    end;
+    
+    // 7. Desconecta
+    DB.Disconnect;
+    WriteLn('Desconectado do banco.');
+    
+    WriteLn('Pressione ENTER para sair...');
+    ReadLn;
+    
+  except
+    on E: Exception do
+    begin
+      WriteLn('ERRO: ' + E.Message);
+      ReadLn;
+    end;
+  end;
+end.</code></pre>
+      </div>
+
+      <hr>
+
+      <h2 id="dicas">9. Dicas Importantes</h2>
+
+      <div class="success">
+        <h3>✅ Boas Práticas</h3>
+        <ul>
+          <li>Sempre libere objetos <code>TParameter</code> com <code>Free</code> após usar</li>
+          <li>Use <code>ParamList.ClearAll</code> antes de <code>Free</code> em listas</li>
+          <li>Verifique se o parâmetro existe antes de deletar</li>
+          <li>Defina <code>ContratoID</code> e <code>ProdutoID</code> sempre > 0</li>
+          <li>Use <code>try/finally</code> para garantir liberação de memória</li>
+        </ul>
+      </div>
+
+      <div class="warning">
+        <h3>⚠️ Cuidados</h3>
+        <ul>
+          <li>O método <code>Setter</code> requer <code>ContratoID > 0</code>, <code>ProdutoID > 0</code> e
+            <code>Titulo</code> preenchido
+          </li>
+          <li>O método <code>Insert</code> retorna <code>False</code> se o parâmetro já existir</li>
+          <li>Verifique se o parâmetro existe antes de inserir para evitar falhas silenciosas</li>
+          <li>Use filtros <code>Title()</code> para buscar parâmetros em títulos específicos</li>
+        </ul>
+      </div>
+
+      <div class="footer">
+        <p><strong>Módulo Parameters v1.0.0</strong></p>
+        <p>Documentação gerada em 02/01/2026</p>
+        <p><strong>Autor:</strong> Claiton de Souza Linhares</p>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

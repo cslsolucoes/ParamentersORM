@@ -1,12 +1,10 @@
-﻿program Project1;
+program Project1;
 
-{$APPTYPE CONSOLE}
-
-{$R *.res}
+{$mode objfpc}{$H+}
 
 uses
-  System.SysUtils,
-  System.Math,              // Para função Min
+  SysUtils,
+  Math,                      // Para função Min
   Parameters.Types,
   Parameters.Consts,
   Parameters.Interfaces,

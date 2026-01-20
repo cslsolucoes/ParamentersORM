@@ -524,6 +524,28 @@ begin
     Result := AJsonObj.Count;
 end;
 
+{ =============================================================================
+  GetNextOrder - Calcula a próxima ordem disponível para um título no JSON
+  
+  Descrição:
+  Calcula automaticamente a próxima ordem disponível para um título específico,
+  considerando ContratoID e ProdutoID. Usado quando a ordem do parâmetro é <= 0.
+  
+  Comportamento:
+  - Busca todas as chaves no objeto correspondente ao título
+  - Lê a ordem de cada chave e encontra a maior
+  - Retorna MAX(ordem) + 1
+  - Se não houver registros, retorna 1 (ordem padrão)
+  - Em caso de erro, retorna 1 (fallback seguro)
+  
+  Parâmetros:
+  - ATitulo: Título do parâmetro (nome do objeto JSON)
+  - AContratoID: ID do contrato
+  - AProdutoID: ID do produto
+  
+  Retorno:
+  - Próxima ordem disponível (>= 1)
+  ============================================================================= }
 function TParametersJsonObject.GetNextOrder(const ATitulo: string; AContratoID, AProdutoID: Integer): Integer;
 var
   LObjectName: string;
@@ -575,6 +597,33 @@ begin
   end;
 end;
 
+{ =============================================================================
+  AdjustOrdersForInsert - Ajusta ordens existentes ao inserir novo parâmetro no JSON
+  
+  Descrição:
+  Quando um novo parâmetro é inserido com uma ordem específica, este método
+  incrementa todas as ordens >= AOrder para dar espaço à nova ordem. Isso
+  garante que a nova ordem seja inserida na posição desejada sem conflitos.
+  
+  Comportamento:
+  - Incrementa ordem de todos os parâmetros com ordem >= AOrder
+  - Aplica apenas para o título/contrato/produto específico
+  - Atualiza objetos JSON diretamente
+  - Se ordem <= 0, não faz nada (não precisa ajustar)
+  - Em caso de erro, ignora silenciosamente (não bloqueia inserção)
+  
+  Parâmetros:
+  - ATitulo: Título do parâmetro (nome do objeto JSON)
+  - AContratoID: ID do contrato
+  - AProdutoID: ID do produto
+  - AOrder: Ordem desejada para o novo parâmetro
+  
+  Exemplo:
+  Se existem ordens: 1, 2, 3, 4, 5
+  E inserir com ordem 3:
+  - Incrementa ordens >= 3: 3→4, 4→5, 5→6
+  - Resultado: 1, 2, 3 (novo), 4, 5, 6
+  ============================================================================= }
 procedure TParametersJsonObject.AdjustOrdersForInsert(const ATitulo: string; AContratoID, AProdutoID, AOrder: Integer);
 var
   LObjectName: string;
@@ -629,6 +678,36 @@ begin
   end;
 end;
 
+{ =============================================================================
+  AdjustOrdersForUpdate - Ajusta ordens existentes ao atualizar ordem de parâmetro no JSON
+  
+  Descrição:
+  Quando a ordem de um parâmetro é atualizada, este método ajusta as ordens
+  dos outros parâmetros para manter a sequência correta. Move os parâmetros
+  para cima ou para baixo conforme necessário.
+  
+  Comportamento:
+  - Se ANewOrder > AOldOrder: decrementa ordens entre AOldOrder+1 e ANewOrder
+  - Se ANewOrder < AOldOrder: incrementa ordens entre ANewOrder e AOldOrder-1
+  - Se ordens são iguais, não faz nada
+  - Aplica apenas para o título/contrato/produto específico
+  - Exclui a chave sendo atualizada do ajuste
+  - Atualiza objetos JSON diretamente
+  
+  Parâmetros:
+  - ATitulo: Título do parâmetro (nome do objeto JSON)
+  - AContratoID: ID do contrato
+  - AProdutoID: ID do produto
+  - AChave: Chave do parâmetro sendo atualizado (excluído do ajuste)
+  - AOldOrder: Ordem atual do parâmetro
+  - ANewOrder: Nova ordem desejada
+  
+  Exemplo:
+  Se existem ordens: 1, 2, 3, 4, 5
+  E atualizar ordem 3 para 5:
+  - Decrementa ordens entre 4 e 5: 4→3, 5→4
+  - Resultado: 1, 2, 5 (atualizado), 3, 4
+  ============================================================================= }
 procedure TParametersJsonObject.AdjustOrdersForUpdate(const ATitulo: string; AContratoID, AProdutoID: Integer; const AChave: string; AOldOrder, ANewOrder: Integer);
 var
   LObjectName: string;
@@ -770,6 +849,32 @@ begin
   end;
 end;
 
+{ =============================================================================
+  ParameterToJsonValue - Converte TParameter para objeto JSON
+  
+  Descrição:
+  Converte um objeto TParameter em um objeto JSON com todas as propriedades.
+  O objeto JSON gerado contém: valor, descricao, ativo, ordem.
+  
+  Estrutura JSON gerada:
+  {
+    "valor": "string",
+    "descricao": "string",
+    "ativo": true/false,
+    "ordem": number
+  }
+  
+  Comportamento:
+  - Cria novo TJSONObject
+  - Adiciona todas as propriedades do parâmetro
+  - Converte tipos automaticamente (Boolean, Integer, String)
+  
+  Parâmetros:
+  - AParameter: Parâmetro a ser convertido
+  
+  Retorno:
+  - TJSONObject com propriedades do parâmetro (deve ser liberado pelo chamador)
+  ============================================================================= }
 function TParametersJsonObject.ParameterToJsonValue(const AParameter: TParameter): TJSONObject;
 begin
   Result := TJSONObject.Create;
@@ -779,6 +884,37 @@ begin
   AddJsonPair(Result, 'ordem', TJSONNumber.Create(AParameter.Ordem));
 end;
 
+{ =============================================================================
+  JsonValueToParameter - Converte objeto JSON para TParameter
+  
+  Descrição:
+  Converte um objeto JSON de volta para um objeto TParameter. Lê todas as
+  propriedades do JSON e popula o objeto TParameter correspondente.
+  
+  Estrutura JSON esperada:
+  {
+    "valor": "string",
+    "descricao": "string",
+    "ativo": true/false,
+    "ordem": number
+  }
+  
+  Comportamento:
+  - Cria novo TParameter
+  - Lê propriedades do JSON (valor, descricao, ativo, ordem)
+  - Define Titulo e Name do parâmetro
+  - Lê ContratoID e ProdutoID do objeto "Contrato"
+  - Converte tipos automaticamente (Boolean, Integer, String)
+  - Se propriedade não existir, usa valor padrão
+  
+  Parâmetros:
+  - AJsonValue: Objeto JSON com propriedades do parâmetro
+  - ATitulo: Título do parâmetro (nome do objeto JSON pai)
+  - AKey: Chave do parâmetro (nome da propriedade no objeto JSON)
+  
+  Retorno:
+  - TParameter populado (deve ser liberado pelo chamador)
+  ============================================================================= }
 function TParametersJsonObject.JsonValueToParameter(AJsonValue: TJSONObject; const ATitulo, AKey: string): TParameter;
 var
   LContratoID: Integer;
@@ -1206,6 +1342,35 @@ begin
   Result := LParameter;
 end;
 
+{ =============================================================================
+  Getter - Busca um parâmetro específico por chave no objeto JSON
+  
+  Descrição:
+  Busca um parâmetro específico no objeto JSON pelo nome (chave). Respeita
+  a hierarquia completa (ContratoID, ProdutoID, Title, Name) quando configurada,
+  ou faz busca ampla quando não configurada (compatibilidade).
+  
+  Comportamento:
+  - Busca específica: Se hierarquia completa configurada, busca apenas no objeto correspondente
+  - Busca ampla: Se hierarquia não configurada, busca em todos os objetos (primeiro encontrado)
+  - Calcula ordem automaticamente baseada na posição dentro do objeto
+  - Retorna nil se não encontrar
+  - Thread-safe (protegido com TCriticalSection)
+  
+  Parâmetros:
+  - AName: Nome/chave do parâmetro a ser buscado
+  - AParameter: Parâmetro retornado (deve ser liberado pelo chamador se não for nil)
+  
+  Retorno:
+  - Self (permite encadeamento de métodos - Fluent Interface)
+  
+  Exceções:
+  - EParametersJsonObjectException: Se houver erro ao ler o JSON
+  
+  Nota:
+  - O parâmetro retornado deve ser liberado pelo chamador usando AParameter.Free
+  - Se não encontrar, AParameter será nil
+  ============================================================================= }
 function TParametersJsonObject.Getter(const AName: string; out AParameter: TParameter): IParametersJsonObject;
 var
   LObjectName: string;
@@ -1317,6 +1482,36 @@ begin
   Result := Self;
 end;
 
+{ =============================================================================
+  Insert - Insere um novo parâmetro no objeto JSON
+  
+  Descrição:
+  Insere um novo parâmetro no objeto JSON. Se o parâmetro já existir (mesma
+  chave no mesmo objeto), a operação falha silenciosamente (ASuccess = False).
+  O método gerencia automaticamente a ordem dos parâmetros.
+  
+  Comportamento:
+  - Verifica se o parâmetro já existe antes de inserir
+  - Se já existir, retorna ASuccess = False sem inserir
+  - Gerencia ordem automaticamente (calcula próxima ordem se <= 0)
+  - Ajusta ordens existentes se ordem especificada
+  - Cria objeto JSON se não existir
+  - Thread-safe (protegido com TCriticalSection)
+  
+  Parâmetros:
+  - AParameter: Parâmetro a ser inserido (não é liberado pelo método)
+  - ASuccess: Indica se a inserção foi bem-sucedida
+  
+  Retorno:
+  - Self (permite encadeamento de métodos - Fluent Interface)
+  
+  Exceções:
+  - EParametersJsonObjectException: Se houver erro ao escrever o JSON
+  
+  Nota:
+  - O parâmetro não é liberado pelo método (responsabilidade do chamador)
+  - Se o parâmetro já existir, ASuccess será False mas não lança exceção
+  ============================================================================= }
 function TParametersJsonObject.Insert(const AParameter: TParameter; out ASuccess: Boolean): IParametersJsonObject;
 var
   LObjectName: string;
@@ -1509,6 +1704,35 @@ begin
   Result := Self;
 end;
 
+{ =============================================================================
+  Delete - Remove um parâmetro do objeto JSON
+  
+  Descrição:
+  Remove permanentemente um parâmetro do objeto JSON. Se o parâmetro não
+  existir, a operação falha silenciosamente (ASuccess = False). Remove também
+  objetos vazios após deletar a última chave.
+  
+  Comportamento:
+  - Verifica se o parâmetro existe antes de deletar
+  - Se não existir, retorna ASuccess = False sem deletar
+  - Remove objeto JSON se ficar vazio após deletar última chave
+  - Preserva objeto "Contrato" (não remove mesmo se vazio)
+  - Thread-safe (protegido com TCriticalSection)
+  
+  Parâmetros:
+  - AName: Nome/chave do parâmetro a ser removido
+  - ASuccess: Indica se a remoção foi bem-sucedida
+  
+  Retorno:
+  - Self (permite encadeamento de métodos - Fluent Interface)
+  
+  Exceções:
+  - EParametersJsonObjectException: Se houver erro ao escrever o JSON
+  
+  Nota:
+  - O parâmetro é removido permanentemente (não pode ser recuperado)
+  - Se o parâmetro não existir, ASuccess será False mas não lança exceção
+  ============================================================================= }
 function TParametersJsonObject.Delete(const AName: string; out ASuccess: Boolean): IParametersJsonObject;
 var
   LObjectNames: TStringList;
@@ -2573,6 +2797,30 @@ begin
   {$ENDIF}
 end;
 
+{ =============================================================================
+  FormatJSONString - Formata string JSON com indentação
+  
+  Descrição:
+  Formata uma string JSON com indentação legível. Adiciona quebras de linha
+  e espaços para tornar o JSON mais fácil de ler e manter.
+  
+  Comportamento:
+  - Adiciona indentação (espaços) conforme nível de aninhamento
+  - Adiciona quebras de linha após objetos e arrays
+  - Preserva estrutura original do JSON
+  - Usa AIndent espaços por nível (padrão: 2)
+  
+  Parâmetros:
+  - AJsonString: String JSON a ser formatada
+  - AIndent: Número de espaços por nível de indentação (padrão: 2)
+  
+  Retorno:
+  - String JSON formatada com indentação
+  
+  Nota:
+  - Esta função é usada ao salvar arquivos JSON para melhor legibilidade
+  - Não altera o conteúdo do JSON, apenas a formatação
+  ============================================================================= }
 function TParametersJsonObject.FormatJSONString(const AJsonString: string; AIndent: Integer = 2): string;
 var
   LResult: TStringList;

@@ -218,12 +218,33 @@ begin
   Result := Trim(ASection);
 end;
 
+{ =============================================================================
+  ParseComment - Extrai comentário de uma linha INI
+  
+  Descrição:
+  Extrai o comentário de uma linha INI. Comentários em arquivos INI seguem
+  o formato padrão: aparecem após o caractere ";" no final da linha.
+  
+  Formato esperado:
+  - chave=valor ; comentário aqui
+  
+  Comportamento:
+  - Busca pelo primeiro ";" na linha
+  - Retorna o texto após ";" (trimmed)
+  - Se não houver ";", retorna string vazia
+  
+  Parâmetros:
+  - ALine: Linha completa do arquivo INI
+  
+  Retorno:
+  - Comentário extraído (sem o ";") ou string vazia se não houver
+  ============================================================================= }
 function TParametersInifiles.ParseComment(const ALine: string): string;
 var
   LPos: Integer;
 begin
   Result := '';
-  // Comentário está antes do "=" ou no final da linha após ";"
+  // Comentário está no final da linha após ";"
   LPos := Pos(';', ALine);
   if LPos > 0 then
   begin
@@ -231,6 +252,29 @@ begin
   end;
 end;
 
+{ =============================================================================
+  ParseKey - Extrai chave de uma linha INI
+  
+  Descrição:
+  Extrai a chave (nome) de uma linha INI, removendo prefixos de inativo (#)
+  e comentários. A chave é a parte antes do "=" na linha.
+  
+  Formato esperado:
+  - chave=valor ; comentário
+  - #chave=valor ; comentário (inativo)
+  
+  Comportamento:
+  - Remove "#" se a linha começar com ele (indica inativo)
+  - Remove comentário (parte após ";")
+  - Extrai chave (parte antes do "=")
+  - Retorna chave trimmed
+  
+  Parâmetros:
+  - ALine: Linha completa do arquivo INI
+  
+  Retorno:
+  - Nome da chave extraído (sem "#" e sem comentário)
+  ============================================================================= }
 function TParametersInifiles.ParseKey(const ALine: string): string;
 var
   LPos: Integer;
@@ -256,6 +300,29 @@ begin
     Result := Trim(LLine);
 end;
 
+{ =============================================================================
+  ParseValue - Extrai valor de uma linha INI
+  
+  Descrição:
+  Extrai o valor de uma linha INI, removendo prefixos de inativo (#) e
+  comentários. O valor é a parte após o "=" na linha.
+  
+  Formato esperado:
+  - chave=valor ; comentário
+  - #chave=valor ; comentário (inativo)
+  
+  Comportamento:
+  - Remove "#" se a linha começar com ele (indica inativo)
+  - Remove comentário (parte após ";")
+  - Extrai valor (parte após o "=")
+  - Retorna valor trimmed
+  
+  Parâmetros:
+  - ALine: Linha completa do arquivo INI
+  
+  Retorno:
+  - Valor extraído (sem "#" e sem comentário)
+  ============================================================================= }
 function TParametersInifiles.ParseValue(const ALine: string): string;
 var
   LPos: Integer;
@@ -279,6 +346,28 @@ begin
     Result := Trim(Copy(LLine, LPos + 1, MaxInt));
 end;
 
+{ =============================================================================
+  FormatIniLine - Formata um parâmetro como linha INI
+  
+  Descrição:
+  Formata um objeto TParameter como uma linha de arquivo INI, preservando
+  o formato padrão com comentários e indicador de inativo.
+  
+  Formato gerado:
+  - chave=valor ; comentário (ativo)
+  - #chave=valor ; comentário (inativo)
+  
+  Comportamento:
+  - Adiciona "#" na frente da chave se o parâmetro estiver inativo
+  - Adiciona comentário após ";" se Description não estiver vazia
+  - Preserva formatação padrão do INI
+  
+  Parâmetros:
+  - AParameter: Parâmetro a ser formatado
+  
+  Retorno:
+  - Linha formatada pronta para escrita no arquivo INI
+  ============================================================================= }
 function TParametersInifiles.FormatIniLine(const AParameter: TParameter): string;
 var
   LKey: string;
@@ -516,6 +605,22 @@ begin
   end;
 end;
 
+{ =============================================================================
+  ReadIniFileLines - Lê arquivo INI linha por linha preservando formatação
+  
+  Descrição:
+  Lê o arquivo INI completo linha por linha, preservando toda a formatação
+  original incluindo espaços, comentários e linhas vazias. Isso permite
+  modificar apenas as linhas necessárias sem perder a formatação original.
+  
+  Comportamento:
+  - Carrega arquivo completo em TStringList
+  - Preserva todas as linhas (incluindo vazias e comentários)
+  - Retorna lista vazia se arquivo não existir
+  
+  Retorno:
+  - TStringList com todas as linhas do arquivo (deve ser liberado pelo chamador)
+  ============================================================================= }
 function TParametersInifiles.ReadIniFileLines: TStringList;
 begin
   Result := TStringList.Create;
@@ -523,6 +628,22 @@ begin
     Result.LoadFromFile(FFilePath);
 end;
 
+{ =============================================================================
+  WriteIniFileLines - Escreve arquivo INI linha por linha preservando formatação
+  
+  Descrição:
+  Escreve o conteúdo de um TStringList de volta no arquivo INI, preservando
+  toda a formatação original. Usado após modificações para manter a estrutura
+  e comentários do arquivo original.
+  
+  Comportamento:
+  - Salva todas as linhas do TStringList no arquivo
+  - Preserva formatação, espaços e comentários
+  - Cria arquivo se não existir (se AutoCreateFile estiver habilitado)
+  
+  Parâmetros:
+  - ALines: TStringList com linhas a serem escritas (não é liberado pelo método)
+  ============================================================================= }
 procedure TParametersInifiles.WriteIniFileLines(ALines: TStringList);
 begin
   if (Trim(FFilePath) <> '') and Assigned(ALines) then
@@ -537,6 +658,25 @@ begin
   end;
 end;
 
+{ =============================================================================
+  FindSectionInLines - Encontra índice de uma seção no arquivo INI
+  
+  Descrição:
+  Busca o índice da linha que contém a seção especificada no formato [Nome].
+  Usado para localizar onde começa uma seção antes de adicionar/modificar chaves.
+  
+  Comportamento:
+  - Busca por seção no formato [Nome] (case-insensitive)
+  - Retorna -1 se não encontrar
+  - Retorna índice da linha se encontrar
+  
+  Parâmetros:
+  - ALines: Lista de linhas do arquivo INI
+  - ASection: Nome da seção (sem colchetes)
+  
+  Retorno:
+  - Índice da linha da seção ou -1 se não encontrada
+  ============================================================================= }
 function TParametersInifiles.FindSectionInLines(ALines: TStringList; const ASection: string): Integer;
 var
   I: Integer;
@@ -559,6 +699,28 @@ begin
   end;
 end;
 
+{ =============================================================================
+  FindKeyInSection - Encontra índice de uma chave dentro de uma seção
+  
+  Descrição:
+  Busca o índice da linha que contém a chave especificada dentro de uma seção.
+  A busca começa após AStartIndex (linha da seção) e para quando encontrar
+  outra seção ou fim do arquivo.
+  
+  Comportamento:
+  - Busca apenas dentro da seção (até próxima seção ou fim)
+  - Ignora linhas vazias e comentários de linha inteira
+  - Remove "#" e comentários antes de comparar chaves
+  - Retorna -1 se não encontrar
+  
+  Parâmetros:
+  - ALines: Lista de linhas do arquivo INI
+  - AStartIndex: Índice da linha da seção ([Nome])
+  - AKey: Nome da chave a buscar
+  
+  Retorno:
+  - Índice da linha da chave ou -1 se não encontrada
+  ============================================================================= }
 function TParametersInifiles.FindKeyInSection(ALines: TStringList; AStartIndex: Integer; const AKey: string): Integer;
 var
   I: Integer;
@@ -990,11 +1152,13 @@ var
   LSection: string;
   LKey: string;
   LFound: Boolean;
+  LHasSpecificSection: Boolean; // Indica se foi especificada uma seção específica
 begin
   Result := Self;
   AParameter := nil;
   LFound := False;
   LSection := '';
+  LHasSpecificSection := False;
   
   if not EnsureFile then
     raise CreateInifilesException(Format(MSG_INI_FILE_CANNOT_READ, [FFilePath]), ERR_INI_FILE_CANNOT_READ, 'Getter');
@@ -1005,16 +1169,31 @@ begin
     if Trim(FTituloFilter) <> '' then
     begin
       LSection := GetSectionName(FTituloFilter);
+      LHasSpecificSection := True; // Marca que foi especificada uma seção específica
       FTituloFilter := ''; // Limpa o filtro após usar (é temporário)
     end
     else if FSection <> '' then
     begin
       // Busca apenas na seção especificada
       LSection := FSection;
+      LHasSpecificSection := True; // Marca que foi especificada uma seção específica
     end;
     
     if LSection <> '' then
     begin
+      // Verifica se a seção existe antes de buscar
+      LSections := GetAllSections;
+      try
+        // Se a seção especificada não existe, retorna nil (não busca em todas)
+        if LSections.IndexOf(LSection) < 0 then
+        begin
+          AParameter := nil;
+          Exit; // Seção não existe, retorna nil
+        end;
+      finally
+        LSections.Free;
+      end;
+      
       LKeys := TStringList.Create;
       try
         if Assigned(FIniFile) then
@@ -1035,8 +1214,18 @@ begin
       finally
         LKeys.Free;
       end;
-    end
-    else
+      
+      // Se foi especificada uma seção específica e não encontrou, retorna nil
+      // (não busca em todas as seções)
+      if LHasSpecificSection and not LFound then
+      begin
+        AParameter := nil;
+        Exit;
+      end;
+    end;
+    
+    // Só busca em todas as seções se NÃO foi especificada uma seção específica
+    if not LHasSpecificSection and not LFound then
     begin
       // Busca em todas as seções
       LSections := GetAllSections;
@@ -1074,8 +1263,10 @@ begin
     FLock.Leave;
   end;
   
+  // Retorna nil se não encontrou (não cria parâmetro vazio)
+  // Isso permite que o código chamador verifique se Assigned(AParameter)
   if not LFound then
-    AParameter := TParameter.Create; // Retorna parâmetro vazio se não encontrado
+    AParameter := nil;
 end;
 
 function TParametersInifiles.Insert(const AParameter: TParameter): IParametersInifiles;
@@ -1364,9 +1555,11 @@ var
   I, J: Integer;
   LSection: string;
   LKey: string;
+  LHasSpecificSection: Boolean; // Indica se foi especificada uma seção específica
 begin
   Result := Self;
   AExists := False;
+  LHasSpecificSection := False;
   
   if not EnsureFile then
   begin
@@ -1382,7 +1575,22 @@ begin
     begin
       // Busca apenas na seção correspondente ao título
       LSection := GetSectionName(FTituloFilter);
+      LHasSpecificSection := True; // Marca que foi especificada uma seção específica
       FTituloFilter := ''; // Limpa após usar (é temporário)
+      
+      // Verifica se a seção existe antes de buscar
+      LSections := GetAllSections;
+      try
+        // Se a seção especificada não existe, retorna False (não busca em todas)
+        if LSections.IndexOf(LSection) < 0 then
+        begin
+          AExists := False;
+          Exit; // Seção não existe, retorna False
+        end;
+      finally
+        LSections.Free;
+      end;
+      
       LKeys := TStringList.Create;
       try
         if Assigned(FIniFile) then
@@ -1405,6 +1613,21 @@ begin
     begin
       // Busca apenas na seção especificada
       LSection := FSection;
+      LHasSpecificSection := True; // Marca que foi especificada uma seção específica
+      
+      // Verifica se a seção existe antes de buscar
+      LSections := GetAllSections;
+      try
+        // Se a seção especificada não existe, retorna False (não busca em todas)
+        if LSections.IndexOf(LSection) < 0 then
+        begin
+          AExists := False;
+          Exit; // Seção não existe, retorna False
+        end;
+      finally
+        LSections.Free;
+      end;
+      
       LKeys := TStringList.Create;
       try
         if Assigned(FIniFile) then

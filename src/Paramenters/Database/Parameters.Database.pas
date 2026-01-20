@@ -1030,6 +1030,27 @@ begin
   {$ENDIF}
 end;
 
+{ =============================================================================
+  ConnectConnection - Conecta ao banco de dados usando conexão genérica
+  
+  Descrição:
+  Estabelece conexão com o banco de dados usando a conexão configurada
+  (interna ou externa). Suporta múltiplos engines (UniDAC, FireDAC, Zeos)
+  e múltiplos tipos de banco (PostgreSQL, MySQL, SQL Server, SQLite, etc.).
+  
+  Comportamento:
+  - Cria conexão interna se não foi fornecida externa
+  - Configura propriedades da conexão (Host, Port, Database, etc.)
+  - Configura caminhos de DLLs para FireDAC e Zeos quando necessário
+  - Conecta ao banco de dados
+  - Valida se a conexão foi estabelecida com sucesso
+  
+  Exceções:
+  - EParametersConnectionException: Se houver erro ao conectar
+  
+  Nota:
+  - Se AutoCreateTable estiver habilitado, cria a tabela automaticamente após conectar
+  ============================================================================= }
 procedure TParametersDatabase.ConnectConnection;
 var
   LDatabaseType: TParameterDatabaseTypes;
@@ -1488,6 +1509,23 @@ begin
   end;
 end;
 
+{ =============================================================================
+  DisconnectConnection - Desconecta do banco de dados
+  
+  Descrição:
+  Fecha a conexão com o banco de dados de forma segura, tratando erros
+  silenciosamente para não interromper o fluxo da aplicação.
+  
+  Comportamento:
+  - Fecha conexão se estiver aberta
+  - Trata erros silenciosamente (não lança exceções)
+  - Funciona com todos os engines (UniDAC, FireDAC, Zeos)
+  - Não libera a conexão (apenas fecha)
+  
+  Nota:
+  - Este método é chamado automaticamente no destructor
+  - Pode ser chamado manualmente para desconectar antes de destruir o objeto
+  ============================================================================= }
 procedure TParametersDatabase.DisconnectConnection;
 begin
   if not Assigned(FConnection) then
@@ -3626,6 +3664,27 @@ begin
   end;
 end;
 
+{ =============================================================================
+  BuildSelectFieldsSQL - Constrói SQL de SELECT com apenas campos existentes
+  
+  Descrição:
+  Constrói a lista de campos para SELECT verificando quais colunas realmente
+  existem na tabela. Isso permite compatibilidade com tabelas que podem ter
+  estruturas diferentes ou incompletas.
+  
+  Comportamento:
+  - Verifica quais colunas existem na tabela usando GetTableColumns
+  - Adiciona apenas colunas que existem, na ordem esperada
+  - Se nenhuma coluna for encontrada, usa fallback mínimo (chave, valor)
+  - Remove aspas do CommaText antes de retornar
+  
+  Retorno:
+  - String com nomes de colunas separados por vírgula (ex: "chave, valor, descricao")
+  
+  Nota:
+  - Colunas obrigatórias: chave, valor
+  - Colunas opcionais: config_id, contrato_id, produto_id, ordem, titulo, descricao, ativo, data_cadastro, data_alteracao
+  ============================================================================= }
 function TParametersDatabase.BuildSelectFieldsSQL: string;
 var
   LFields: TStringList;
@@ -3684,6 +3743,28 @@ begin
   end;
 end;
 
+{ =============================================================================
+  GetNextOrder - Calcula a próxima ordem disponível para um título
+  
+  Descrição:
+  Calcula automaticamente a próxima ordem disponível para um título específico,
+  considerando ContratoID e ProdutoID. Usado quando FAutoRenumberZeroOrder
+  está habilitado e a ordem do parâmetro é <= 0.
+  
+  Comportamento:
+  - Busca a maior ordem existente para o título/contrato/produto
+  - Retorna MAX(ordem) + 1
+  - Se não houver registros, retorna 1 (ordem padrão)
+  - Em caso de erro, retorna 1 (fallback seguro)
+  
+  Parâmetros:
+  - ATitulo: Título do parâmetro
+  - AContratoID: ID do contrato
+  - AProdutoID: ID do produto
+  
+  Retorno:
+  - Próxima ordem disponível (>= 1)
+  ============================================================================= }
 function TParametersDatabase.GetNextOrder(const ATitulo: string; AContratoID, AProdutoID: Integer): Integer;
 var
   LSQL: string;
@@ -3819,6 +3900,33 @@ begin
   end;
 end;
 
+{ =============================================================================
+  AdjustOrdersForInsert - Ajusta ordens existentes ao inserir novo parâmetro
+  
+  Descrição:
+  Quando um novo parâmetro é inserido com uma ordem específica, este método
+  incrementa todas as ordens >= AOrder para dar espaço à nova ordem. Isso
+  garante que a nova ordem seja inserida na posição desejada sem conflitos.
+  
+  Comportamento:
+  - Incrementa ordem de todos os registros com ordem >= AOrder
+  - Aplica apenas para o título/contrato/produto específico
+  - Atualiza data_alteracao automaticamente
+  - Se ordem <= 0, não faz nada (não precisa ajustar)
+  - Em caso de erro, ignora silenciosamente (não bloqueia inserção)
+  
+  Parâmetros:
+  - ATitulo: Título do parâmetro
+  - AContratoID: ID do contrato
+  - AProdutoID: ID do produto
+  - AOrder: Ordem desejada para o novo parâmetro
+  
+  Exemplo:
+  Se existem ordens: 1, 2, 3, 4, 5
+  E inserir com ordem 3:
+  - Incrementa ordens >= 3: 3→4, 4→5, 5→6
+  - Resultado: 1, 2, 3 (novo), 4, 5, 6
+  ============================================================================= }
 procedure TParametersDatabase.AdjustOrdersForInsert(const ATitulo: string; AContratoID, AProdutoID, AOrder: Integer);
 var
   LSQL: string;
@@ -3891,6 +3999,36 @@ begin
   end;
 end;
 
+{ =============================================================================
+  AdjustOrdersForUpdate - Ajusta ordens existentes ao atualizar ordem de parâmetro
+  
+  Descrição:
+  Quando a ordem de um parâmetro é atualizada, este método ajusta as ordens
+  dos outros parâmetros para manter a sequência correta. Move os parâmetros
+  para cima ou para baixo conforme necessário.
+  
+  Comportamento:
+  - Se ANewOrder > AOldOrder: decrementa ordens entre AOldOrder+1 e ANewOrder
+  - Se ANewOrder < AOldOrder: incrementa ordens entre ANewOrder e AOldOrder-1
+  - Se ordens são iguais, não faz nada
+  - Aplica apenas para o título/contrato/produto específico
+  - Exclui a chave sendo atualizada do ajuste
+  - Atualiza data_alteracao automaticamente
+  
+  Parâmetros:
+  - ATitulo: Título do parâmetro
+  - AContratoID: ID do contrato
+  - AProdutoID: ID do produto
+  - AOldOrder: Ordem atual do parâmetro
+  - ANewOrder: Nova ordem desejada
+  - AChave: Chave do parâmetro sendo atualizado (excluído do ajuste)
+  
+  Exemplo:
+  Se existem ordens: 1, 2, 3, 4, 5
+  E atualizar ordem 3 para 5:
+  - Decrementa ordens entre 4 e 5: 4→3, 5→4
+  - Resultado: 1, 2, 5 (atualizado), 3, 4
+  ============================================================================= }
 procedure TParametersDatabase.AdjustOrdersForUpdate(const ATitulo: string; AContratoID, AProdutoID, AOldOrder, ANewOrder: Integer; const AChave: string);
 var
   LSQL: string;
@@ -4686,6 +4824,56 @@ end;
     end;
   end;
   ============================================================================= }
+{ =============================================================================
+  List - Lista todos os parâmetros do banco de dados
+  
+  Descrição:
+  Retorna uma lista com todos os parâmetros armazenados no banco de dados.
+  A lista é filtrada por ContratoID e ProdutoID se estiverem configurados,
+  e ordenada por: ContratoID → ProdutoID → Título → Ordem.
+  
+  Comportamento:
+  - Retorna TODOS os parâmetros (ativos e inativos) se não houver filtro
+  - Aplica filtros de ContratoID e ProdutoID se configurados (> 0)
+  - Ordenação padrão: contrato_id, produto_id, titulo, ordem
+  - Valida estrutura da tabela antes de executar SELECT
+  - Thread-safe (protegido com TCriticalSection)
+  
+  Parâmetros:
+  - AList: Lista de parâmetros retornada (deve ser liberada pelo chamador)
+  
+  Retorno:
+  - Self (permite encadeamento de métodos - Fluent Interface)
+  
+  Exceções:
+  - EParametersConnectionException: Se não estiver conectado
+  - EParametersSQLException: Se a tabela não existir ou houver erro na consulta
+  
+  Nota:
+  - A lista retornada deve ser liberada pelo chamador usando AList.Free
+  - Use AList.ClearAll para liberar todos os objetos TParameter antes de Free
+  
+  Exemplo:
+  var
+    DB: IParametersDatabase;
+    ParamList: TParameterList;
+  begin
+    DB := TParameters.NewDatabase
+      .TableName('config')
+      .ContratoID(1)
+      .ProdutoID(1)
+      .Connect;
+    
+    ParamList := DB.List;
+    try
+      // Processa lista...
+      for I := 0 to ParamList.Count - 1 do
+        WriteLn(ParamList[I].Name, ' = ', ParamList[I].Value);
+    finally
+      ParamList.Free;
+    end;
+  end;
+  ============================================================================= }
 function TParametersDatabase.List(out AList: TParameterList): IParametersDatabase;
 var
   LSQL: string;
@@ -4697,7 +4885,7 @@ begin
   Result := Self;
   FLock.Enter;
   try
-    // Verifica se a tabela existe
+    // Verifica se a tabela existe antes de executar SELECT
     if not InternalTableExists then
   begin
     // Lista tabelas disponíveis antes de lançar exceção
@@ -4922,7 +5110,8 @@ begin
     LProdutoID := FProdutoID;
     LTitulo := FTituloFilter;
     
-    // Se todos os campos da hierarquia estão configurados, busca específica
+    // Se todos os campos da hierarquia estão configurados (incluindo pré-definidos), busca específica
+    // Permite usar valores pré-definidos de ContratoID e ProdutoID quando apenas Title é especificado
     if (LContratoID > 0) and (LProdutoID > 0) and (Trim(LTitulo) <> '') then
     begin
       // WHERE usa a hierarquia completa: contrato_id, produto_id, titulo, chave
@@ -4939,6 +5128,45 @@ begin
           EscapeSQL(AName)
         ]
       );
+    end
+    else if Trim(LTitulo) <> '' then
+    begin
+      // Se apenas o título está configurado, verifica se há valores pré-definidos
+      // Se houver ContratoID e ProdutoID pré-definidos, usa na busca
+      if (LContratoID > 0) and (LProdutoID > 0) then
+      begin
+        // Usa valores pré-definidos de ContratoID e ProdutoID automaticamente
+        LSQL := Format(
+          'SELECT %s ' +
+          'FROM %s ' +
+          'WHERE contrato_id = %d AND produto_id = %d AND titulo = ''%s'' AND chave = ''%s''',
+          [
+            BuildSelectFieldsSQL, 
+            GetFullTableName, 
+            LContratoID,
+            LProdutoID,
+            EscapeSQL(LTitulo),
+            EscapeSQL(AName)
+          ]
+        );
+      end
+      else
+      begin
+        // Busca apenas por título + chave (sem ContratoID e ProdutoID)
+        LSQL := Format(
+          'SELECT %s ' +
+          'FROM %s ' +
+          'WHERE titulo = ''%s'' AND chave = ''%s'' ' +
+          'ORDER BY contrato_id, produto_id, ordem ' +
+          'LIMIT 1',
+          [
+            BuildSelectFieldsSQL, 
+            GetFullTableName, 
+            EscapeSQL(LTitulo),
+            EscapeSQL(AName)
+          ]
+        );
+      end;
     end
     else
     begin
@@ -4969,13 +5197,26 @@ begin
         begin
           AParameter.Free;
           AParameter := DataSetToParameter(LDataSet);
+        end
+        else
+        begin
+          // Não encontrou: libera o objeto vazio e retorna nil
+          AParameter.Free;
+          AParameter := nil;
         end;
       finally
         LDataSet.Close;
       end;
+    end
+    else
+    begin
+      // DataSet não foi criado: libera o objeto vazio e retorna nil
+      AParameter.Free;
+      AParameter := nil;
     end;
   except
     AParameter.Free;
+    AParameter := nil;
     raise;
   end;
   finally

@@ -5,6 +5,72 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [1.0.3] - 2026-01-03
+
+### ✨ Adicionado
+
+#### Sistema de Documentação HTML Interativa
+- **Documentação Completa:** Sistema de documentação HTML gerada automaticamente via Python
+- **Navegação Dinâmica:** Menu lateral com busca e filtros
+- **Exemplos Práticos:** Exemplos de código para todas as interfaces e units
+- **Visão Geral Enriquecida:** Conteúdo mesclado de manuais e guias de uso
+- **Arquivos criados:**
+  - `docs/index.html` - Documentação interativa principal
+  - `docs/generate_parameters_docs.py` - Gerador de documentação
+  - `docs/overview_content.py` - Conteúdo da Visão Geral
+  - `docs/usage_guide_content.py` - Conteúdo do Roteiro de Uso
+  - `docs/units_examples_content.py` - Exemplos de units internas
+
+#### Units de Attributes (Sistema de Mapeamento Declarativo)
+- **5 novas units adicionadas:**
+  - `Parameters.Attributes.pas` - Attributes principais para decorar classes
+  - `Parameters.Attributes.Interfaces.pas` - Interfaces para leitura RTTI
+  - `Parameters.Attributes.Types.pas` - Tipos e metadados de attributes
+  - `Parameters.Attributes.Consts.pas` - Constantes do sistema de attributes
+  - `Parameters.Attributes.Exceptions.pas` - Exceções de validação de attributes
+- **Status:** ✅ Estrutura base implementada (uso completo previsto para v2.0+)
+- **Localização:** `src/Paramenters/Attributes/`
+
+#### Organização de Documentação
+- **Estrutura de pastas Analises reorganizada:**
+  - `01_CORRECAO_ERRO/` - Análises e correções de erros
+  - `02_ROADMAP_EVOLUCOES/` - Roadmaps e propostas de evolução
+  - `03_HISTORICO_EVOLUTIVO/` - Histórico de desenvolvimento
+  - `04_DOCUMENTACAO/` - Documentação técnica e guias
+- **18 arquivos organizados** por categoria de conteúdo
+
+### 🔄 Alterado
+
+#### Estrutura de Arquivos Internos
+- **Reorganização:** Units internas agora organizadas em subpastas:
+  - `Commons/` - Types, Consts, Exceptions
+  - `Database/` - Parameters.Database.pas
+  - `IniFiles/` - Parameters.Inifiles.pas
+  - `JsonObject/` - Parameters.JsonObject.pas
+  - `Attributes/` - Sistema de Attributes (novo)
+
+#### Documentação
+- **README.md:** Atualizado com informações sobre units de Attributes e documentação HTML
+- **Estrutura:** Arquitetura atualizada refletindo nova organização de pastas
+
+#### Comentários no Código ✅ **CONCLUÍDO (100%)**
+- **Parameters.Database.pas:** Comentários adicionados em todos os métodos principais
+  - Métodos CRUD: Getter, Setter, List, Insert, Delete
+  - Métodos de conexão: ConnectConnection, DisconnectConnection
+  - Métodos auxiliares: BuildSelectFieldsSQL, GetNextOrder, AdjustOrdersForInsert, AdjustOrdersForUpdate
+- **Parameters.Inifiles.pas:** Comentários adicionados em métodos de parsing e formatação
+  - Métodos de parsing: ParseComment, ParseKey, ParseValue
+  - Métodos de preservação: ReadIniFileLines, WriteIniFileLines
+  - Métodos de busca: FindSectionInLines, FindKeyInSection
+  - Métodos de formatação: FormatIniLine
+- **Parameters.JsonObject.pas:** Comentários adicionados em métodos de serialização e ordenação
+  - Métodos CRUD: Getter, Setter, Insert, Delete, List
+  - Métodos de serialização: ParameterToJsonValue, JsonValueToParameter
+  - Métodos de formatação: FormatJSONString
+  - Métodos de ordenação: GetNextOrder, AdjustOrdersForInsert, AdjustOrdersForUpdate
+
+---
+
 ## [1.0.2] - 2026-01-02
 
 ### 🔄 Alterado
