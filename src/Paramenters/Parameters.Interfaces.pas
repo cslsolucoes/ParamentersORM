@@ -1,4 +1,4 @@
-﻿unit Parameters.Interfaces;
+unit Parameters.Interfaces;
 
 {$IF DEFINED(FPC)}
   {$MODE DELPHI} // Ensures DEFINED() and other Delphi features work
@@ -92,12 +92,12 @@ type
     // ========== CRUD ==========
     function List: TParameterList; overload;
     function List(out AList: TParameterList): IParametersDatabase; overload;
-    function Get(const AName: string): TParameter; overload;
-    function Get(const AName: string; out AParameter: TParameter): IParametersDatabase; overload;
+    function Getter(const AName: string): TParameter; overload;
+    function Getter(const AName: string; out AParameter: TParameter): IParametersDatabase; overload;
     function Insert(const AParameter: TParameter): IParametersDatabase; overload;
     function Insert(const AParameter: TParameter; out ASuccess: Boolean): IParametersDatabase; overload;
-    function Update(const AParameter: TParameter): IParametersDatabase; overload;
-    function Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersDatabase; overload;
+    function Setter(const AParameter: TParameter): IParametersDatabase; overload;
+    function Setter(const AParameter: TParameter; out ASuccess: Boolean): IParametersDatabase; overload;
     function Delete(const AName: string): IParametersDatabase; overload;
     function Delete(const AName: string; out ASuccess: Boolean): IParametersDatabase; overload;
     function Exists(const AName: string): Boolean; overload;
@@ -120,6 +120,8 @@ type
     function CreateTable(out ASuccess: Boolean): IParametersDatabase; overload;
     function DropTable: IParametersDatabase; overload;
     function DropTable(out ASuccess: Boolean): IParametersDatabase; overload;
+    function MigrateTable: IParametersDatabase; overload;
+    function MigrateTable(out ASuccess: Boolean): IParametersDatabase; overload;
     
     // ========== LISTAGEM DE BANCOS DISPONÍVEIS ==========
     function ListAvailableDatabases(out ADatabases: TStringList): IParametersDatabase; overload;
@@ -159,12 +161,12 @@ type
     // ========== CRUD ==========
     function List: TParameterList; overload;
     function List(out AList: TParameterList): IParametersInifiles; overload;
-    function Get(const AName: string): TParameter; overload;
-    function Get(const AName: string; out AParameter: TParameter): IParametersInifiles; overload;
+    function Getter(const AName: string): TParameter; overload;
+    function Getter(const AName: string; out AParameter: TParameter): IParametersInifiles; overload;
     function Insert(const AParameter: TParameter): IParametersInifiles; overload;
     function Insert(const AParameter: TParameter; out ASuccess: Boolean): IParametersInifiles; overload;
-    function Update(const AParameter: TParameter): IParametersInifiles; overload;
-    function Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersInifiles; overload;
+    function Setter(const AParameter: TParameter): IParametersInifiles; overload;
+    function Setter(const AParameter: TParameter; out ASuccess: Boolean): IParametersInifiles; overload;
     function Delete(const AName: string): IParametersInifiles; overload;
     function Delete(const AName: string; out ASuccess: Boolean): IParametersInifiles; overload;
     function Exists(const AName: string): Boolean; overload;
@@ -213,12 +215,12 @@ type
     // ========== CRUD ==========
     function List: TParameterList; overload;
     function List(out AList: TParameterList): IParametersJsonObject; overload;
-    function Get(const AName: string): TParameter; overload;
-    function Get(const AName: string; out AParameter: TParameter): IParametersJsonObject; overload;
+    function Getter(const AName: string): TParameter; overload;
+    function Getter(const AName: string; out AParameter: TParameter): IParametersJsonObject; overload;
     function Insert(const AParameter: TParameter): IParametersJsonObject; overload;
     function Insert(const AParameter: TParameter; out ASuccess: Boolean): IParametersJsonObject; overload;
-    function Update(const AParameter: TParameter): IParametersJsonObject; overload;
-    function Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersJsonObject; overload;
+    function Setter(const AParameter: TParameter): IParametersJsonObject; overload;
+    function Setter(const AParameter: TParameter; out ASuccess: Boolean): IParametersJsonObject; overload;
     function Delete(const AName: string): IParametersJsonObject; overload;
     function Delete(const AName: string; out ASuccess: Boolean): IParametersJsonObject; overload;
     function Exists(const AName: string): Boolean; overload;
@@ -278,14 +280,14 @@ type
     function Priority(ASources: TParameterSourceArray): IParameters;
     
     // ========== OPERAÇÕES UNIFICADAS (com fallback) ==========
-    function Get(const AName: string): TParameter; overload;
-    function Get(const AName: string; ASource: TParameterSource): TParameter; overload;
+    function Getter(const AName: string): TParameter; overload;
+    function Getter(const AName: string; ASource: TParameterSource): TParameter; overload;
     function List: TParameterList; overload;
     function List(out AList: TParameterList): IParameters; overload;
     function Insert(const AParameter: TParameter): IParameters; overload;
     function Insert(const AParameter: TParameter; out ASuccess: Boolean): IParameters; overload;
-    function Update(const AParameter: TParameter): IParameters; overload;
-    function Update(const AParameter: TParameter; out ASuccess: Boolean): IParameters; overload;
+    function Setter(const AParameter: TParameter): IParameters; overload;
+    function Setter(const AParameter: TParameter; out ASuccess: Boolean): IParameters; overload;
     function Delete(const AName: string): IParameters; overload;
     function Delete(const AName: string; out ASuccess: Boolean): IParameters; overload;
     function Exists(const AName: string): Boolean; overload;

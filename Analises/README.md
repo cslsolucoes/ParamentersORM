@@ -1,7 +1,7 @@
 # 📚 Análises do Módulo Parameters
 
 **Data de Organização:** 02/01/2026  
-**Versão:** 1.0.1
+**Versão:** 1.0.2
 
 ---
 
@@ -61,12 +61,14 @@ Documentação técnica e análises:
 
 ## ✅ Status Atual
 
-- **Versão:** 1.0.1
+- **Versão:** 1.0.2
 - **Status Geral:** ~99% COMPLETO
 - **Implementações:** ✅ Todas completas (Database, Inifiles, JsonObject)
 - **Documentação HTML:** ~75% completo
 - **Compatibilidade FPC/Lazarus:** ✅ 100% adaptado
 - **Correções de Bugs:** ✅ Versão 1.0.1 (chaves duplicadas, remoção de seções vazias)
+- **Mudanças de Nomenclatura:** ✅ Versão 1.0.2 (Get → Getter, Update → Setter)
+- **Hierarquia Completa:** ✅ Versão 1.0.2 (todos os CRUD respeitam ContratoID, ProdutoID, Title, Name)
 
 ---
 

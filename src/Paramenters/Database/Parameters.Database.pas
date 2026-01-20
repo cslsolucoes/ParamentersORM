@@ -1,4 +1,4 @@
-﻿unit Parameters.Database;
+unit Parameters.Database;
 
 {$IF DEFINED(FPC)}
   {$MODE DELPHI} // Ensures DEFINED() and other Delphi features work
@@ -191,6 +191,8 @@ type
     function EnsureTableExists: Boolean; // Garante que a tabela existe (lança exceção se não existir)
     function ValidateSQLiteTableStructure: Boolean; // Valida estrutura da tabela SQLite antes de salvar
     function CreateAccessDatabase(const AFilePath: string): Boolean; // Cria arquivo Access .mdb usando ADOX
+    function IndexExists(const AIndexName: string; ADatabaseType: TParameterDatabaseTypes; const ATableName: string): Boolean; // Verifica se índice existe
+    function GetDropIndexSQL(const AIndexName: string; ADatabaseType: TParameterDatabaseTypes; const ATableName: string): string; // Retorna SQL para dropar índice
     function GetDefaultHost: string; // Retorna host padrão baseado no tipo de banco
     function GetDefaultPort: Integer; // Retorna porta padrão baseado no tipo de banco
     function GetDefaultUsername: string; // Retorna username padrão baseado no tipo de banco
@@ -280,12 +282,14 @@ type
     // ========== CRUD ==========
     function List: TParameterList; overload;
     function List(out AList: TParameterList): IParametersDatabase; overload;
-    function Get(const AName: string): TParameter; overload;
-    function Get(const AName: string; out AParameter: TParameter): IParametersDatabase; overload;
+    function Getter(const AName: string): TParameter; overload;
+    function Getter(const AName: string; out AParameter: TParameter): IParametersDatabase; overload;
     function Insert(const AParameter: TParameter): IParametersDatabase; overload;
     function Insert(const AParameter: TParameter; out ASuccess: Boolean): IParametersDatabase; overload;
-    function Update(const AParameter: TParameter): IParametersDatabase; overload;
-    function Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersDatabase; overload;
+    function Setter(const AParameter: TParameter): IParametersDatabase; overload;
+    function Setter(const AParameter: TParameter; out ASuccess: Boolean): IParametersDatabase; overload;
+    function Update(const AParameter: TParameter): IParametersDatabase; overload; // Deprecated: usar Setter
+    function Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersDatabase; overload; // Deprecated: usar Setter
     function Delete(const AName: string): IParametersDatabase; overload;
     function Delete(const AName: string; out ASuccess: Boolean): IParametersDatabase; overload;
     function Exists(const AName: string): Boolean; overload;
@@ -308,6 +312,8 @@ type
     function CreateTable(out ASuccess: Boolean): IParametersDatabase; overload;
     function DropTable: IParametersDatabase; overload;
     function DropTable(out ASuccess: Boolean): IParametersDatabase; overload;
+    function MigrateTable: IParametersDatabase; overload;
+    function MigrateTable(out ASuccess: Boolean): IParametersDatabase; overload;
 
     // ========== LISTAGEM DE BANCOS DISPONÍVEIS ==========
     function ListAvailableDatabases(out ADatabases: TStringList): IParametersDatabase; overload;
@@ -2248,11 +2254,248 @@ begin
   Result := CreateTable(LSuccess); // Chama o overload com parâmetro out
 end;
 
+function TParametersDatabase.IndexExists(const AIndexName: string; ADatabaseType: TParameterDatabaseTypes; const ATableName: string): Boolean;
+var
+  LSQL: string;
+  LDataSet: TDataSet;
+  LTableNameOnly: string;
+begin
+  Result := False;
+  try
+    case ADatabaseType of
+      pdtPostgreSQL:
+      begin
+        // PostgreSQL: verifica em pg_indexes
+        LSQL := Format(
+          'SELECT COUNT(*) as cnt FROM pg_indexes ' +
+          'WHERE LOWER(indexname) = LOWER(''%s'') AND LOWER(tablename) = LOWER(''%s'')',
+          [EscapeSQL(AIndexName), EscapeSQL(FTableName)]
+        );
+      end;
+      pdtMySQL:
+      begin
+        // MySQL: verifica em information_schema.statistics
+        LSQL := Format(
+          'SELECT COUNT(*) as cnt FROM information_schema.statistics ' +
+          'WHERE LOWER(index_name) = LOWER(''%s'') AND LOWER(table_name) = LOWER(''%s'')',
+          [EscapeSQL(AIndexName), EscapeSQL(FTableName)]
+        );
+        if FSchema <> '' then
+          LSQL := LSQL + Format(' AND LOWER(table_schema) = LOWER(''%s'')', [EscapeSQL(FSchema)]);
+      end;
+      pdtSQLServer:
+      begin
+        // SQL Server: verifica em sys.indexes
+        LSQL := Format(
+          'SELECT COUNT(*) as cnt FROM sys.indexes i ' +
+          'INNER JOIN sys.objects o ON i.object_id = o.object_id ' +
+          'WHERE LOWER(i.name) = LOWER(''%s'') AND LOWER(o.name) = LOWER(''%s'')',
+          [EscapeSQL(AIndexName), EscapeSQL(FTableName)]
+        );
+        if FSchema <> '' then
+          LSQL := LSQL + Format(' AND EXISTS (SELECT 1 FROM sys.schemas s WHERE s.schema_id = o.schema_id AND LOWER(s.name) = LOWER(''%s''))', [EscapeSQL(FSchema)]);
+      end;
+      pdtSQLite:
+      begin
+        // SQLite: verifica em sqlite_master
+        LSQL := Format(
+          'SELECT COUNT(*) as cnt FROM sqlite_master ' +
+          'WHERE type = ''index'' AND LOWER(name) = LOWER(''%s'')',
+          [EscapeSQL(AIndexName)]
+        );
+      end;
+      pdtFireBird:
+      begin
+        // FireBird: verifica em RDB$INDICES
+        LTableNameOnly := FTableName;
+        if (Length(LTableNameOnly) >= 2) and (LTableNameOnly[1] = '"') and (LTableNameOnly[Length(LTableNameOnly)] = '"') then
+          LTableNameOnly := Copy(LTableNameOnly, 2, Length(LTableNameOnly) - 2);
+        LTableNameOnly := UpperCase(Trim(LTableNameOnly));
+        LSQL := Format(
+          'SELECT COUNT(*) as cnt FROM RDB$INDICES i ' +
+          'INNER JOIN RDB$RELATIONS r ON i.RDB$RELATION_NAME = r.RDB$RELATION_NAME ' +
+          'WHERE UPPER(TRIM(i.RDB$INDEX_NAME)) = ''%s'' AND UPPER(TRIM(r.RDB$RELATION_NAME)) = ''%s'' AND r.RDB$SYSTEM_FLAG = 0',
+          [UpperCase(Trim(AIndexName)), LTableNameOnly]
+        );
+      end;
+      pdtAccess:
+      begin
+        // Access: tenta verificar usando MSysObjects (pode não ter permissão)
+        // Se falhar, assume que não existe
+        try
+          LSQL := Format(
+            'SELECT COUNT(*) as cnt FROM MSysObjects ' +
+            'WHERE Type = 1 AND LOWER(Name) = LOWER(''%s'')',
+            [EscapeSQL(AIndexName)]
+          );
+        except
+          Result := False;
+          Exit;
+        end;
+      end;
+      else
+      begin
+        // Outros bancos: não suportado
+        Result := False;
+        Exit;
+      end;
+    end;
+
+    LDataSet := QuerySQL(LSQL);
+    if Assigned(LDataSet) then
+    begin
+      try
+        if not LDataSet.Eof then
+          Result := LDataSet.FieldByName('cnt').AsInteger > 0;
+      finally
+        LDataSet.Close;
+      end;
+    end;
+  except
+    Result := False;
+  end;
+end;
+
+function TParametersDatabase.GetDropIndexSQL(const AIndexName: string; ADatabaseType: TParameterDatabaseTypes; const ATableName: string): string;
+var
+  LTableNameOnly: string;
+begin
+  Result := '';
+  case ADatabaseType of
+    pdtPostgreSQL:
+      Result := Format('DROP INDEX IF EXISTS %s', [AIndexName]);
+    pdtMySQL:
+      Result := Format('DROP INDEX %s ON %s', [AIndexName, ATableName]);
+    pdtSQLServer:
+      Result := Format('DROP INDEX IF EXISTS %s ON %s', [AIndexName, ATableName]);
+    pdtSQLite:
+      Result := Format('DROP INDEX IF EXISTS %s', [AIndexName]);
+    pdtFireBird:
+    begin
+      LTableNameOnly := FTableName;
+      if (Length(LTableNameOnly) >= 2) and (LTableNameOnly[1] = '"') and (LTableNameOnly[Length(LTableNameOnly)] = '"') then
+        LTableNameOnly := Copy(LTableNameOnly, 2, Length(LTableNameOnly) - 2);
+      Result := Format('DROP INDEX %s', [UpperCase(Trim(AIndexName))]);
+    end;
+    pdtAccess:
+      Result := Format('DROP INDEX %s ON %s', [AIndexName, ATableName]);
+    else
+      Result := ''; // Não suportado
+  end;
+end;
+
 function TParametersDatabase.DropTable: IParametersDatabase;
 var
   LSuccess: Boolean;
 begin
   Result := DropTable(LSuccess); // Chama o overload com parâmetro out
+end;
+
+function TParametersDatabase.MigrateTable: IParametersDatabase;
+var
+  LSuccess: Boolean;
+begin
+  MigrateTable(LSuccess);
+  Result := Self;
+end;
+
+function TParametersDatabase.MigrateTable(out ASuccess: Boolean): IParametersDatabase;
+var
+  LDatabaseType: TParameterDatabaseTypes;
+  LTableName: string;
+  LIndexOldName: string;
+  LIndexNewName: string;
+  LSQL: string;
+  LIndexExists: Boolean;
+begin
+  Result := Self;
+  ASuccess := False;
+  FLock.Enter;
+  try
+    try
+      // Verifica se está conectado
+      if not IsConnected then
+        raise CreateConnectionException(
+          MSG_CONNECTION_NOT_CONNECTED,
+          ERR_CONNECTION_NOT_CONNECTED,
+          'MigrateTable'
+        );
+
+      // Verifica se a tabela existe
+      if not InternalTableExists then
+      begin
+        // Se a tabela não existe, não há nada para migrar
+        ASuccess := True; // Considera sucesso (não há nada para migrar)
+        Exit;
+      end;
+
+      LDatabaseType := StringToDatabaseType(FDatabaseType);
+      LTableName := GetFullTableNameForSQL;
+      LIndexOldName := Format('idx_%s_chave', [FTableName]);
+      LIndexNewName := Format('idx_%s_chave_titulo', [FTableName]);
+
+      // 1. Verifica se o índice antigo existe e remove
+      LIndexExists := IndexExists(LIndexOldName, LDatabaseType, LTableName);
+      if LIndexExists then
+      begin
+        try
+          LSQL := GetDropIndexSQL(LIndexOldName, LDatabaseType, LTableName);
+          if LSQL <> '' then
+            ExecuteSQL(LSQL);
+        except
+          // Ignora erro ao remover índice antigo (pode não existir ou já ter sido removido)
+        end;
+      end;
+
+      // 2. Verifica se o índice novo existe e cria se não existir
+      LIndexExists := IndexExists(LIndexNewName, LDatabaseType, LTableName);
+      if not LIndexExists then
+      begin
+        case LDatabaseType of
+          pdtPostgreSQL:
+            LSQL := Format(SQL_CREATE_INDEX_POSTGRESQL, [FTableName, LTableName]);
+          pdtMySQL:
+            LSQL := Format(SQL_CREATE_INDEX_MYSQL, [FTableName, LTableName]);
+          pdtSQLServer:
+            LSQL := Format(SQL_CREATE_INDEX_SQLSERVER, [FTableName, LTableName]);
+          pdtSQLite:
+            LSQL := Format(SQL_CREATE_INDEX_SQLITE, [FTableName, LTableName]);
+          pdtFireBird:
+            LSQL := Format(SQL_CREATE_INDEX_FIREBIRD, [FTableName, LTableName]);
+          pdtAccess:
+            LSQL := Format(SQL_CREATE_INDEX_ACCESS, [FTableName, LTableName]);
+          else
+            LSQL := '';
+        end;
+
+        if LSQL <> '' then
+        begin
+          ExecuteSQL(LSQL);
+          ASuccess := True;
+        end
+        else
+          ASuccess := True; // Banco não suporta índices ou não precisa
+      end
+      else
+      begin
+        // Índice novo já existe, migração concluída
+        ASuccess := True;
+      end;
+    except
+      on E: EParametersException do
+      begin
+        ASuccess := False;
+        raise;
+      end;
+      on E: Exception do
+      begin
+        ASuccess := False;
+        raise ConvertToParametersException(E, 'MigrateTable');
+      end;
+    end;
+  finally
+    FLock.Leave;
+  end;
 end;
 
 function TParametersDatabase.DropTable(out ASuccess: Boolean): IParametersDatabase;
@@ -2621,6 +2864,15 @@ begin
             'CreateTable'
           );
 
+        // 4. Cria índice UNIQUE composto (permite chaves duplicadas em títulos diferentes)
+        try
+          LSQL := Format(SQL_CREATE_INDEX_FIREBIRD, [FTableName, LTableName]);
+          ExecuteSQL(LSQL);
+          // Se falhar ao criar índice, não bloqueia (pode já existir)
+        except
+          // Ignora erro ao criar índice (pode já existir ou não ser crítico)
+        end;
+
         // Se chegou aqui, tudo foi criado com sucesso
         ASuccess := True;
         Exit; // Sai antes do ExecuteSQL geral abaixo
@@ -2636,7 +2888,7 @@ begin
           'produto_id INTEGER DEFAULT 0, ' +
           'ordem INTEGER DEFAULT 0, ' +
           'titulo VARCHAR(255), ' +
-          'chave VARCHAR(255) NOT NULL UNIQUE, ' +
+          'chave VARCHAR(255) NOT NULL, ' +
           'valor TEXT, ' +
           'descricao TEXT, ' +
           'ativo %s DEFAULT %s, ' +
@@ -2657,6 +2909,31 @@ begin
         ERR_SQL_TABLE_CREATE_FAILED,
         'CreateTable'
       );
+
+    // Cria índice UNIQUE composto após criar a tabela (permite chaves duplicadas em títulos diferentes)
+    try
+      case LDatabaseType of
+        pdtPostgreSQL:
+          LSQL := Format(SQL_CREATE_INDEX_POSTGRESQL, [FTableName, LTableName]);
+        pdtMySQL:
+          LSQL := Format(SQL_CREATE_INDEX_MYSQL, [FTableName, LTableName]);
+        pdtSQLServer:
+          LSQL := Format(SQL_CREATE_INDEX_SQLSERVER, [FTableName, LTableName]);
+        pdtSQLite:
+          LSQL := Format(SQL_CREATE_INDEX_SQLITE, [FTableName, LTableName]);
+        pdtFireBird:
+          LSQL := Format(SQL_CREATE_INDEX_FIREBIRD, [FTableName, LTableName]);
+        else
+          LSQL := ''; // Outros bancos não precisam de índice separado
+      end;
+      
+      if LSQL <> '' then
+        ExecuteSQL(LSQL);
+      // Se falhar ao criar índice, não bloqueia (pode já existir)
+    except
+      // Ignora erro ao criar índice (pode já existir ou não ser crítico)
+      // A tabela foi criada, isso é o mais importante
+    end;
   except
     on E: EParametersException do
     begin
@@ -4562,11 +4839,11 @@ begin
   end;
 end;
 
-function TParametersDatabase.Get(const AName: string): TParameter;
+function TParametersDatabase.Getter(const AName: string): TParameter;
 var
   LParameter: TParameter;
 begin
-  Get(AName, LParameter);
+  Getter(AName, LParameter);
   Result := LParameter;
 end;
 
@@ -4622,10 +4899,13 @@ end;
     end;
   end;
   ============================================================================= }
-function TParametersDatabase.Get(const AName: string; out AParameter: TParameter): IParametersDatabase;
+function TParametersDatabase.Getter(const AName: string; out AParameter: TParameter): IParametersDatabase;
 var
   LSQL: string;
   LDataSet: TDataSet;
+  LTitulo: string;
+  LContratoID: Integer;
+  LProdutoID: Integer;
 begin
   Result := Self;
   FLock.Enter;
@@ -4635,25 +4915,48 @@ begin
   
   AParameter := TParameter.Create;
   try
-    // Usa BuildSelectFieldsSQL para incluir apenas campos que existem na tabela
-    // IMPORTANTE: Não filtra por ativo - busca TODOS os registros (ativos e inativos)
-    // Isso permite carregar e reativar registros inativos
-    LSQL := Format(
-      'SELECT %s ' +
-      'FROM %s ' +
-      'WHERE chave = ''%s''',
-      [BuildSelectFieldsSQL, GetFullTableName, EscapeSQL(AName)]
-    );
+    // IMPORTANTE: Respeita hierarquia da constraint UNIQUE: contrato_id, produto_id, titulo, chave
+    // Se os campos da hierarquia estão configurados, usa busca específica
+    // Caso contrário, faz busca ampla apenas por chave (compatibilidade com código legado)
+    LContratoID := FContratoID;
+    LProdutoID := FProdutoID;
+    LTitulo := FTituloFilter;
     
-    // Adiciona filtro de título se configurado
-    if Trim(FTituloFilter) <> '' then
-      LSQL := LSQL + Format(' AND titulo = ''%s''', [EscapeSQL(FTituloFilter)]);
-    
-    // Adiciona filtros de ContratoID e ProdutoID se configurados
-    if FContratoID > 0 then
-      LSQL := LSQL + Format(' AND contrato_id = %d', [FContratoID]);
-    if FProdutoID > 0 then
-      LSQL := LSQL + Format(' AND produto_id = %d', [FProdutoID]);
+    // Se todos os campos da hierarquia estão configurados, busca específica
+    if (LContratoID > 0) and (LProdutoID > 0) and (Trim(LTitulo) <> '') then
+    begin
+      // WHERE usa a hierarquia completa: contrato_id, produto_id, titulo, chave
+      LSQL := Format(
+        'SELECT %s ' +
+        'FROM %s ' +
+        'WHERE contrato_id = %d AND produto_id = %d AND titulo = ''%s'' AND chave = ''%s''',
+        [
+          BuildSelectFieldsSQL, 
+          GetFullTableName, 
+          LContratoID,
+          LProdutoID,
+          EscapeSQL(LTitulo),
+          EscapeSQL(AName)
+        ]
+      );
+    end
+    else
+    begin
+      // Busca ampla: apenas por chave (compatibilidade com código legado)
+      // Retorna o primeiro registro encontrado com essa chave
+      LSQL := Format(
+        'SELECT %s ' +
+        'FROM %s ' +
+        'WHERE chave = ''%s'' ' +
+        'ORDER BY contrato_id, produto_id, titulo, ordem ' +
+        'LIMIT 1',
+        [
+          BuildSelectFieldsSQL, 
+          GetFullTableName, 
+          EscapeSQL(AName)
+        ]
+      );
+    end;
     
     // Limpa o filtro de título após usar (é temporário)
     FTituloFilter := '';
@@ -4885,37 +5188,36 @@ begin
   end;
 end;
 
-function TParametersDatabase.Update(const AParameter: TParameter): IParametersDatabase;
+function TParametersDatabase.Setter(const AParameter: TParameter): IParametersDatabase;
 var
   LSuccess: Boolean;
 begin
-  Update(AParameter, LSuccess);
+  Setter(AParameter, LSuccess);
   Result := Self;
 end;
 
 { =============================================================================
-  Update - Atualiza um parâmetro existente no banco de dados
+  Setter - Insere ou atualiza um parâmetro no banco de dados
   
   Descrição:
-  Atualiza um parâmetro existente na tabela config. Se o parâmetro não existir,
-  a operação falha silenciosamente (ASuccess = False). O método gerencia
-  automaticamente a ordem dos parâmetros conforme as configurações de
-  reordenação automática, incluindo tratamento especial quando o título muda.
+  Insere um novo parâmetro se não existir, ou atualiza se já existir.
+  Sempre respeita a hierarquia da constraint UNIQUE: contrato_id, produto_id, titulo, chave.
+  O método gerencia automaticamente a ordem dos parâmetros conforme as configurações.
   
   Comportamento:
-  - Verifica se o parâmetro existe antes de atualizar
-  - Se não existir, retorna ASuccess = False sem atualizar
+  - Verifica se o parâmetro existe usando a hierarquia completa (contrato_id, produto_id, titulo, chave)
+  - Se existir: faz UPDATE
+  - Se não existir: faz INSERT
   - Gerencia ordem automaticamente conforme configurações:
     * FAutoRenumberZeroOrder: Se ordem <= 0, calcula automaticamente
     * FAutoReorderOnUpdate: Se ordem mudou, ajusta ordens existentes
-  - Trata mudança de título: se título mudou, recalcula ordem no novo título
-  - Garante que a tabela existe antes de executar o UPDATE
+  - Garante que a tabela existe antes de executar
   - Valida estrutura da tabela para SQLite
   - Thread-safe (protegido com TCriticalSection)
   
   Parâmetros:
-  - AParameter: Parâmetro a ser atualizado (não é liberado pelo método)
-  - ASuccess: Indica se a atualização foi bem-sucedida
+  - AParameter: Parâmetro a ser inserido/atualizado (deve ter ContratoID, ProdutoID, Titulo e Name preenchidos)
+  - ASuccess: Indica se a operação foi bem-sucedida
   
   Retorno:
   - Self (permite encadeamento de métodos - Fluent Interface)
@@ -4923,11 +5225,7 @@ end;
   Exceções:
   - EParametersConnectionException: Se não estiver conectado
   - EParametersSQLException: Se houver erro na execução SQL
-  - EParametersException: Outras exceções do sistema de parâmetros
-  
-  Nota:
-  - O parâmetro não é liberado pelo método (responsabilidade do chamador)
-  - Se o parâmetro não existir, ASuccess será False mas não lança exceção
+  - EParametersException: Se ContratoID, ProdutoID, Titulo ou Name não estiverem preenchidos
   
   Exemplo:
   var
@@ -4937,35 +5235,38 @@ end;
   begin
     DB := TParameters.NewDatabase
       .TableName('config')
+      .ContratoID(1)
+      .ProdutoID(1)
+      .Title('chat')
       .Connect;
     
-    Param := DB.Get('erp_host');
-    try
-      if Assigned(Param) then
-      begin
-        Param.Value := '192.168.1.100';
-        DB.Update(Param, Success);
-        if Success then
-          ShowMessage('Atualizado com sucesso!');
-      end;
-    finally
-      if Assigned(Param) then
-        Param.Free;
-    end;
+    Param := TParameter.Create;
+    Param.ContratoID := 1;
+    Param.ProdutoID := 1;
+    Param.Titulo := 'chat';
+    Param.Name := 'url';
+    Param.Value := 'https://example.com';
+    Param.ValueType := pvtString;
+    
+    DB.Setter(Param, Success);
+    if Success then
+      ShowMessage('Inserido/Atualizado com sucesso!');
+    Param.Free;
   end;
   ============================================================================= }
-function TParametersDatabase.Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersDatabase;
+function TParametersDatabase.Setter(const AParameter: TParameter; out ASuccess: Boolean): IParametersDatabase;
 var
   LSQL: string;
   LDatabaseType: TParameterDatabaseTypes;
   LOrder: Integer;
   LOldOrder: Integer;
   LOldParameter: TParameter;
+  LExists: Boolean;
 begin
   Result := Self;
   FLock.Enter;
   try
-    // Garante que a tabela existe antes de fazer UPDATE
+    // Garante que a tabela existe antes de fazer operação
     EnsureTableExists;
   
   // Para SQLite, valida a estrutura da tabela antes de salvar
@@ -4974,57 +5275,36 @@ begin
     ValidateSQLiteTableStructure;
   
   ASuccess := False;
+  
+  // IMPORTANTE: Valida que todos os campos da hierarquia estão preenchidos
+  // Hierarquia da constraint UNIQUE: contrato_id, produto_id, titulo, chave
+  if (AParameter.ContratoID <= 0) or (AParameter.ProdutoID <= 0) or 
+     (Trim(AParameter.Titulo) = '') or (Trim(AParameter.Name) = '') then
+    raise CreateConfigurationException(
+      Format('Setter requer ContratoID, ProdutoID, Titulo e Name preenchidos. Recebido: ContratoID=%d, ProdutoID=%d, Titulo=''%s'', Name=''%s''', 
+        [AParameter.ContratoID, AParameter.ProdutoID, AParameter.Titulo, AParameter.Name]),
+      ERR_INVALID_CONFIGURATION,
+      'Setter'
+    );
+  
   try
-    // Verifica se existe
-    if not Exists(AParameter.Name) then
-      Exit;
+    // Verifica se existe usando a hierarquia completa
+    LExists := ExistsWithTitulo(AParameter.Name, AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID);
     
-    // Obtém o parâmetro atual para comparar título e ordem antiga
-    LOldParameter := Get(AParameter.Name);
-    try
-      LOldOrder := LOldParameter.Ordem;
+    if LExists then
+    begin
+      // EXISTE: Faz UPDATE
+      // Busca o parâmetro atual para obter ordem antiga
+      FTituloFilter := AParameter.Titulo;
+      LOldParameter := Getter(AParameter.Name);
+      FTituloFilter := ''; // Limpa após usar
       
-      // Verifica se o título mudou
-      // Se o título mudou, precisa verificar se o novo título já existe
-      // e ajustar a ordem conforme necessário
-      if not SameText(LOldParameter.Titulo, AParameter.Titulo) then
-      begin
-        // Título mudou - verifica se o novo título já existe para o mesmo Contrato/Produto
-        if not TituloExistsForContratoProduto(AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID, AParameter.Name) then
-        begin
-          // Novo título não existe - inicia ordem do 1
-          LOrder := 1;
-          // Ajusta ordens existentes no novo título para dar espaço (se necessário)
-          if FAutoReorderOnUpdate then
-            AdjustOrdersForInsert(AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID, LOrder);
-        end
-        else
-        begin
-          // Novo título já existe - segue critérios de reordenação
-          // Determina a ordem desejada
-          LOrder := AParameter.Ordem;
-          
-          // Se ordem vazia (<= 0) e renumerar zero está habilitado, calcula automaticamente
-          if (LOrder <= 0) and FAutoRenumberZeroOrder then
-          begin
-            LOrder := GetNextOrder(AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID);
-          end
-          else if (LOrder <= 0) and not FAutoRenumberZeroOrder then
-          begin
-            // Mantém ordem 0 se renumerar zero estiver desabilitado
-            LOrder := 0;
-          end;
-          
-          // Se ordem especificada e reordenação está habilitada, ajusta as ordens existentes
-          if (LOrder > 0) and FAutoReorderOnUpdate then
-          begin
-            AdjustOrdersForInsert(AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID, LOrder);
-          end;
-        end;
-      end
-      else
-      begin
-        // Título não mudou - segue lógica normal de atualização de ordem
+      if not Assigned(LOldParameter) then
+        Exit;
+      
+      try
+        LOldOrder := LOldParameter.Ordem;
+        
         // Determina a ordem desejada
         LOrder := AParameter.Ordem;
         
@@ -5044,102 +5324,126 @@ begin
         begin
           AdjustOrdersForUpdate(AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID, LOldOrder, LOrder, AParameter.Name);
         end;
-        // Se FAutoReorderOnUpdate = False, não ajusta (pode causar duplicação de ordens)
+      finally
+        LOldParameter.Free;
       end;
-    finally
-      LOldParameter.Free;
-    end;
-    
-    // Tratamento específico por tipo de banco para timestamps
-    if LDatabaseType = pdtAccess then
-    begin
-      // Access: usa NOW() para timestamps
-      LSQL := Format(
-        'UPDATE %s SET ' +
-        'contrato_id = %d, ' +
-        'produto_id = %d, ' +
-        'ordem = %d, ' +
-        'titulo = ''%s'', ' +
-        'valor = ''%s'', ' +
-        'descricao = ''%s'', ' +
-        'ativo = %s, ' +
-        'data_alteracao = NOW() ' +
-        'WHERE chave = ''%s''',
-        [
-          GetFullTableName,
-          AParameter.ContratoID,
-          AParameter.ProdutoID,
-          LOrder,  // Usa a ordem calculada/ajustada
-          EscapeSQL(AParameter.Titulo),
-          EscapeSQL(AParameter.Value),
-          EscapeSQL(AParameter.Description),
-          BooleanToSQL(AParameter.Ativo),
-          EscapeSQL(AParameter.Name)
-        ]
-      );
-    end
-    else if LDatabaseType = pdtSQLServer then
-    begin
-      // SQL Server: usa GETDATE() que é mais compatível que CURRENT_TIMESTAMP
-      LSQL := Format(
-        'UPDATE %s SET ' +
-        'contrato_id = %d, ' +
-        'produto_id = %d, ' +
-        'ordem = %d, ' +
-        'titulo = ''%s'', ' +
-        'valor = ''%s'', ' +
-        'descricao = ''%s'', ' +
-        'ativo = %s, ' +
-        'data_alteracao = GETDATE() ' +
-        'WHERE chave = ''%s''',
-        [
-          GetFullTableName,
-          AParameter.ContratoID,
-          AParameter.ProdutoID,
-          LOrder,  // Usa a ordem calculada/ajustada
-          EscapeSQL(AParameter.Titulo),
-          EscapeSQL(AParameter.Value),
-          EscapeSQL(AParameter.Description),
-          BooleanToSQL(AParameter.Ativo),
-          EscapeSQL(AParameter.Name)
-        ]
-      );
+      
+      // Gera SQL UPDATE usando hierarquia completa no WHERE
+      // IMPORTANTE: WHERE usa contrato_id, produto_id, titulo, chave (hierarquia completa)
+      if LDatabaseType = pdtAccess then
+      begin
+        LSQL := Format(
+          'UPDATE %s SET ' +
+          'ordem = %d, ' +
+          'valor = ''%s'', ' +
+          'descricao = ''%s'', ' +
+          'ativo = %s, ' +
+          'data_alteracao = NOW() ' +
+          'WHERE contrato_id = %d AND produto_id = %d AND titulo = ''%s'' AND chave = ''%s''',
+          [
+            GetFullTableName,
+            LOrder,
+            EscapeSQL(AParameter.Value),
+            EscapeSQL(AParameter.Description),
+            BooleanToSQL(AParameter.Ativo),
+            AParameter.ContratoID,
+            AParameter.ProdutoID,
+            EscapeSQL(AParameter.Titulo),
+            EscapeSQL(AParameter.Name)
+          ]
+        );
+      end
+      else if LDatabaseType = pdtSQLServer then
+      begin
+        LSQL := Format(
+          'UPDATE %s SET ' +
+          'ordem = %d, ' +
+          'valor = ''%s'', ' +
+          'descricao = ''%s'', ' +
+          'ativo = %s, ' +
+          'data_alteracao = GETDATE() ' +
+          'WHERE contrato_id = %d AND produto_id = %d AND titulo = ''%s'' AND chave = ''%s''',
+          [
+            GetFullTableName,
+            LOrder,
+            EscapeSQL(AParameter.Value),
+            EscapeSQL(AParameter.Description),
+            BooleanToSQL(AParameter.Ativo),
+            AParameter.ContratoID,
+            AParameter.ProdutoID,
+            EscapeSQL(AParameter.Titulo),
+            EscapeSQL(AParameter.Name)
+          ]
+        );
+      end
+      else
+      begin
+        LSQL := Format(
+          'UPDATE %s SET ' +
+          'ordem = %d, ' +
+          'valor = ''%s'', ' +
+          'descricao = ''%s'', ' +
+          'ativo = %s, ' +
+          'data_alteracao = CURRENT_TIMESTAMP ' +
+          'WHERE contrato_id = %d AND produto_id = %d AND titulo = ''%s'' AND chave = ''%s''',
+          [
+            GetFullTableName,
+            LOrder,
+            EscapeSQL(AParameter.Value),
+            EscapeSQL(AParameter.Description),
+            BooleanToSQL(AParameter.Ativo),
+            AParameter.ContratoID,
+            AParameter.ProdutoID,
+            EscapeSQL(AParameter.Titulo),
+            EscapeSQL(AParameter.Name)
+          ]
+        );
+      end;
     end
     else
     begin
-      // Outros bancos: usa CURRENT_TIMESTAMP
-      LSQL := Format(
-        'UPDATE %s SET ' +
-        'contrato_id = %d, ' +
-        'produto_id = %d, ' +
-        'ordem = %d, ' +
-        'titulo = ''%s'', ' +
-        'valor = ''%s'', ' +
-        'descricao = ''%s'', ' +
-        'ativo = %s, ' +
-        'data_alteracao = CURRENT_TIMESTAMP ' +
-        'WHERE chave = ''%s''',
-        [
-          GetFullTableName,
-          AParameter.ContratoID,
-          AParameter.ProdutoID,
-          LOrder,  // Usa a ordem calculada/ajustada
-          EscapeSQL(AParameter.Titulo),
-          EscapeSQL(AParameter.Value),
-          EscapeSQL(AParameter.Description),
-          BooleanToSQL(AParameter.Ativo),
-          EscapeSQL(AParameter.Name)
-        ]
-      );
+      // NÃO EXISTE: Faz INSERT
+      // Calcula ordem se necessário
+      LOrder := AParameter.Ordem;
+      if (LOrder <= 0) and FAutoRenumberZeroOrder then
+      begin
+        LOrder := GetNextOrder(AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID);
+      end
+      else if LOrder <= 0 then
+      begin
+        LOrder := 0;
+      end;
+      
+      // Ajusta ordens se necessário
+      if (LOrder > 0) and FAutoReorderOnInsert then
+      begin
+        AdjustOrdersForInsert(AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID, LOrder);
+      end;
+      
+      // Usa o método Insert existente que já respeita a hierarquia
+      Insert(AParameter, ASuccess);
+      Exit; // Insert já executa e retorna
     end;
     
     ASuccess := ExecuteSQL(LSQL);
   except
     ASuccess := False;
+    raise;
   end;
   finally
     FLock.Leave;
   end;
+end;
+
+// Método Update mantido para compatibilidade (deprecated - usar Setter)
+function TParametersDatabase.Update(const AParameter: TParameter): IParametersDatabase;
+begin
+  Result := Setter(AParameter);
+end;
+
+function TParametersDatabase.Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersDatabase;
+begin
+  Result := Setter(AParameter, ASuccess);
 end;
 
 function TParametersDatabase.Delete(const AName: string): IParametersDatabase;
@@ -5198,6 +5502,10 @@ end;
 function TParametersDatabase.Delete(const AName: string; out ASuccess: Boolean): IParametersDatabase;
 var
   LSQL: string;
+  LParameter: TParameter;
+  LTitulo: string;
+  LContratoID: Integer;
+  LProdutoID: Integer;
 begin
   Result := Self;
   FLock.Enter;
@@ -5207,12 +5515,47 @@ begin
     
     ASuccess := False;
     try
+    // Busca o parâmetro para obter título, contrato e produto (se filtro de título estiver configurado)
+    LTitulo := '';
+    LContratoID := 0;
+    LProdutoID := 0;
+    
+    if Trim(FTituloFilter) <> '' then
+    begin
+      // Se há filtro de título, busca o parâmetro para obter todos os dados
+      LParameter := Getter(AName);
+      if Assigned(LParameter) then
+      begin
+        try
+          LTitulo := LParameter.Titulo;
+          LContratoID := LParameter.ContratoID;
+          LProdutoID := LParameter.ProdutoID;
+        finally
+          LParameter.Free;
+        end;
+      end;
+      FTituloFilter := ''; // Limpa após usar
+    end;
+    
     // DELETE físico no banco de dados
     // Remove o registro permanentemente da tabela
-    LSQL := Format(
-      'DELETE FROM %s WHERE chave = ''%s''',
-      [GetFullTableName, EscapeSQL(AName)]
-    );
+    // IMPORTANTE: Usa título + chave + contrato + produto para identificar o registro correto
+    if (Trim(LTitulo) <> '') and (LContratoID > 0) and (LProdutoID > 0) then
+    begin
+      // Usa título + chave + contrato + produto para identificar unicamente
+      LSQL := Format(
+        'DELETE FROM %s WHERE chave = ''%s'' AND titulo = ''%s'' AND contrato_id = %d AND produto_id = %d',
+        [GetFullTableName, EscapeSQL(AName), EscapeSQL(LTitulo), LContratoID, LProdutoID]
+      );
+    end
+    else
+    begin
+      // Comportamento antigo para compatibilidade (apenas chave)
+      LSQL := Format(
+        'DELETE FROM %s WHERE chave = ''%s''',
+        [GetFullTableName, EscapeSQL(AName)]
+      );
+    end;
     
       // Executa o DELETE físico
       // Se não lançar exceção, considera sucesso
@@ -5260,10 +5603,31 @@ begin
     try
     // IMPORTANTE: Não filtra por ativo - verifica TODOS os registros (ativos e inativos)
     // Isso permite detectar registros inativos e fazer UPDATE ao invés de INSERT
-    LSQL := Format(
-      'SELECT COUNT(*) as cnt FROM %s WHERE chave = ''%s''',
-      [GetFullTableName, EscapeSQL(AName)]
-    );
+    // IMPORTANTE: Usa título + chave se filtro de título estiver configurado
+    if Trim(FTituloFilter) <> '' then
+    begin
+      // Usa título + chave + contrato + produto para identificar unicamente
+      LSQL := Format(
+        'SELECT COUNT(*) as cnt FROM %s WHERE chave = ''%s'' AND titulo = ''%s''',
+        [GetFullTableName, EscapeSQL(AName), EscapeSQL(FTituloFilter)]
+      );
+      
+      // Adiciona filtros de ContratoID e ProdutoID se configurados
+      if FContratoID > 0 then
+        LSQL := LSQL + Format(' AND contrato_id = %d', [FContratoID]);
+      if FProdutoID > 0 then
+        LSQL := LSQL + Format(' AND produto_id = %d', [FProdutoID]);
+      
+      FTituloFilter := ''; // Limpa após usar (é temporário)
+    end
+    else
+    begin
+      // Comportamento antigo para compatibilidade (apenas chave)
+      LSQL := Format(
+        'SELECT COUNT(*) as cnt FROM %s WHERE chave = ''%s''',
+        [GetFullTableName, EscapeSQL(AName)]
+      );
+    end;
     
     LDataSet := QuerySQL(LSQL);
     if Assigned(LDataSet) then

@@ -1,4 +1,4 @@
-object frmParamenters: TfrmParamenters
+object frmParamentersAttributers: TfrmParamentersAttributers
   Left = 0
   Top = 0
   Caption = 'CRUD - Tabela Config (Exemplo Parameters)'

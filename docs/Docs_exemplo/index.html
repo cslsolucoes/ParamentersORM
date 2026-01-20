@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database ORM v2.0 - Documentação Completa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 350px;
+            min-width: 200px;
+            max-width: 600px;
+            height: 100vh;
+            background: #2c3e50;
+            color: #ecf0f1;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            overflow-x: hidden;
+        }
+        
+        /* Resizer para sidebar */
+        .sidebar-resizer {
+            position: fixed;
+            left: 350px;
+            top: 0;
+            width: 8px;
+            height: 100vh;
+            background: #34495e;
+            cursor: col-resize;
+            z-index: 1001;
+            transition: background 0.2s;
+            user-select: none;
+        }
+        
+        .sidebar-resizer:hover {
+            background: #3498db;
+        }
+        
+        .sidebar-resizer.dragging {
+            background: #3498db;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: #1a252f;
+            border-bottom: 2px solid #34495e;
+        }
+
+        .sidebar-header h1 {
+            font-size: 18px;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .sidebar-nav {
+            padding: 10px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 15px;
+        }
+
+        .nav-section-title {
+            padding: 10px 20px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #7f8c8d;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 10px 20px 10px 30px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #34495e;
+            border-left-color: #3498db;
+            color: #3498db;
+        }
+
+        .nav-item.active {
+            background: #34495e;
+            border-left-color: #3498db;
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        /* Nível 1 - Menu Principal */
+        .nav-item.nav-level-1 {
+            background: #2c3e50;
+            border-left: 3px solid #3498db;
+        }
+
+        .nav-item.nav-level-1:hover {
+            background: #34495e;
+            border-left-color: #3498db;
+        }
+
+        .nav-item.nav-level-1.active {
+            background: #34495e;
+            border-left-color: #3498db;
+        }
+
+        /* Nível 2 - Submenu */
+        .nav-item.nav-level-2 {
+            background: #1e3a5f;
+            border-left: 3px solid #2ecc71;
+            padding-left: 50px;
+        }
+
+        .nav-item.nav-level-2:hover {
+            background: #2c4a6f;
+            border-left-color: #2ecc71;
+            color: #2ecc71;
+        }
+
+        .nav-item.nav-level-2.active {
+            background: #2c4a6f;
+            border-left-color: #2ecc71;
+            color: #2ecc71;
+        }
+
+        /* Nível 3 - Sub-submenu */
+        .nav-item.nav-level-3 {
+            background: #2d1b3d;
+            border-left: 3px solid #e67e22;
+            padding-left: 70px;
+        }
+
+        .nav-item.nav-level-3:hover {
+            background: #3d2b4d;
+            border-left-color: #e67e22;
+            color: #e67e22;
+        }
+
+        .nav-item.nav-level-3.active {
+            background: #3d2b4d;
+            border-left-color: #e67e22;
+            color: #e67e22;
+        }
+
+        .nav-subitem {
+            /* padding-left: 50px; - removido, usando nav-level-2 ou nav-level-3 */
+            font-size: 13px;
+        }
+
+        .nav-submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .nav-submenu.expanded {
+            max-height: 5000px;
+        }
+        
+        /* Submenu dentro de submenu (aninhado) */
+        .nav-submenu .nav-submenu {
+            margin-left: 0;
+        }
+
+        .nav-item.has-submenu {
+            position: relative;
+        }
+
+        .nav-item.has-submenu::after {
+            content: '▶';
+            position: absolute;
+            right: 20px;
+            font-size: 10px;
+            transition: transform 0.3s;
+        }
+
+        .nav-item.has-submenu.expanded::after {
+            transform: rotate(90deg);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 350px;
+            padding: 30px;
+            max-width: 1200px;
+            transition: margin-left 0.2s;
+        }
+
+        .unit-section {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .unit-header {
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .unit-header h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .unit-header .unit-path {
+            color: #7f8c8d;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .unit-description {
+            color: #555;
+            font-size: 15px;
+            line-height: 1.8;
+            margin-top: 15px;
+        }
+
+        .section {
+            margin-top: 40px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .interface-box, .class-box {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .interface-title, .class-title {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .interface-guid {
+            font-size: 11px;
+            color: #7f8c8d;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 15px;
+        }
+
+        .method-list {
+            margin-top: 15px;
+        }
+
+        .method-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left: 3px solid #95a5a6;
+        }
+
+        .method-signature {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .method-comment {
+            color: #555;
+            font-size: 14px;
+            margin-top: 8px;
+            padding-left: 15px;
+            border-left: 2px solid #ecf0f1;
+        }
+
+        .property-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+
+        .property-name {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .property-type {
+            color: #7f8c8d;
+            font-size: 13px;
+        }
+
+        .hierarchy-badge {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+
+        .badge-public {
+            background: #27ae60;
+        }
+
+        .badge-private {
+            background: #e74c3c;
+        }
+
+        .badge-protected {
+            background: #f39c12;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* Scrollbar */
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #1a252f;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #34495e;
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #4a5f7a;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h1>Database ORM v2.0</h1>
+            <p>Documentação Completa</p>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav">
+            <!-- Índice será preenchido via JavaScript -->
+        </nav>
+    </div>
+    
+    <!-- Resizer para redimensionar sidebar -->
+    <div class="sidebar-resizer" id="sidebarResizer"></div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Conteúdo será preenchido via JavaScript -->
+    </div>
+
+    <script>
+        // Carregar docs-data.js dinamicamente para melhor controle
+        function loadDocumentation() {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'docs-data.js';
+                script.onload = () => {
+                    if (typeof documentation !== 'undefined') {
+                        console.log('Documentação carregada com sucesso!');
+                        resolve();
+                    } else {
+                        reject(new Error('documentation não foi definido após carregar docs-data.js'));
+                    }
+                };
+                script.onerror = () => {
+                    reject(new Error('Erro ao carregar docs-data.js'));
+                };
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Função para gerar navegação
+        function generateNavigation() {
+            const nav = document.getElementById('sidebarNav');
+            let html = '';
+            
+                       // Overview
+                       html += `
+                           <div class="nav-section">
+                               <div class="nav-section-title">Início</div>
+                               <a href="#overview" class="nav-item nav-level-1 active" onclick="showSection('overview', this); return false;">Visão Geral</a>
+                               <a href="#usage-guide" class="nav-item nav-level-1 has-submenu" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); return false;">Roteiro de Uso</a>
+                               <div class="nav-submenu" id="usage-guide-submenu">
+                                   <a href="#usage-guide-internal" class="nav-item nav-level-2 has-submenu" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); showSection('usage-guide', this); return false;">Interno</a>
+                                   <div class="nav-submenu">
+                       `;
+                       
+                       // Extrair exemplos do usageGuide para o submenu Interno
+                       if (documentation && documentation.usageGuide && documentation.usageGuide.description) {
+                           const description = documentation.usageGuide.description;
+                           
+                           // Extrair títulos h3 (seções principais)
+                           const h3Regex = /<h3[^>]*>([^<]+)<\/h3>/g;
+                           const h3Matches = [];
+                           let h3Match;
+                           let h3Index = 0;
+                           while ((h3Match = h3Regex.exec(description)) !== null) {
+                               const title = h3Match[1].trim();
+                               const sectionId = `usage-guide-section-${h3Index}`;
+                               h3Matches.push({ title, sectionId, index: h3Index });
+                               h3Index++;
+                           }
+                           
+                           // Extrair títulos h4 (exemplos) e associar às seções
+                           const h4Regex = /<h4[^>]*>([^<]+)<\/h4>/g;
+                           const h4Matches = [];
+                           let h4Match;
+                           let h4Index = 0;
+                           while ((h4Match = h4Regex.exec(description)) !== null) {
+                               const title = h4Match[1].trim();
+                               const exampleId = `usage-guide-example-${h4Index}`;
+                               // Determinar a qual seção h3 este h4 pertence
+                               const h4Position = h4Match.index;
+                               let parentSectionIndex = 0;
+                               for (let i = h3Matches.length - 1; i >= 0; i--) {
+                                   const h3Pattern = new RegExp(h3Matches[i].title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+                                   const h3Pos = description.substring(0, h4Position).lastIndexOf(h3Matches[i].title);
+                                   if (h3Pos !== -1) {
+                                       parentSectionIndex = h3Matches[i].index;
+                                       break;
+                                   }
+                               }
+                               h4Matches.push({ title, exampleId, index: h4Index, parentSection: parentSectionIndex });
+                               h4Index++;
+                           }
+                           
+                           // Adicionar subitens organizados
+                           h3Matches.forEach(h3 => {
+                               // Verificar se esta seção tem subitens (h4)
+                               const h4ForThisSection = h4Matches.filter(h4 => h4.parentSection === h3.index);
+                               
+                               if (h4ForThisSection.length > 0) {
+                                   // Seção com submenu (tem h4)
+                                   html += `<a href="#${h3.sectionId}" class="nav-item nav-level-2 has-submenu" style="font-weight: bold;" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); scrollToSection('${h3.sectionId}', this); return false;">${escapeHtml(h3.title)}</a>`;
+                                   html += `<div class="nav-submenu">`;
+                                   // Adicionar exemplos desta seção
+                                   h4ForThisSection.forEach(h4 => {
+                                       html += `<a href="#${h4.exampleId}" class="nav-item nav-level-3" style="font-size: 12px;" onclick="scrollToSection('${h4.exampleId}', this); return false;">${escapeHtml(h4.title)}</a>`;
+                                   });
+                                   html += `</div>`;
+                               } else {
+                                   // Seção sem submenu (não tem h4)
+                                   html += `<a href="#${h3.sectionId}" class="nav-item nav-level-2" style="font-weight: bold;" onclick="scrollToSection('${h3.sectionId}', this); return false;">${escapeHtml(h3.title)}</a>`;
+                               }
+                           });
+                       }
+                       
+                       html += `</div>`;
+                       html += `<a href="#usage-guide-public" class="nav-item nav-level-2 has-submenu" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); showSection('public-units-guide', this); return false;">Externo</a>`;
+                       html += `<div class="nav-submenu">`;
+                       
+                       // Extrair exemplos do publicUnitsGuide para o submenu Externo
+                       if (documentation && documentation.publicUnitsGuide && documentation.publicUnitsGuide.description) {
+                           const description = documentation.publicUnitsGuide.description;
+                           
+                           // Extrair títulos h3 (seções principais)
+                           const h3Regex = /<h3[^>]*>([^<]+)<\/h3>/g;
+                           const h3Matches = [];
+                           let h3Match;
+                           let h3Index = 0;
+                           while ((h3Match = h3Regex.exec(description)) !== null) {
+                               const title = h3Match[1].trim();
+                               const sectionId = `public-units-guide-section-${h3Index}`;
+                               h3Matches.push({ title, sectionId, index: h3Index });
+                               h3Index++;
+                           }
+                           
+                           // Extrair títulos h4 (exemplos) e associar às seções
+                           const h4Regex = /<h4[^>]*>([^<]+)<\/h4>/g;
+                           const h4Matches = [];
+                           let h4Match;
+                           let h4Index = 0;
+                           while ((h4Match = h4Regex.exec(description)) !== null) {
+                               const title = h4Match[1].trim();
+                               const exampleId = `public-units-guide-example-${h4Index}`;
+                               // Determinar a qual seção h3 este h4 pertence
+                               const h4Position = h4Match.index;
+                               let parentSectionIndex = 0;
+                               for (let i = h3Matches.length - 1; i >= 0; i--) {
+                                   const h3Pattern = new RegExp(h3Matches[i].title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+                                   const h3Pos = description.substring(0, h4Position).lastIndexOf(h3Matches[i].title);
+                                   if (h3Pos !== -1) {
+                                       parentSectionIndex = h3Matches[i].index;
+                                       break;
+                                   }
+                               }
+                               h4Matches.push({ title, exampleId, index: h4Index, parentSection: parentSectionIndex });
+                               h4Index++;
+                           }
+                           
+                           // Adicionar subitens organizados
+                           h3Matches.forEach(h3 => {
+                               // Verificar se esta seção tem subitens (h4)
+                               const h4ForThisSection = h4Matches.filter(h4 => h4.parentSection === h3.index);
+                               
+                               if (h4ForThisSection.length > 0) {
+                                   // Seção com submenu (tem h4)
+                                   html += `<a href="#${h3.sectionId}" class="nav-item nav-level-2 has-submenu" style="font-weight: bold;" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); scrollToSection('${h3.sectionId}', this); return false;">${escapeHtml(h3.title)}</a>`;
+                                   html += `<div class="nav-submenu">`;
+                                   // Adicionar exemplos desta seção
+                                   h4ForThisSection.forEach(h4 => {
+                                       html += `<a href="#${h4.exampleId}" class="nav-item nav-level-3" style="font-size: 12px;" onclick="scrollToSection('${h4.exampleId}', this); return false;">${escapeHtml(h4.title)}</a>`;
+                                   });
+                                   html += `</div>`;
+                               } else {
+                                   // Seção sem submenu (não tem h4)
+                                   html += `<a href="#${h3.sectionId}" class="nav-item nav-level-2" style="font-weight: bold;" onclick="scrollToSection('${h3.sectionId}', this); return false;">${escapeHtml(h3.title)}</a>`;
+                               }
+                           });
+                       }
+                       
+                       html += `</div>`;
+                       html += `</div></div>`;
+            
+            // Units
+            const publicUnitIds = ['database-interfaces', 'database'];
+            const publicUnits = documentation && documentation.units ? 
+                documentation.units.filter(unit => publicUnitIds.includes(unit.id)) : [];
+            const internalUnits = documentation && documentation.units ? 
+                documentation.units.filter(unit => !publicUnitIds.includes(unit.id)) : [];
+            
+            html += '<div class="nav-section"><div class="nav-section-title">Units</div>';
+            html += '<a href="#units" class="nav-item nav-level-1 has-submenu" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); return false;">Units</a>';
+            html += '<div class="nav-submenu" id="units-submenu">';
+            
+            // Interno (Todas as Units exceto as públicas)
+            html += '<a href="#units-internal" class="nav-item nav-level-2 has-submenu" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); return false;">Interno</a>';
+            html += '<div class="nav-submenu">';
+            if (internalUnits.length > 0) {
+                internalUnits.forEach(unit => {
+                    // Verificar se unit tem interfaces ou classes com métodos
+                    const hasMethods = (unit.interfaces && unit.interfaces.some(iface => iface.methods && iface.methods.length > 0)) ||
+                                      (unit.classes && unit.classes.some(cls => (cls.publicMethods && cls.publicMethods.length > 0) || (cls.privateMethods && cls.privateMethods.length > 0)));
+                    
+                    if (hasMethods) {
+                        // Unit com submenu de métodos
+                        html += `<a href="#${unit.id}" class="nav-item nav-subitem has-submenu" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); showSectionAndScroll('${unit.id}', this); return false;">${escapeHtml(unit.name)}</a>`;
+                        html += `<div class="nav-submenu">`;
+                        
+                        // Listar interfaces e seus métodos
+                        if (unit.interfaces && unit.interfaces.length > 0) {
+                            unit.interfaces.forEach(iface => {
+                                if (iface.methods && iface.methods.length > 0) {
+                                    html += `<a href="#${unit.id}-${iface.name}" class="nav-item nav-level-3" style="font-weight: bold;" onclick="scrollToSection('${unit.id}-${iface.name}', this); return false;">${escapeHtml(iface.name)}</a>`;
+                                    
+                                    // Agrupar métodos por nome (detectar overloads)
+                                    const methodsMap = new Map();
+                                    iface.methods.forEach(method => {
+                                        // Extrair nome do método da assinatura
+                                        // Estratégia: pegar o primeiro identificador após as palavras-chave
+                                        let methodName = method.signature.trim();
+                                        
+                                        // Remover palavras-chave no início: class, function, procedure, constructor, destructor
+                                        // Ordem importante: primeiro remover "class" se houver, depois function/procedure/etc
+                                        methodName = methodName.replace(/^class\s+/i, '');
+                                        methodName = methodName.replace(/^(function|procedure|constructor|destructor)\s+/i, '');
+                                        
+                                        // Pegar apenas o nome do método (até o primeiro espaço, '(', ':', ';', ou fim da string)
+                                        // Exemplos:
+                                        // "Create;" -> "Create"
+                                        // "Create(AField: TjsonObject); overload;" -> "Create"
+                                        // "class function New: IField; overload;" -> "New"
+                                        // "GetTable: string" -> "GetTable"
+                                        const match = methodName.match(/^([a-zA-Z_][a-zA-Z0-9_]*)/);
+                                        if (match) {
+                                            methodName = match[1];
+                                        } else {
+                                            // Fallback: pegar até primeiro espaço, '(', ':', ';'
+                                            methodName = methodName.split(/\s|\(|:|;/)[0].trim();
+                                        }
+                                        
+                                        if (!methodsMap.has(methodName)) {
+                                            methodsMap.set(methodName, []);
+                                        }
+                                        methodsMap.get(methodName).push(method);
+                                    });
+                                    
+                                    // Renderizar métodos agrupados
+                                    methodsMap.forEach((methods, methodName) => {
+                                        if (methods.length > 1) {
+                                            // Múltiplos métodos com mesmo nome = overload
+                                            const firstMethodId = `${unit.id}-${iface.name}-${methodName}`.toLowerCase()
+                                                .replace(/[^a-z0-9-]/g, '-')
+                                                .replace(/-+/g, '-')
+                                                .replace(/^-|-$/g, '');
+                                            html += `<a href="#${firstMethodId}" class="nav-item nav-level-3 has-submenu" style="font-size: 12px;" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); return false;">${escapeHtml(methodName)} (${methods.length})</a>`;
+                                            html += `<div class="nav-submenu">`;
+                                            methods.forEach((method, index) => {
+                                                const methodId = `${unit.id}-${iface.name}-${methodName}-${index}`.toLowerCase()
+                                                    .replace(/[^a-z0-9-]/g, '-')
+                                                    .replace(/-+/g, '-')
+                                                    .replace(/^-|-$/g, '');
+                                                // Mostrar apenas assinatura completa
+                                                const shortSignature = method.signature.length > 60 
+                                                    ? method.signature.substring(0, 60) + '...' 
+                                                    : method.signature;
+                                                html += `<a href="#${methodId}" class="nav-item nav-level-3" style="font-size: 12px; font-family: monospace;" onclick="scrollToMethod('${methodId}', '${unit.id}', this); return false;" title="${escapeHtml(method.signature)}">${escapeHtml(shortSignature)}</a>`;
+                                            });
+                                            html += `</div>`;
+                                        } else {
+                                            // Método único (não é overload)
+                                            const method = methods[0];
+                                            const methodId = `${unit.id}-${iface.name}-${methodName}`.toLowerCase()
+                                                .replace(/[^a-z0-9-]/g, '-')
+                                                .replace(/-+/g, '-')
+                                                .replace(/^-|-$/g, '');
+                                            html += `<a href="#${methodId}" class="nav-item nav-level-3" style="font-size: 12px;" onclick="scrollToMethod('${methodId}', '${unit.id}', this); return false;">${escapeHtml(methodName)}</a>`;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        
+                        // Listar classes e seus métodos públicos
+                        if (unit.classes && unit.classes.length > 0) {
+                            unit.classes.forEach(cls => {
+                                if ((cls.publicMethods && cls.publicMethods.length > 0) || (cls.privateMethods && cls.privateMethods.length > 0)) {
+                                    html += `<a href="#${unit.id}-${cls.name}" class="nav-item nav-level-3" style="font-weight: bold; margin-top: 5px;" onclick="scrollToSection('${unit.id}-${cls.name}', this); return false;">${escapeHtml(cls.name)}</a>`;
+                                    if (cls.publicMethods && cls.publicMethods.length > 0) {
+                                        // Agrupar métodos por nome (detectar overloads)
+                                        const methodsMap = new Map();
+                                        cls.publicMethods.forEach(method => {
+                                            // Extrair nome do método da assinatura
+                                            // Estratégia: pegar o primeiro identificador após as palavras-chave
+                                            let methodName = method.signature.trim();
+                                            
+                                            // Remover palavras-chave no início: class, function, procedure, constructor, destructor
+                                            // Ordem importante: primeiro remover "class" se houver, depois function/procedure/etc
+                                            methodName = methodName.replace(/^class\s+/i, '');
+                                            methodName = methodName.replace(/^(function|procedure|constructor|destructor)\s+/i, '');
+                                            
+                                            // Pegar apenas o nome do método (até o primeiro espaço, '(', ':', ';', ou fim da string)
+                                            // Exemplos:
+                                            // "Create;" -> "Create"
+                                            // "Create(AField: TjsonObject); overload;" -> "Create"
+                                            // "class function New: IField; overload;" -> "New"
+                                            // "GetTable: string" -> "GetTable"
+                                            const match = methodName.match(/^([a-zA-Z_][a-zA-Z0-9_]*)/);
+                                            if (match) {
+                                                methodName = match[1];
+                                            } else {
+                                                // Fallback: pegar até primeiro espaço, '(', ':', ';'
+                                                methodName = methodName.split(/\s|\(|:|;/)[0].trim();
+                                            }
+                                            
+                                            if (!methodsMap.has(methodName)) {
+                                                methodsMap.set(methodName, []);
+                                            }
+                                            methodsMap.get(methodName).push(method);
+                                        });
+                                        
+                                        // Renderizar métodos agrupados
+                                        methodsMap.forEach((methods, methodName) => {
+                                            if (methods.length > 1) {
+                                                // Múltiplos métodos com mesmo nome = overload
+                                                const firstMethodId = `${unit.id}-${cls.name}-${methodName}`.toLowerCase()
+                                                    .replace(/[^a-z0-9-]/g, '-')
+                                                    .replace(/-+/g, '-')
+                                                    .replace(/^-|-$/g, '');
+                                                html += `<a href="#${firstMethodId}" class="nav-item nav-subitem has-submenu" style="/* padding-left: 50px; - removido, usando nav-level-2 ou nav-level-3 */ font-size: 12px;" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); return false;">${escapeHtml(methodName)} (${methods.length})</a>`;
+                                                html += `<div class="nav-submenu">`;
+                                                methods.forEach((method, index) => {
+                                                    const methodId = `${unit.id}-${cls.name}-${methodName}-${index}`.toLowerCase()
+                                                        .replace(/[^a-z0-9-]/g, '-')
+                                                        .replace(/-+/g, '-')
+                                                        .replace(/^-|-$/g, '');
+                                                    // Mostrar apenas assinatura completa
+                                                    const shortSignature = method.signature.length > 60 
+                                                        ? method.signature.substring(0, 60) + '...' 
+                                                        : method.signature;
+                                                    html += `<a href="#${methodId}" class="nav-item nav-subitem" style="/* padding-left: 70px; - removido, usando nav-level-3 */ font-size: 12px; font-family: monospace;" onclick="scrollToMethod('${methodId}', '${unit.id}', this); return false;" title="${escapeHtml(method.signature)}">${escapeHtml(shortSignature)}</a>`;
+                                                });
+                                                html += `</div>`;
+                                            } else {
+                                                // Método único (não é overload)
+                                                const method = methods[0];
+                                                const methodId = `${unit.id}-${cls.name}-${methodName}`.toLowerCase()
+                                                    .replace(/[^a-z0-9-]/g, '-')
+                                                    .replace(/-+/g, '-')
+                                                    .replace(/^-|-$/g, '');
+                                                html += `<a href="#${methodId}" class="nav-item nav-subitem" style="/* padding-left: 50px; - removido, usando nav-level-2 ou nav-level-3 */ font-size: 12px;" onclick="scrollToMethod('${methodId}', '${unit.id}', this); return false;">${escapeHtml(methodName)}</a>`;
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                        
+                        html += `</div>`;
+                    } else {
+                        // Unit sem métodos (apenas link simples)
+                        html += `<a href="#${unit.id}" class="nav-item nav-subitem" onclick="showSection('${unit.id}', this); return false;">${escapeHtml(unit.name)}</a>`;
+                    }
+                });
+                html += '</div>';
+            }
+            
+            // Externo (Units Públicas: Database.Interfaces, Database)
+            html += '<a href="#units-external" class="nav-item nav-level-2 has-submenu" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); return false;">Externo</a>';
+            html += '<div class="nav-submenu">';
+            if (publicUnits.length > 0) {
+                publicUnits.forEach(unit => {
+                    // Verificar se unit tem interfaces ou classes com métodos
+                    const hasMethods = (unit.interfaces && unit.interfaces.some(iface => iface.methods && iface.methods.length > 0)) ||
+                                      (unit.classes && unit.classes.some(cls => (cls.publicMethods && cls.publicMethods.length > 0) || (cls.privateMethods && cls.privateMethods.length > 0)));
+                    
+                    if (hasMethods) {
+                        // Unit com submenu de métodos
+                        html += `<a href="#${unit.id}" class="nav-item nav-subitem has-submenu" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); showSectionAndScroll('${unit.id}', this); return false;">${escapeHtml(unit.name)}</a>`;
+                        html += `<div class="nav-submenu">`;
+                        
+                        // Listar interfaces e seus métodos
+                        if (unit.interfaces && unit.interfaces.length > 0) {
+                            unit.interfaces.forEach(iface => {
+                                if (iface.methods && iface.methods.length > 0) {
+                                    html += `<a href="#${unit.id}-${iface.name}" class="nav-item nav-level-3" style="font-weight: bold;" onclick="scrollToSection('${unit.id}-${iface.name}', this); return false;">${escapeHtml(iface.name)}</a>`;
+                                    
+                                    // Agrupar métodos por nome (detectar overloads)
+                                    const methodsMap = new Map();
+                                    iface.methods.forEach(method => {
+                                        // Extrair nome do método da assinatura
+                                        let methodName = method.signature.trim();
+                                        methodName = methodName.replace(/^class\s+/i, '');
+                                        methodName = methodName.replace(/^(function|procedure|constructor|destructor)\s+/i, '');
+                                        const match = methodName.match(/^([a-zA-Z_][a-zA-Z0-9_]*)/);
+                                        if (match) {
+                                            methodName = match[1];
+                                        } else {
+                                            methodName = methodName.split(/\s|\(|:|;/)[0].trim();
+                                        }
+                                        
+                                        if (!methodsMap.has(methodName)) {
+                                            methodsMap.set(methodName, []);
+                                        }
+                                        methodsMap.get(methodName).push(method);
+                                    });
+                                    
+                                    // Renderizar métodos agrupados
+                                    methodsMap.forEach((methods, methodName) => {
+                                        if (methods.length > 1) {
+                                            // Múltiplos overloads
+                                            html += `<a href="#${unit.id}-${iface.name}-${methodName}" class="nav-item nav-subitem has-submenu" style="/* padding-left: 50px; - removido, usando nav-level-2 ou nav-level-3 */ font-size: 12px;" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); return false;">${escapeHtml(methodName)} (${methods.length})</a>`;
+                                            html += `<div class="nav-submenu">`;
+                                            methods.forEach((method, index) => {
+                                                const methodId = `${unit.id}-${iface.name}-${methodName}-${index}`;
+                                                html += `<a href="#${methodId}" class="nav-item nav-subitem" style="/* padding-left: 70px; - removido, usando nav-level-3 */ font-size: 11px;" onclick="scrollToMethod('${methodId}', '${unit.id}', this); return false;">${escapeHtml(method.signature)}</a>`;
+                                            });
+                                            html += `</div>`;
+                                        } else {
+                                            // Método único
+                                            const methodId = `${unit.id}-${iface.name}-${methodName}`;
+                                            html += `<a href="#${methodId}" class="nav-item nav-subitem" style="/* padding-left: 50px; - removido, usando nav-level-2 ou nav-level-3 */ font-size: 12px;" onclick="scrollToMethod('${methodId}', '${unit.id}', this); return false;">${escapeHtml(methodName)}</a>`;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        
+                        // Listar classes e seus métodos públicos
+                        if (unit.classes && unit.classes.length > 0) {
+                            unit.classes.forEach(cls => {
+                                if ((cls.publicMethods && cls.publicMethods.length > 0) || (cls.privateMethods && cls.privateMethods.length > 0)) {
+                                    html += `<a href="#${unit.id}-${cls.name}" class="nav-item nav-level-3" style="font-weight: bold; margin-top: 5px;" onclick="scrollToSection('${unit.id}-${cls.name}', this); return false;">${escapeHtml(cls.name)}</a>`;
+                                    if (cls.publicMethods && cls.publicMethods.length > 0) {
+                                        // Agrupar métodos por nome (detectar overloads)
+                                        const methodsMap = new Map();
+                                        cls.publicMethods.forEach(method => {
+                                            let methodName = method.signature.trim();
+                                            methodName = methodName.replace(/^class\s+/i, '');
+                                            methodName = methodName.replace(/^(function|procedure|constructor|destructor)\s+/i, '');
+                                            const match = methodName.match(/^([a-zA-Z_][a-zA-Z0-9_]*)/);
+                                            if (match) {
+                                                methodName = match[1];
+                                            } else {
+                                                methodName = methodName.split(/\s|\(|:|;/)[0].trim();
+                                            }
+                                            
+                                            if (!methodsMap.has(methodName)) {
+                                                methodsMap.set(methodName, []);
+                                            }
+                                            methodsMap.get(methodName).push(method);
+                                        });
+                                        
+                                        // Renderizar métodos agrupados
+                                        methodsMap.forEach((methods, methodName) => {
+                                            if (methods.length > 1) {
+                                                // Múltiplos overloads
+                                                html += `<a href="#${unit.id}-${cls.name}-${methodName}" class="nav-item nav-subitem has-submenu" style="/* padding-left: 50px; - removido, usando nav-level-2 ou nav-level-3 */ font-size: 12px;" onclick="event.preventDefault(); event.stopPropagation(); toggleSubmenu(this, event); return false;">${escapeHtml(methodName)} (${methods.length})</a>`;
+                                                html += `<div class="nav-submenu">`;
+                                                methods.forEach((method, index) => {
+                                                    const methodId = `${unit.id}-${cls.name}-${methodName}-${index}`;
+                                                    html += `<a href="#${methodId}" class="nav-item nav-subitem" style="/* padding-left: 70px; - removido, usando nav-level-3 */ font-size: 11px;" onclick="scrollToMethod('${methodId}', '${unit.id}', this); return false;">${escapeHtml(method.signature)}</a>`;
+                                                });
+                                                html += `</div>`;
+                                            } else {
+                                                // Método único
+                                                const methodId = `${unit.id}-${cls.name}-${methodName}`;
+                                                html += `<a href="#${methodId}" class="nav-item nav-subitem" style="/* padding-left: 50px; - removido, usando nav-level-2 ou nav-level-3 */ font-size: 12px;" onclick="scrollToMethod('${methodId}', '${unit.id}', this); return false;">${escapeHtml(methodName)}</a>`;
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                        
+                        html += `</div>`;
+                    } else {
+                        // Unit sem métodos (apenas link simples)
+                        html += `<a href="#${unit.id}" class="nav-item nav-subitem" onclick="showSection('${unit.id}', this); return false;">${escapeHtml(unit.name)}</a>`;
+                    }
+                });
+                html += '</div>';
+            }
+            html += '</div>'; // Fechar submenu "Externo"
+            html += '</div>'; // Fechar submenu principal "Units"
+            
+            nav.innerHTML = html;
+        }
+
+        // Função para alternar submenu
+        function toggleSubmenu(element, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const submenu = element.nextElementSibling;
+            if (submenu && submenu.classList.contains('nav-submenu')) {
+                const isExpanded = submenu.classList.contains('expanded');
+                if (isExpanded) {
+                    // Recolher
+                    submenu.classList.remove('expanded');
+                    element.classList.remove('expanded');
+                } else {
+                    // Expandir
+                    submenu.classList.add('expanded');
+                    element.classList.add('expanded');
+                    // NÃO mostrar conteúdo quando clicar em "Roteiro de Uso" - apenas expandir/colapsar submenu
+                    // Se for units, apenas expandir (não precisa mostrar seção específica)
+                    
+                    // Fazer scroll automático na sidebar para mostrar o submenu expandido
+                    setTimeout(() => {
+                        const sidebar = document.querySelector('.sidebar');
+                        if (sidebar && element) {
+                            // Calcular posição do elemento em relação à sidebar
+                            const elementRect = element.getBoundingClientRect();
+                            const sidebarRect = sidebar.getBoundingClientRect();
+                            
+                            // Verificar se o elemento está fora da área visível
+                            const isAboveViewport = elementRect.top < sidebarRect.top;
+                            const isBelowViewport = elementRect.bottom > sidebarRect.bottom;
+                            
+                            if (isAboveViewport || isBelowViewport) {
+                                // Calcular posição de scroll necessária
+                                // Usar offsetTop relativo ao sidebar-nav
+                                const sidebarNav = sidebar.querySelector('.sidebar-nav');
+                                if (sidebarNav) {
+                                    const elementOffsetTop = element.offsetTop;
+                                    const sidebarNavOffsetTop = sidebarNav.offsetTop;
+                                    
+                                    // Scroll suave até o elemento, com um pequeno offset do topo
+                                    const targetScroll = elementOffsetTop - sidebarNavOffsetTop - 20; // 20px de margem do topo
+                                    
+                                    sidebar.scrollTo({
+                                        top: Math.max(0, targetScroll),
+                                        behavior: 'smooth'
+                                    });
+                                }
+                            }
+                        }
+                    }, 100); // Pequeno delay para garantir que o submenu foi renderizado
+                }
+            }
+            return false;
+        }
+
+        // Função para rolar até uma seção específica
+        function scrollToSection(sectionId, eventElement) {
+            // Determinar qual seção principal mostrar baseado no sectionId
+            let mainSection = 'usage-guide';
+            if (sectionId.startsWith('database-interfaces') || 
+                sectionId.startsWith('database') || 
+                sectionId.startsWith('database-dfm') ||
+                sectionId.includes('-interfaces') ||
+                sectionId.includes('-impl') ||
+                sectionId.includes('-types') ||
+                sectionId.includes('-exceptions') ||
+                sectionId.includes('-consts') ||
+                sectionId.includes('-parameters') ||
+                sectionId.includes('-attributes')) {
+                // É uma unit, encontrar o ID da unit
+                const unitMatch = sectionId.match(/^([^-]+(?:-[^-]+)*)/);
+                if (unitMatch) {
+                    mainSection = unitMatch[1];
+                } else {
+                    mainSection = 'units';
+                }
+            }
+            
+            // Se for um exemplo do Roteiro de Uso Público (public-units-guide-example-*), mostrar apenas esse exemplo
+            if (sectionId.startsWith('public-units-guide-example-')) {
+                showSection('public-units-guide', null);
+                setTimeout(() => {
+                    // Esconder TODOS os elementos primeiro
+                    document.querySelectorAll('.usage-section, .usage-example, .usage-content').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    
+                    // Mostrar apenas o h4 clicado e seu conteúdo
+                    const targetH4 = document.getElementById(sectionId);
+                    if (targetH4) {
+                        // Encontrar o h3 pai deste h4
+                        let currentElement = targetH4.previousElementSibling;
+                        let parentH3 = null;
+                        while (currentElement) {
+                            if (currentElement.classList && currentElement.classList.contains('usage-section')) {
+                                parentH3 = currentElement;
+                                break;
+                            }
+                            // NÃO mostrar outros h4 que vêm antes do clicado
+                            if (currentElement.classList && currentElement.classList.contains('usage-example')) {
+                                // Esconder explicitamente outros h4 da mesma seção
+                                currentElement.style.display = 'none';
+                            }
+                            currentElement = currentElement.previousElementSibling;
+                        }
+                        
+                        // Mostrar o h3 pai
+                        if (parentH3) {
+                            parentH3.style.display = 'block';
+                        }
+                        
+                        // Mostrar o h4 clicado
+                        targetH4.style.display = 'block';
+                        
+                        // Mostrar conteúdo APENAS após o h4 clicado até o próximo h3 ou h4
+                        let nextElement = targetH4.nextElementSibling;
+                        while (nextElement) {
+                            if (nextElement.classList) {
+                                if (nextElement.classList.contains('usage-section') || 
+                                    nextElement.classList.contains('usage-example')) {
+                                    break; // Parar no próximo h3 ou h4
+                                }
+                                if (nextElement.classList.contains('usage-content')) {
+                                    nextElement.style.display = 'block';
+                                }
+                            }
+                            nextElement = nextElement.nextElementSibling;
+                        }
+                        
+                        scrollToElement(targetH4);
+                    }
+                }, 300);
+            } else if (sectionId.startsWith('public-units-guide-section-')) {
+                // Se for uma seção h3 do Roteiro de Uso Público, mostrar apenas essa seção e seus h4
+                showSection('public-units-guide', null);
+                setTimeout(() => {
+                    // Esconder TODOS os elementos primeiro
+                    document.querySelectorAll('.usage-section, .usage-example, .usage-content').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    
+                    // Mostrar apenas o h3 clicado e seus h4 e conteúdo
+                    const targetH3 = document.getElementById(sectionId);
+                    if (targetH3) {
+                        targetH3.style.display = 'block';
+                        
+                        // Mostrar todos os elementos até o próximo h3
+                        let nextElement = targetH3.nextElementSibling;
+                        while (nextElement) {
+                            if (nextElement.classList && nextElement.classList.contains('usage-section')) {
+                                break; // Parar no próximo h3
+                            }
+                            if (nextElement.classList && 
+                                (nextElement.classList.contains('usage-example') || 
+                                 nextElement.classList.contains('usage-content'))) {
+                                nextElement.style.display = 'block';
+                            }
+                            nextElement = nextElement.nextElementSibling;
+                        }
+                        
+                        scrollToElement(targetH3);
+                    }
+                }, 300);
+            } else if (sectionId.startsWith('usage-guide-example-')) {
+                showSection('usage-guide', null);
+                setTimeout(() => {
+                    // Esconder TODOS os elementos primeiro
+                    document.querySelectorAll('.usage-section, .usage-example, .usage-content').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    
+                    // Mostrar apenas o h4 clicado e seu conteúdo
+                    const targetH4 = document.getElementById(sectionId);
+                    if (targetH4) {
+                        // Encontrar o h3 pai deste h4
+                        let currentElement = targetH4.previousElementSibling;
+                        let parentH3 = null;
+                        while (currentElement) {
+                            if (currentElement.classList && currentElement.classList.contains('usage-section')) {
+                                parentH3 = currentElement;
+                                break;
+                            }
+                            currentElement = currentElement.previousElementSibling;
+                        }
+                        
+                        // Mostrar o h3 pai
+                        if (parentH3) {
+                            parentH3.style.display = 'block';
+                        }
+                        
+                        // Mostrar o h4 clicado
+                        targetH4.style.display = 'block';
+                        
+                        // NÃO mostrar conteúdo entre o h3 e o h4 (isso mostraria exemplos anteriores)
+                        // Mostrar APENAS conteúdo após o h4 clicado até o próximo h3 ou h4
+                        let nextElement = targetH4.nextElementSibling;
+                        while (nextElement) {
+                            if (nextElement.classList) {
+                                if (nextElement.classList.contains('usage-section') || 
+                                    nextElement.classList.contains('usage-example')) {
+                                    break; // Parar no próximo h3 ou h4
+                                }
+                                if (nextElement.classList.contains('usage-content')) {
+                                    nextElement.style.display = 'block';
+                                }
+                            }
+                            nextElement = nextElement.nextElementSibling;
+                        }
+                        
+                        scrollToElement(targetH4);
+                    }
+                }, 300);
+            } else if (sectionId.startsWith('usage-guide-section-')) {
+                // Se for uma seção h3, mostrar apenas essa seção e seus h4
+                showSection('usage-guide', null);
+                setTimeout(() => {
+                    // Esconder TODOS os elementos primeiro
+                    document.querySelectorAll('.usage-section, .usage-example, .usage-content').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    
+                    // Mostrar apenas o h3 clicado e seus h4 e conteúdo
+                    const targetH3 = document.getElementById(sectionId);
+                    if (targetH3) {
+                        targetH3.style.display = 'block';
+                        
+                        // Mostrar todos os elementos até o próximo h3
+                        let nextElement = targetH3.nextElementSibling;
+                        while (nextElement) {
+                            if (nextElement.classList && nextElement.classList.contains('usage-section')) {
+                                break; // Parar no próximo h3
+                            }
+                            if (nextElement.classList && 
+                                (nextElement.classList.contains('usage-example') || 
+                                 nextElement.classList.contains('usage-content'))) {
+                                nextElement.style.display = 'block';
+                            }
+                            nextElement = nextElement.nextElementSibling;
+                        }
+                        
+                        scrollToElement(targetH3);
+                    }
+                }, 300);
+            } else {
+                // Para outras seções (units, etc.), comportamento normal
+                showSection(mainSection, null);
+                setTimeout(() => {
+                    const element = document.getElementById(sectionId);
+                    if (element) {
+                        scrollToElement(element);
+                    }
+                }, 300);
+            }
+            
+            // Atualizar navegação ativa
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item !== eventElement) {
+                    item.classList.remove('active');
+                }
+            });
+            if (eventElement) {
+                eventElement.classList.add('active');
+            }
+        }
+
+        // Função para rolar até um método específico
+        function scrollToMethod(methodId, unitId, eventElement) {
+            // Primeiro mostrar a unit
+            showSection(unitId, null);
+            
+            // Aguardar renderização do conteúdo
+            setTimeout(() => {
+                // Primeiro, OCULTAR TODOS os métodos
+                document.querySelectorAll('.method-item').forEach(item => {
+                    item.style.display = 'none';
+                });
+                
+                // Tentar encontrar o método pelo ID exato
+                let element = document.getElementById(methodId);
+                
+                if (!element) {
+                    // Se não encontrar pelo ID, tentar encontrar pela assinatura
+                    const parts = methodId.split('-');
+                    // Verificar se o último elemento é um número (índice de overload)
+                    const lastPart = parts[parts.length - 1];
+                    const isOverload = !isNaN(parseInt(lastPart));
+                    
+                    let methodName, index;
+                    if (isOverload) {
+                        // Tem índice: penúltimo é o nome, último é o índice
+                        methodName = parts[parts.length - 2];
+                        index = lastPart;
+                    } else {
+                        // Sem índice: último é o nome do método
+                        methodName = lastPart;
+                        index = null;
+                    }
+                    
+                    // Buscar todos os métodos com esse nome
+                    const methodElements = document.querySelectorAll('.method-item');
+                    const matchingMethods = [];
+                    
+                    methodElements.forEach(methodEl => {
+                        const signatureEl = methodEl.querySelector('.method-signature');
+                        if (signatureEl) {
+                            const signature = signatureEl.textContent.toLowerCase();
+                            // Extrair nome do método da assinatura (mesma lógica do agrupamento)
+                            let sigMethodName = signature.split('(')[0].trim();
+                            sigMethodName = sigMethodName.replace(/^class\s+/i, '');
+                            sigMethodName = sigMethodName.replace(/^(function|procedure|constructor|destructor)\s+/i, '');
+                            const match = sigMethodName.match(/^([a-zA-Z_][a-zA-Z0-9_]*)/);
+                            if (match) {
+                                sigMethodName = match[1].toLowerCase();
+                            } else {
+                                sigMethodName = sigMethodName.split(/\s|\(|:|;/)[0].trim().toLowerCase();
+                            }
+                            
+                            if (sigMethodName === methodName.toLowerCase()) {
+                                matchingMethods.push(methodEl);
+                            }
+                        }
+                    });
+                    
+                    // Se encontrou métodos, usar o índice se disponível
+                    if (matchingMethods.length > 0) {
+                        if (index !== null) {
+                            const idx = parseInt(index);
+                            if (!isNaN(idx) && idx < matchingMethods.length) {
+                                element = matchingMethods[idx];
+                            } else {
+                                element = matchingMethods[0]; // Fallback para o primeiro
+                            }
+                        } else {
+                            // Método único, pegar o primeiro (e único) match
+                            element = matchingMethods[0];
+                        }
+                    }
+                }
+                
+                if (element) {
+                    // MOSTRAR APENAS o método clicado
+                    element.style.display = 'block';
+                    
+                    // Fazer scroll até o método
+                    scrollToElement(element);
+                } else {
+                    // Se ainda não encontrou, tentar buscar pelo ID sem normalização
+                    console.warn('Método não encontrado:', methodId);
+                    // Tentar buscar todos os elementos com class method-item e verificar seus IDs
+                    const allMethods = document.querySelectorAll('.method-item');
+                    allMethods.forEach(methodEl => {
+                        if (methodEl.id && methodEl.id.toLowerCase() === methodId.toLowerCase()) {
+                            methodEl.style.display = 'block';
+                            scrollToElement(methodEl);
+                        }
+                    });
+                }
+            }, 500);
+            
+            // Atualizar navegação ativa
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item !== eventElement) {
+                    item.classList.remove('active');
+                }
+            });
+            if (eventElement) {
+                eventElement.classList.add('active');
+            }
+        }
+
+        // Função auxiliar para fazer scroll até um elemento
+        function scrollToElement(element) {
+            if (!element) return;
+            
+            const offset = 100;
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - offset;
+            
+            window.scrollTo({
+                top: Math.max(0, offsetPosition), // Garantir que não seja negativo
+                behavior: 'smooth'
+            });
+            
+            // Highlight temporário
+            element.style.backgroundColor = '#fff3cd';
+            element.style.transition = 'background-color 2s';
+            setTimeout(() => {
+                element.style.backgroundColor = '';
+            }, 2000);
+        }
+        
+        // Função auxiliar para fazer scroll até o topo do conteúdo
+        function scrollToTop() {
+            const mainContentEl = document.getElementById('mainContent');
+            if (mainContentEl) {
+                const offset = 20;
+                const elementPosition = mainContentEl.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - offset;
+                window.scrollTo({
+                    top: Math.max(0, offsetPosition),
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        // Função para mostrar seção e fazer scroll
+        function showSectionAndScroll(sectionId, eventElement) {
+            showSection(sectionId, eventElement);
+            // Scroll será feito automaticamente pela função showSection após renderização
+        }
+
+        // Função para mostrar seção
+        function showSection(sectionId, eventElement) {
+            const mainContent = document.getElementById('mainContent');
+            let html = '';
+            
+            // Verificar se documentation existe
+            if (typeof documentation === 'undefined') {
+                console.error('documentation não está definido!');
+                return;
+            }
+            
+            // Atualizar navegação ativa
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            if (eventElement) {
+                eventElement.classList.add('active');
+            } else {
+                // Se não foi passado eventElement, encontrar pelo sectionId
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(sectionId)) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+            
+                       if (sectionId === 'overview') {
+                           html = `
+                               <div class="unit-section">
+                                   <div class="unit-header">
+                                       <h1>Visão Geral do Sistema</h1>
+                                       <div class="unit-path">Database ORM v2.0</div>
+                                   </div>
+                                   <div class="unit-description">
+                                       ${documentation.overview.description}
+                                   </div>
+                               </div>
+                           `;
+                       } else if (sectionId === 'usage-guide' || sectionId === 'usage-guide-internal') {
+                           // Processar description para adicionar IDs aos títulos
+                           let description = documentation.usageGuide.description;
+                           
+                           // Adicionar IDs aos h3
+                           let h3Index = 0;
+                           description = description.replace(/<h3([^>]*)>([^<]+)<\/h3>/g, (match, attrs, title) => {
+                               const id = `usage-guide-section-${h3Index}`;
+                               h3Index++;
+                               return `<h3${attrs} id="${id}" class="usage-section">${title}</h3>`;
+                           });
+                           
+                           // Adicionar IDs aos h4
+                           let h4Index = 0;
+                           description = description.replace(/<h4([^>]*)>([^<]+)<\/h4>/g, (match, attrs, title) => {
+                               const id = `usage-guide-example-${h4Index}`;
+                               h4Index++;
+                               return `<h4${attrs} id="${id}" class="usage-example">${title}</h4>`;
+                           });
+                           
+                           // Adicionar classe aos parágrafos e outros elementos para poder esconder/mostrar
+                           description = description.replace(/<p([^>]*)>/g, '<p$1 class="usage-content">');
+                           description = description.replace(/<pre([^>]*)>/g, '<pre$1 class="usage-content">');
+                           description = description.replace(/<ul([^>]*)>/g, '<ul$1 class="usage-content">');
+                           description = description.replace(/<ol([^>]*)>/g, '<ol$1 class="usage-content">');
+                           
+                           html = `
+                               <div class="unit-section">
+                                   <div class="unit-header">
+                                       <h1>Roteiro de Uso</h1>
+                                       <div class="unit-path">Guia Prático</div>
+                                   </div>
+                                   <div class="unit-description">
+                                       ${description}
+                                   </div>
+                               </div>
+                           `;
+                           
+                           // Expandir submenu automaticamente
+                           setTimeout(() => {
+                               const submenu = document.getElementById('usage-guide-submenu');
+                               const menuItem = document.querySelector('a[href="#usage-guide"]');
+                               if (submenu && menuItem) {
+                                   submenu.classList.add('expanded');
+                                   menuItem.classList.add('expanded');
+                               }
+                           }, 100);
+                       } else if (sectionId === 'public-units-guide' || sectionId === 'usage-guide-public') {
+                           // Roteiro de Uso - Units Públicas (Externo)
+                           let description = '';
+                           if (documentation && documentation.publicUnitsGuide && documentation.publicUnitsGuide.description) {
+                               description = documentation.publicUnitsGuide.description;
+                           } else {
+                               description = '<p>Roteiro de uso para as Units Públicas (Database.Interfaces e Database).</p>';
+                           }
+                           
+                           // Adicionar IDs aos h3
+                           let h3Index = 0;
+                           description = description.replace(/<h3([^>]*)>([^<]+)<\/h3>/g, (match, attrs, title) => {
+                               const id = `public-units-guide-section-${h3Index}`;
+                               h3Index++;
+                               return `<h3${attrs} id="${id}" class="usage-section">${title}</h3>`;
+                           });
+                           
+                           // Adicionar IDs aos h4
+                           let h4Index = 0;
+                           description = description.replace(/<h4([^>]*)>([^<]+)<\/h4>/g, (match, attrs, title) => {
+                               const id = `public-units-guide-example-${h4Index}`;
+                               h4Index++;
+                               return `<h4${attrs} id="${id}" class="usage-example">${title}</h4>`;
+                           });
+                           
+                           // Adicionar classe aos parágrafos e outros elementos
+                           description = description.replace(/<p([^>]*)>/g, '<p$1 class="usage-content">');
+                           description = description.replace(/<pre([^>]*)>/g, '<pre$1 class="usage-content">');
+                           description = description.replace(/<ul([^>]*)>/g, '<ul$1 class="usage-content">');
+                           description = description.replace(/<ol([^>]*)>/g, '<ol$1 class="usage-content">');
+                           
+                           html = `
+                               <div class="unit-section">
+                                   <div class="unit-header">
+                                       <h1>Roteiro de Uso - Externo</h1>
+                                       <div class="unit-path">Guia Prático - Units Públicas</div>
+                                   </div>
+                                   <div class="unit-description">
+                                       ${description}
+                                   </div>
+                               </div>
+                           `;
+                           
+                           // Expandir submenu automaticamente
+                           setTimeout(() => {
+                               const submenu = document.getElementById('usage-guide-submenu');
+                               const menuItem = document.querySelector('a[href="#usage-guide"]');
+                               if (submenu && menuItem) {
+                                   submenu.classList.add('expanded');
+                                   menuItem.classList.add('expanded');
+                               }
+                           }, 100);
+                       } else {
+                const unit = documentation.units.find(u => u.id === sectionId);
+                if (unit) {
+                    html = generateUnitDocumentation(unit);
+                }
+            }
+            
+            mainContent.innerHTML = html;
+            
+            // Aguardar renderização e fazer scroll
+            setTimeout(() => {
+                // Verificar se há hash na URL para scroll específico
+                const hash = window.location.hash.substring(1);
+                if (hash && hash !== sectionId) {
+                    const targetElement = document.getElementById(hash);
+                    if (targetElement) {
+                        scrollToElement(targetElement);
+                        return; // Não fazer scroll para o topo se encontrou elemento específico
+                    }
+                }
+                
+                // Scroll para o topo do conteúdo principal (sempre)
+                scrollToTop();
+            }, 150);
+        }
+
+        // Função para gerar documentação de uma unit
+        function generateUnitDocumentation(unit) {
+            let html = `
+                <div class="unit-section">
+                    <div class="unit-header">
+                        <h1>${unit.name}</h1>
+                        <div class="unit-path">${unit.path}</div>
+                        <div class="unit-description">${unit.description}</div>
+                    </div>
+            `;
+            
+            // Interfaces
+            if (unit.interfaces && unit.interfaces.length > 0) {
+                html += '<div class="section"><h2 class="section-title">Interfaces</h2>';
+                unit.interfaces.forEach(iface => {
+                    html += generateInterfaceDoc(iface, unit.id);
+                });
+                html += '</div>';
+            }
+            
+            // Classes
+            if (unit.classes && unit.classes.length > 0) {
+                html += '<div class="section"><h2 class="section-title">Classes</h2>';
+                unit.classes.forEach(cls => {
+                    html += generateClassDoc(cls, unit.id);
+                });
+                html += '</div>';
+            }
+            
+            // Types
+            if (unit.types && unit.types.length > 0) {
+                html += '<div class="section"><h2 class="section-title">Tipos</h2>';
+                unit.types.forEach(type => {
+                    html += `
+                        <div class="method-item">
+                            <div class="method-signature">${type.name}: ${escapeHtml(type.definition)}</div>
+                            ${type.comment ? `<div class="method-comment">${type.comment}</div>` : ''}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            // Functions
+            if (unit.functions && unit.functions.length > 0) {
+                html += '<div class="section"><h2 class="section-title">Funções</h2>';
+                unit.functions.forEach(func => {
+                    html += `
+                        <div class="method-item">
+                            <div class="method-signature">${escapeHtml(func.signature)}</div>
+                            ${func.comment ? `<div class="method-comment">${func.comment}</div>` : ''}
+                            ${func.example ? `<div style="margin-top: 10px; padding: 10px; background: #2c3e50; border-radius: 4px;"><pre style="margin: 0; color: #ecf0f1; font-size: 12px;"><code>${escapeHtml(func.example)}</code></pre></div>` : ''}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            // Aliases
+            if (unit.aliases && unit.aliases.length > 0) {
+                html += '<div class="section"><h2 class="section-title">Aliases</h2>';
+                unit.aliases.forEach(alias => {
+                    html += `
+                        <div class="method-item">
+                            <div class="method-signature">${alias.name} = ${alias.alias}</div>
+                            ${alias.comment ? `<div class="method-comment">${alias.comment}</div>` : ''}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            // Constants
+            if (unit.constants && unit.constants.length > 0) {
+                html += '<div class="section"><h2 class="section-title">Constantes</h2>';
+                unit.constants.forEach(constant => {
+                    html += `
+                        <div class="method-item">
+                            <div class="method-signature">${constant.name} = ${escapeHtml(constant.value)}</div>
+                            ${constant.comment ? `<div class="method-comment">${constant.comment}</div>` : ''}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        // Função para gerar documentação de interface
+        function generateInterfaceDoc(iface, unitId) {
+            const interfaceId = `${unitId}-${iface.name}`.toLowerCase()
+                .replace(/[^a-z0-9-]/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+            let html = `
+                <div class="interface-box" id="${interfaceId}">
+                    <div class="interface-title">${iface.name}</div>
+                    ${iface.guid ? `<div class="interface-guid">GUID: ${iface.guid}</div>` : ''}
+                    ${iface.description ? `<p style="margin-bottom: 15px; color: #555;">${iface.description}</p>` : ''}
+            `;
+            
+            if (iface.methods && iface.methods.length > 0) {
+                html += '<div class="method-list"><h3 style="font-size: 16px; margin-bottom: 10px; color: #2c3e50;">Métodos</h3>';
+                
+                // Agrupar métodos por nome para detectar overloads
+                const methodsMap = new Map();
+                iface.methods.forEach((method, index) => {
+                    // Extrair nome do método da assinatura
+                    // Estratégia: pegar o primeiro identificador após as palavras-chave
+                    let methodName = method.signature.trim();
+                    
+                    // Remover palavras-chave no início: class, function, procedure, constructor, destructor
+                    // Ordem importante: primeiro remover "class" se houver, depois function/procedure/etc
+                    methodName = methodName.replace(/^class\s+/i, '');
+                    methodName = methodName.replace(/^(function|procedure|constructor|destructor)\s+/i, '');
+                    
+                    // Pegar apenas o nome do método (até o primeiro espaço, '(', ':', ';', ou fim da string)
+                    const match = methodName.match(/^([a-zA-Z_][a-zA-Z0-9_]*)/);
+                    if (match) {
+                        methodName = match[1];
+                    } else {
+                        // Fallback: pegar até primeiro espaço, '(', ':', ';'
+                        methodName = methodName.split(/\s|\(|:|;/)[0].trim();
+                    }
+                    
+                    if (!methodsMap.has(methodName)) {
+                        methodsMap.set(methodName, []);
+                    }
+                    methodsMap.get(methodName).push({ method, index });
+                });
+                
+                methodsMap.forEach((methods, methodName) => {
+                    methods.forEach(({ method, index }) => {
+                        // Criar ID único (mesma lógica do menu)
+                        let methodId;
+                        if (methods.length > 1) {
+                            // Overload: usar índice
+                            methodId = `${unitId}-${iface.name}-${methodName}-${index}`.toLowerCase()
+                                .replace(/[^a-z0-9-]/g, '-')
+                                .replace(/-+/g, '-')
+                                .replace(/^-|-$/g, '');
+                        } else {
+                            // Método único
+                            methodId = `${unitId}-${iface.name}-${methodName}`.toLowerCase()
+                                .replace(/[^a-z0-9-]/g, '-')
+                                .replace(/-+/g, '-')
+                                .replace(/^-|-$/g, '');
+                        }
+                        html += `
+                            <div class="method-item" id="${methodId}">
+                                <div class="method-signature">${escapeHtml(method.signature)}</div>
+                                ${method.comment ? `<div class="method-comment">${method.comment}</div>` : ''}
+                                ${method.example && method.example.trim() ? `<div style="margin-top: 10px; padding: 10px; background: #2c3e50; border-radius: 4px;"><pre style="margin: 0; color: #ecf0f1; font-size: 12px;"><code>${escapeHtml(method.example)}</code></pre></div>` : ''}
+                            </div>
+                        `;
+                    });
+                });
+                
+                html += '</div>';
+            }
+            
+            if (iface.properties && iface.properties.length > 0) {
+                html += '<div class="method-list" style="margin-top: 20px;"><h3 style="font-size: 16px; margin-bottom: 10px; color: #2c3e50;">Propriedades</h3>';
+                iface.properties.forEach(prop => {
+                    html += `
+                        <div class="property-item">
+                            <span class="property-name">${prop.name}</span>
+                            <span class="property-type">: ${prop.type}</span>
+                            ${prop.comment ? `<div style="margin-top: 5px; color: #555; font-size: 13px;">${prop.comment}</div>` : ''}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        // Função para gerar documentação de classe
+        function generateClassDoc(cls, unitId) {
+            const classId = `${unitId}-${cls.name}`.toLowerCase()
+                .replace(/[^a-z0-9-]/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+            let html = `
+                <div class="class-box" id="${classId}">
+                    <div class="class-title">${cls.name}</div>
+                    ${cls.description ? `<p style="margin-bottom: 15px; color: #555;">${cls.description}</p>` : ''}
+            `;
+            
+            // Métodos públicos
+            if (cls.publicMethods && cls.publicMethods.length > 0) {
+                html += '<div class="method-list"><h3 style="font-size: 16px; margin-bottom: 10px; color: #2c3e50;">Métodos Públicos</h3>';
+                // Agrupar métodos por nome para detectar overloads
+                const methodsMap = new Map();
+                cls.publicMethods.forEach((method, index) => {
+                    // Extrair nome do método da assinatura
+                    // Estratégia: pegar o primeiro identificador após as palavras-chave
+                    let methodName = method.signature.trim();
+                    
+                    // Remover palavras-chave no início: class, function, procedure, constructor, destructor
+                    // Ordem importante: primeiro remover "class" se houver, depois function/procedure/etc
+                    methodName = methodName.replace(/^class\s+/i, '');
+                    methodName = methodName.replace(/^(function|procedure|constructor|destructor)\s+/i, '');
+                    
+                    // Pegar apenas o nome do método (até o primeiro espaço, '(', ':', ';', ou fim da string)
+                    const match = methodName.match(/^([a-zA-Z_][a-zA-Z0-9_]*)/);
+                    if (match) {
+                        methodName = match[1];
+                    } else {
+                        // Fallback: pegar até primeiro espaço, '(', ':', ';'
+                        methodName = methodName.split(/\s|\(|:|;/)[0].trim();
+                    }
+                    
+                    if (!methodsMap.has(methodName)) {
+                        methodsMap.set(methodName, []);
+                    }
+                    methodsMap.get(methodName).push({ method, index });
+                });
+                
+                methodsMap.forEach((methods, methodName) => {
+                    methods.forEach(({ method, index }) => {
+                        // Criar ID único (mesma lógica do menu)
+                        let methodId;
+                        if (methods.length > 1) {
+                            // Overload: usar índice
+                            methodId = `${unitId}-${cls.name}-${methodName}-${index}`.toLowerCase()
+                                .replace(/[^a-z0-9-]/g, '-')
+                                .replace(/-+/g, '-')
+                                .replace(/^-|-$/g, '');
+                        } else {
+                            // Método único
+                            methodId = `${unitId}-${cls.name}-${methodName}`.toLowerCase()
+                                .replace(/[^a-z0-9-]/g, '-')
+                                .replace(/-+/g, '-')
+                                .replace(/^-|-$/g, '');
+                        }
+                        html += `
+                            <div class="method-item" id="${methodId}">
+                                <div class="method-signature">${escapeHtml(method.signature)}</div>
+                                ${method.comment ? `<div class="method-comment">${method.comment}</div>` : ''}
+                                ${method.example && method.example.trim() ? `<div style="margin-top: 10px; padding: 10px; background: #2c3e50; border-radius: 4px;"><pre style="margin: 0; color: #ecf0f1; font-size: 12px;"><code>${escapeHtml(method.example)}</code></pre></div>` : ''}
+                            </div>
+                        `;
+                    });
+                });
+                html += '</div>';
+            }
+            
+            // Métodos privados
+            if (cls.privateMethods && cls.privateMethods.length > 0) {
+                html += '<div class="method-list" style="margin-top: 20px;"><h3 style="font-size: 16px; margin-bottom: 10px; color: #2c3e50;">Métodos Privados</h3>';
+                cls.privateMethods.forEach(method => {
+                    html += `
+                        <div class="method-item">
+                            <div class="method-signature">${escapeHtml(method.signature)}</div>
+                            ${method.comment ? `<div class="method-comment">${method.comment}</div>` : ''}
+                            ${method.example && method.example.trim() ? `<div style="margin-top: 10px; padding: 10px; background: #2c3e50; border-radius: 4px;"><pre style="margin: 0; color: #ecf0f1; font-size: 12px;"><code>${escapeHtml(method.example)}</code></pre></div>` : ''}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+
+        // Função para escapar HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Função para inicializar após carregamento
+        function initializeDocumentation() {
+            console.log('Inicializando documentação...');
+            console.log('documentation definido?', typeof documentation !== 'undefined');
+            
+            if (typeof documentation === 'undefined') {
+                console.error('Erro: documentation não foi definido!');
+                document.getElementById('mainContent').innerHTML = `
+                    <div class="unit-section">
+                        <div class="unit-header">
+                            <h1>Erro ao Carregar Documentação</h1>
+                        </div>
+                        <div class="unit-description">
+                            <p style="color: #e74c3c; font-weight: bold;">O arquivo <code>docs-data.js</code> não foi carregado corretamente.</p>
+                            <p>Verifique se o arquivo existe no mesmo diretório que <code>index.html</code>.</p>
+                            <p>Abra o Console do navegador (F12) para mais detalhes do erro.</p>
+                            <p style="margin-top: 20px;"><strong>Possíveis causas:</strong></p>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li>Arquivo <code>docs-data.js</code> não encontrado</li>
+                                <li>Erro de sintaxe no arquivo <code>docs-data.js</code></li>
+                                <li>Problema de CORS (tente abrir via servidor HTTP, não file://)</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            console.log('Documentação carregada:', documentation);
+            generateNavigation();
+            showSection('overview');
+        }
+
+        // Função para redimensionar sidebar
+        function setupSidebarResizer() {
+            const sidebar = document.getElementById('sidebar');
+            const resizer = document.getElementById('sidebarResizer');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (!sidebar || !resizer || !mainContent) {
+                console.warn('Elementos do sidebar não encontrados');
+                return;
+            }
+            
+            let isResizing = false;
+            let startX = 0;
+            let startWidth = 0;
+            
+            resizer.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                startX = e.clientX;
+                startWidth = sidebar.offsetWidth;
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+                resizer.classList.add('dragging');
+                
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isResizing) return;
+                
+                const diff = e.clientX - startX;
+                let newWidth = startWidth + diff;
+                
+                // Limitar entre min e max
+                newWidth = Math.max(200, Math.min(600, newWidth));
+                
+                sidebar.style.width = newWidth + 'px';
+                resizer.style.left = newWidth + 'px';
+                mainContent.style.marginLeft = newWidth + 'px';
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isResizing) {
+                    isResizing = false;
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                    resizer.classList.remove('dragging');
+                }
+            });
+        }
+
+        // Inicializar quando a página carregar
+        window.addEventListener('DOMContentLoaded', function() {
+            setupSidebarResizer();
+            loadDocumentation()
+                .then(() => {
+                    initializeDocumentation();
+                })
+                .catch((error) => {
+                    console.error('Erro ao carregar documentação:', error);
+                    document.getElementById('mainContent').innerHTML = `
+                        <div class="unit-section">
+                            <div class="unit-header">
+                                <h1>Erro ao Carregar Documentação</h1>
+                            </div>
+                            <div class="unit-description">
+                                <p style="color: #e74c3c; font-weight: bold;">${error.message}</p>
+                                <p>Verifique o Console do navegador (F12) para mais detalhes.</p>
+                            </div>
+                        </div>
+                    `;
+                });
+        });
+    </script>
+</body>
+</html>

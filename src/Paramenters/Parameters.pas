@@ -1,4 +1,4 @@
-﻿unit Parameters;
+unit Parameters;
 
 {$IF DEFINED(FPC)}
   {$MODE DELPHI} // Ensures DEFINED() and other Delphi features work
@@ -362,14 +362,14 @@ type
     function Priority(ASources: TParameterSourceArray): IParameters;
     
     // ========== OPERAÇÕES UNIFICADAS ==========
-    function Get(const AName: string): TParameter; overload;
-    function Get(const AName: string; ASource: TParameterSource): TParameter; overload;
+    function Getter(const AName: string): TParameter; overload;
+    function Getter(const AName: string; ASource: TParameterSource): TParameter; overload;
     function List: TParameterList; overload;
     function List(out AList: TParameterList): IParameters; overload;
     function Insert(const AParameter: TParameter): IParameters; overload;
     function Insert(const AParameter: TParameter; out ASuccess: Boolean): IParameters; overload;
-    function Update(const AParameter: TParameter): IParameters; overload;
-    function Update(const AParameter: TParameter; out ASuccess: Boolean): IParameters; overload;
+    function Setter(const AParameter: TParameter): IParameters; overload;
+    function Setter(const AParameter: TParameter; out ASuccess: Boolean): IParameters; overload;
     function Delete(const AName: string): IParameters; overload;
     function Delete(const AName: string; out ASuccess: Boolean): IParameters; overload;
     function Exists(const AName: string): Boolean; overload;
@@ -498,19 +498,19 @@ begin
       psDatabase:
         if Assigned(FDatabase) then
         begin
-          AParameter := FDatabase.Get(AName);
+          AParameter := FDatabase.Getter(AName);
           Result := Assigned(AParameter) and (AParameter.Name <> '');
         end;
       psInifiles:
         if Assigned(FInifiles) then
         begin
-          AParameter := FInifiles.Get(AName);
+          AParameter := FInifiles.Getter(AName);
           Result := Assigned(AParameter) and (AParameter.Name <> '');
         end;
       psJsonObject:
         if Assigned(FJsonObject) then
         begin
-          AParameter := FJsonObject.Get(AName);
+          AParameter := FJsonObject.Getter(AName);
           Result := Assigned(AParameter) and (AParameter.Name <> '');
         end;
     end;
@@ -744,7 +744,7 @@ end;
     - Thread-safe: Sim (protegido com TCriticalSection)
   
   Nota: O chamador é responsável por liberar o TParameter retornado }
-function TParametersImpl.Get(const AName: string): TParameter;
+function TParametersImpl.Getter(const AName: string): TParameter;
 var
   LSource: TParameterSource;
   LFound: Boolean;
@@ -775,6 +775,7 @@ begin
   end;
 end;
 
+
 { Busca um parâmetro em uma fonte específica.
   
   Parâmetros:
@@ -787,7 +788,7 @@ end;
   Thread-safe: Sim (protegido com TCriticalSection)
   
   Nota: O chamador é responsável por liberar o TParameter retornado }
-function TParametersImpl.Get(const AName: string; ASource: TParameterSource): TParameter;
+function TParametersImpl.Getter(const AName: string; ASource: TParameterSource): TParameter;
 begin
   FLock.Enter;
   try
@@ -1009,29 +1010,33 @@ end;
     - Atualiza na primeira fonte onde encontrar
     - Se não encontrar em nenhuma, tenta inserir na fonte ativa
     - Thread-safe: Sim (protegido com TCriticalSection) }
-function TParametersImpl.Update(const AParameter: TParameter): IParameters;
+function TParametersImpl.Setter(const AParameter: TParameter): IParameters;
 var
   LSuccess: Boolean;
 begin
-  Update(AParameter, LSuccess);
+  Setter(AParameter, LSuccess);
   Result := Self;
 end;
 
-{ Atualiza um parâmetro na fonte onde existe (versão com out parameter).
+{ Setter - Insere ou atualiza um parâmetro (versão com out parameter).
+  
+  Descrição:
+  Insere um novo parâmetro se não existir, ou atualiza se já existir.
+  Sempre respeita a hierarquia: contrato_id, produto_id, titulo, chave.
   
   Parâmetros:
-    AParameter: TParameter - Parâmetro a ser atualizado
-    ASuccess: Boolean (out) - True se atualizado com sucesso, False caso contrário
+    AParameter: TParameter - Parâmetro a ser inserido/atualizado
+    ASuccess: Boolean (out) - True se operação foi bem-sucedida, False caso contrário
   
   Retorno:
     IParameters - Self para permitir encadeamento
   
   Comportamento:
     - Busca o parâmetro em todas as fontes na ordem de prioridade
-    - Atualiza na primeira fonte onde encontrar
-    - Se não encontrar em nenhuma, tenta inserir na fonte ativa
+    - Se encontrar: faz UPDATE na primeira fonte onde encontrar
+    - Se não encontrar: faz INSERT na fonte ativa
     - Thread-safe: Sim (protegido com TCriticalSection) }
-function TParametersImpl.Update(const AParameter: TParameter; out ASuccess: Boolean): IParameters;
+function TParametersImpl.Setter(const AParameter: TParameter; out ASuccess: Boolean): IParameters;
 var
   LSource: TParameterSource;
   LFound: Boolean;
@@ -1052,21 +1057,21 @@ begin
             psDatabase:
               if FDatabase.Exists(AParameter.Name) then
               begin
-                FDatabase.Update(AParameter, ASuccess);
+                FDatabase.Setter(AParameter, ASuccess);
                 LFound := True;
                 Break;
               end;
             psInifiles:
               if FInifiles.Exists(AParameter.Name) then
               begin
-                FInifiles.Update(AParameter, ASuccess);
+                FInifiles.Setter(AParameter, ASuccess);
                 LFound := True;
                 Break;
               end;
             psJsonObject:
               if FJsonObject.Exists(AParameter.Name) then
               begin
-                FJsonObject.Update(AParameter, ASuccess);
+                FJsonObject.Setter(AParameter, ASuccess);
                 LFound := True;
                 Break;
               end;
@@ -1086,6 +1091,7 @@ begin
     FLock.Leave;
   end;
 end;
+
 
 { Deleta um parâmetro de todas as fontes onde existe (versão sem out parameter).
   

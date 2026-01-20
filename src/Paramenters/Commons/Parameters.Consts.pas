@@ -1,4 +1,4 @@
-﻿unit Parameters.Consts;
+unit Parameters.Consts;
 
 {$IF DEFINED(FPC)}
   {$MODE DELPHI} // Ensures DEFINED() and other Delphi features work
@@ -298,74 +298,82 @@ const
   // SQL para criar tabela no PostgreSQL
   // IMPORTANTE: BIGSERIAL é equivalente a BIGINT + SEQUENCE + DEFAULT nextval()
   // BIGSERIAL já inclui auto-incremento automaticamente
+  // CONSTRAINT UNIQUE garante unicidade da combinação: contrato_id, produto_id, titulo, chave
   SQL_CREATE_TABLE_POSTGRESQL = 
     'CREATE TABLE IF NOT EXISTS %s (' +
-    'config_id BIGSERIAL PRIMARY KEY NOT NULL, ' +
-    'contrato_id INTEGER DEFAULT 0, ' +
-    'produto_id INTEGER DEFAULT 0, ' +
-    'ordem INTEGER DEFAULT 0, ' +
-    'titulo VARCHAR(255), ' +
-    'chave VARCHAR(255) NOT NULL UNIQUE, ' +
-    'valor TEXT, ' +
+    'config_id BIGSERIAL NOT NULL PRIMARY KEY, ' +
+    'contrato_id INTEGER NOT NULL DEFAULT 1, ' +
+    'produto_id INTEGER NOT NULL DEFAULT 1, ' +
+    'ordem INTEGER NOT NULL DEFAULT 0, ' +
+    'titulo VARCHAR(255) NOT NULL, ' +
+    'chave VARCHAR(255) NOT NULL, ' +
+    'valor BYTEA, ' +
     'descricao TEXT, ' +
-    'ativo BOOLEAN DEFAULT true, ' +
-    'data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
-    'data_alteracao TIMESTAMP DEFAULT CURRENT_TIMESTAMP' +
+    'ativo BOOLEAN NOT NULL DEFAULT true, ' +
+    'data_cadastro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, ' +
+    'data_alteracao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, ' +
+    'CONSTRAINT chaves_unicas UNIQUE (contrato_id, produto_id, titulo, chave)' +
     ')';
 
   // SQL para criar tabela no MySQL
   // IMPORTANTE: AUTO_INCREMENT deve vir antes de PRIMARY KEY
   // BIGINT AUTO_INCREMENT PRIMARY KEY garante auto-incremento
+  // CONSTRAINT UNIQUE garante unicidade da combinação: contrato_id, produto_id, titulo, chave
   SQL_CREATE_TABLE_MYSQL =
     'CREATE TABLE IF NOT EXISTS %s (' +
     'config_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, ' +
-    'contrato_id INTEGER DEFAULT 0, ' +
-    'produto_id INTEGER DEFAULT 0, ' +
-    'ordem INTEGER DEFAULT 0, ' +
-    'titulo VARCHAR(255), ' +
-    'chave VARCHAR(255) NOT NULL UNIQUE, ' +
-    'valor TEXT, ' +
+    'contrato_id INTEGER NOT NULL DEFAULT 1, ' +
+    'produto_id INTEGER NOT NULL DEFAULT 1, ' +
+    'ordem INTEGER NOT NULL DEFAULT 0, ' +
+    'titulo VARCHAR(255) NOT NULL, ' +
+    'chave VARCHAR(255) NOT NULL, ' +
+    'valor BLOB, ' +
     'descricao TEXT, ' +
-    'ativo BOOLEAN DEFAULT true, ' +
-    'data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP, ' +
-    'data_alteracao DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' +
+    'ativo BOOLEAN NOT NULL DEFAULT true, ' +
+    'data_cadastro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, ' +
+    'data_alteracao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, ' +
+    'CONSTRAINT chaves_unicas UNIQUE (contrato_id, produto_id, titulo, chave)' +
     ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4';
 
   // SQL para criar tabela no SQL Server
   // IMPORTANTE: IDENTITY(1,1) garante auto-incremento começando em 1, incrementando de 1 em 1
   // IDENTITY deve vir antes de PRIMARY KEY
+  // CONSTRAINT UNIQUE garante unicidade da combinação: contrato_id, produto_id, titulo, chave
   SQL_CREATE_TABLE_SQLSERVER =
     'IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N''%s'') AND type in (N''U'')) ' +
     'CREATE TABLE %s (' +
     'config_id BIGINT NOT NULL IDENTITY(1,1) PRIMARY KEY, ' +
-    'contrato_id INTEGER DEFAULT 0, ' +
-    'produto_id INTEGER DEFAULT 0, ' +
-    'ordem INTEGER DEFAULT 0, ' +
-    'titulo NVARCHAR(255), ' +
-    'chave NVARCHAR(255) NOT NULL UNIQUE, ' +
-    'valor NVARCHAR(MAX), ' +
+    'contrato_id INTEGER NOT NULL DEFAULT 1, ' +
+    'produto_id INTEGER NOT NULL DEFAULT 1, ' +
+    'ordem INTEGER NOT NULL DEFAULT 0, ' +
+    'titulo NVARCHAR(255) NOT NULL, ' +
+    'chave NVARCHAR(255) NOT NULL, ' +
+    'valor VARBINARY(MAX), ' +
     'descricao NVARCHAR(MAX), ' +
-    'ativo BIT DEFAULT 1, ' +
-    'data_cadastro DATETIME2 DEFAULT GETDATE(), ' +
-    'data_alteracao DATETIME2 DEFAULT GETDATE()' +
+    'ativo BIT NOT NULL DEFAULT 1, ' +
+    'data_cadastro DATETIME2 NOT NULL DEFAULT GETDATE(), ' +
+    'data_alteracao DATETIME2 NOT NULL DEFAULT GETDATE(), ' +
+    'CONSTRAINT chaves_unicas UNIQUE (contrato_id, produto_id, titulo, chave)' +
     ')';
 
   // SQL para criar tabela no SQLite
   // IMPORTANTE: INTEGER PRIMARY KEY AUTOINCREMENT garante auto-incremento
   // O Zeos detecta automaticamente INTEGER PRIMARY KEY como auto-incremento
+  // CONSTRAINT UNIQUE com ON CONFLICT REPLACE garante unicidade e substitui em caso de conflito
   SQL_CREATE_TABLE_SQLITE =
     'CREATE TABLE IF NOT EXISTS %s (' +
-    'config_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, ' +
-    'contrato_id INTEGER DEFAULT 0, ' +
-    'produto_id INTEGER DEFAULT 0, ' +
-    'ordem INTEGER DEFAULT 0, ' +
-    'titulo TEXT, ' +
-    'chave TEXT NOT NULL UNIQUE, ' +
-    'valor TEXT, ' +
-    'descricao TEXT, ' +
-    'ativo INTEGER DEFAULT 1, ' +
-    'data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP, ' +
-    'data_alteracao DATETIME DEFAULT CURRENT_TIMESTAMP' +
+    'config_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ' +
+    'contrato_id INTEGER NOT NULL DEFAULT 1, ' +
+    'produto_id INTEGER NOT NULL DEFAULT 1, ' +
+    'ordem INTEGER NOT NULL DEFAULT 0, ' +
+    'titulo TEXT NOT NULL, ' +
+    'chave TEXT NOT NULL, ' +
+    'valor BLOB, ' +
+    'descricao BLOB, ' +
+    'ativo INTEGER NOT NULL DEFAULT 1, ' +
+    'data_cadastro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, ' +
+    'data_alteracao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, ' +
+    'CONSTRAINT chaves_unicas UNIQUE (contrato_id ASC, produto_id ASC, titulo ASC, chave ASC) ON CONFLICT REPLACE' +
     ')';
 
   // SQL para criar tabela no FireBird
@@ -375,16 +383,17 @@ const
   SQL_CREATE_TABLE_FIREBIRD =
     'CREATE TABLE %s (' +
     'config_id BIGINT NOT NULL PRIMARY KEY, ' +
-    'contrato_id INTEGER DEFAULT 0, ' +
-    'produto_id INTEGER DEFAULT 0, ' +
-    'ordem INTEGER DEFAULT 0, ' +
-    'titulo VARCHAR(255), ' +
-    'chave VARCHAR(255) NOT NULL UNIQUE, ' +
-    'valor BLOB SUB_TYPE TEXT, ' +
+    'contrato_id INTEGER NOT NULL DEFAULT 1, ' +
+    'produto_id INTEGER NOT NULL DEFAULT 1, ' +
+    'ordem INTEGER NOT NULL DEFAULT 0, ' +
+    'titulo VARCHAR(255) NOT NULL, ' +
+    'chave VARCHAR(255) NOT NULL, ' +
+    'valor BLOB SUB_TYPE BINARY, ' +
     'descricao BLOB SUB_TYPE TEXT, ' +
-    'ativo SMALLINT DEFAULT 1, ' +
-    'data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
-    'data_alteracao TIMESTAMP DEFAULT CURRENT_TIMESTAMP' +
+    'ativo SMALLINT NOT NULL DEFAULT 1, ' +
+    'data_cadastro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, ' +
+    'data_alteracao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, ' +
+    'CONSTRAINT chaves_unicas UNIQUE (contrato_id, produto_id, titulo, chave)' +
     ')';
 
   // IMPORTANTE: Firebird armazena nomes de generators e triggers em UPPERCASE
@@ -408,24 +417,32 @@ const
   // - YESNO para boolean (não BIT no CREATE TABLE via ODBC)
   // - DATETIME sem DEFAULT (ODBC não suporta funções no DEFAULT)
   // - DEFAULT só funciona com valores literais simples
+  // - OLE Object para BLOB (não VARBINARY)
+  // - CONSTRAINT UNIQUE será criada separadamente via índice
   SQL_CREATE_TABLE_ACCESS =
     'CREATE TABLE %s (' +
     'config_id COUNTER NOT NULL PRIMARY KEY, ' +
-    'contrato_id INTEGER DEFAULT 0, ' +
-    'produto_id INTEGER DEFAULT 0, ' +
-    'ordem INTEGER DEFAULT 0, ' +
-    'titulo VARCHAR(255), ' +
+    'contrato_id INTEGER NOT NULL DEFAULT 1, ' +
+    'produto_id INTEGER NOT NULL DEFAULT 1, ' +
+    'ordem INTEGER NOT NULL DEFAULT 0, ' +
+    'titulo VARCHAR(255) NOT NULL, ' +
     'chave VARCHAR(255) NOT NULL, ' +
-    'valor MEMO, ' +
+    'valor OLE Object, ' +
     'descricao MEMO, ' +
-    'ativo YESNO DEFAULT -1, ' +
+    'ativo YESNO NOT NULL DEFAULT -1, ' +
     'data_cadastro DATETIME, ' +
     'data_alteracao DATETIME' +
     ')';
 
-  // SQL para criar índice UNIQUE no Access (deve ser executado separadamente)
-  // UNIQUE não pode estar junto com NOT NULL na mesma linha no CREATE TABLE do Access
-  SQL_CREATE_INDEX_ACCESS = 'CREATE UNIQUE INDEX idx_%s_chave ON %s (chave)';
+  // SQL para criar índice UNIQUE composto (deve ser executado separadamente após CREATE TABLE)
+  // Índice composto permite chaves duplicadas em títulos diferentes
+  // A unicidade é garantida pela combinação: chave + titulo + contrato_id + produto_id
+  SQL_CREATE_INDEX_POSTGRESQL = 'CREATE UNIQUE INDEX IF NOT EXISTS idx_%s_chave_titulo ON %s (chave, titulo, contrato_id, produto_id)';
+  SQL_CREATE_INDEX_MYSQL = 'CREATE UNIQUE INDEX idx_%s_chave_titulo ON %s (chave, titulo, contrato_id, produto_id)';
+  SQL_CREATE_INDEX_SQLSERVER = 'CREATE UNIQUE INDEX idx_%s_chave_titulo ON %s (chave, titulo, contrato_id, produto_id)';
+  SQL_CREATE_INDEX_SQLITE = 'CREATE UNIQUE INDEX IF NOT EXISTS idx_%s_chave_titulo ON %s (chave ASC, titulo ASC, contrato_id ASC, produto_id ASC)';
+  SQL_CREATE_INDEX_FIREBIRD = 'CREATE UNIQUE INDEX idx_%s_chave_titulo ON %s (chave, titulo, contrato_id, produto_id)';
+  SQL_CREATE_INDEX_ACCESS = 'CREATE UNIQUE INDEX idx_%s_chave_titulo ON %s (chave, titulo, contrato_id, produto_id)';
 
   { =============================================================================
     SQL QUERIES PADRÃO

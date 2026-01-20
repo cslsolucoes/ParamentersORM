@@ -165,7 +165,16 @@
         <DCCReference Include="src\Paramenters\Parameters.Interfaces.pas"/>
         <DCCReference Include="src\Paramenters\Parameters.pas"/>
         <DCCReference Include="src\View\ufrmParamenters.pas">
-            <Form>frmConfigCRUD</Form>
+            <Form>frmParamenters</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="src\Paramenters\Attributes\Parameters.Attributes.pas"/>
+        <DCCReference Include="src\Paramenters\Attributes\Parameters.Attributes.Interfaces.pas"/>
+        <DCCReference Include="src\Paramenters\Attributes\Parameters.Attributes.Exceptions.pas"/>
+        <DCCReference Include="src\Paramenters\Attributes\Parameters.Attributes.Consts.pas"/>
+        <DCCReference Include="src\Paramenters\Attributes\Parameters.Attributes.Types.pas"/>
+        <DCCReference Include="src\View\ufrmParamentersAttributers.pas">
+            <Form>frmParamentersAttributers</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <None Include="src\Paramenters.Database.inc"/>
@@ -217,13 +226,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="src\ParamentersORM.Database.inc" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="src\Paramenters.Database.inc" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="src\ParamentersORM.Defines.inc" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="src\Paramenters.Defines.inc" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>

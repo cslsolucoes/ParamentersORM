@@ -4155,7 +4155,7 @@ begin
     Exit;
   end;
   
-  if Trim(edtInifilesFilePath.Text) = '' then
+  if Trim(edtIniffrmParamentersText) = '' then
   begin
     ShowMessage('O campo "File Path" é obrigatório.');
     edtInifilesFilePath.SetFocus;
@@ -4919,13 +4919,13 @@ begin
       Exit;
     end;
     
-  // Obtém ContratoID e ProdutoID do item se disponíveis
-  LContratoID := 0;
-  LProdutoID := 0;
-  if Item.SubItems.Count > 1 then
-  begin
-    LContratoID := StrToIntDef(Item.SubItems[0], 0);  // Coluna 1: ContratoID
-    LProdutoID := StrToIntDef(Item.SubItems[1], 0);    // Coluna 2: ProdutoID
+    // Obtém ContratoID e ProdutoID do item se disponíveis
+    LContratoID := 0;
+    LProdutoID := 0;
+    if Item.SubItems.Count > 1 then
+    begin
+      LContratoID := StrToIntDef(Item.SubItems[0], 0);  // Coluna 1: ContratoID
+      LProdutoID := StrToIntDef(Item.SubItems[1], 0);    // Coluna 2: ProdutoID
     // Atualiza configuração com a hierarquia completa (Título do parâmetro)
     FParameters.JsonObject
       .FilePath(edtJsonObjectFilePath.Text)
@@ -4935,7 +4935,7 @@ begin
       .Title(LTitulo)
       .AutoCreateFile(chkJsonObjectAutoCreate.Checked)
       .Getter(LChave, LParameter);
-
+    
     if Assigned(LParameter) and (LParameter.Name <> '') then
     begin
       LoadJsonObjectFieldsFromParameter(LParameter);
@@ -4945,7 +4945,6 @@ begin
     begin
       ShowJsonObjectStatus(Format('Parâmetro "%s" não encontrado no objeto "%s".', [LChave, LTitulo]), True);
     end;
-  end;
   except
     on E: Exception do
     begin
@@ -4953,7 +4952,7 @@ begin
       ShowMessage('Erro ao carregar parâmetro: ' + E.Message);
     end;
   end;
-
+  
   // Libera o parâmetro retornado pelo Get
   if Assigned(LParameter) then
   begin

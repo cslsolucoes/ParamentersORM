@@ -39,7 +39,13 @@ uses
   Parameters.JsonObject in 'src\Paramenters\JsonObject\Parameters.JsonObject.pas',
   Parameters.Interfaces in 'src\Paramenters\Parameters.Interfaces.pas',
   Parameters in 'src\Paramenters\Parameters.pas',
-  ufrmParamenters in 'src\View\ufrmParamenters.pas' {frmConfigCRUD};
+  ufrmParamenters in 'src\View\ufrmParamenters.pas' {frmParamenters},
+  Parameters.Attributes in 'src\Paramenters\Attributes\Parameters.Attributes.pas',
+  Parameters.Attributes.Interfaces in 'src\Paramenters\Attributes\Parameters.Attributes.Interfaces.pas',
+  Parameters.Attributes.Exceptions in 'src\Paramenters\Attributes\Parameters.Attributes.Exceptions.pas',
+  Parameters.Attributes.Consts in 'src\Paramenters\Attributes\Parameters.Attributes.Consts.pas',
+  Parameters.Attributes.Types in 'src\Paramenters\Attributes\Parameters.Attributes.Types.pas',
+  ufrmParamentersAttributers in 'src\View\ufrmParamentersAttributers.pas' {frmParamentersAttributers};
 
 {$R *.res}
 
@@ -48,6 +54,7 @@ begin
   {$IFNDEF FPC}
   Application.MainFormOnTaskbar := True;
   {$ENDIF}
-  Application.CreateForm(TfrmConfigCRUD, frmConfigCRUD);
+  //Application.CreateForm(TfrmParamenters, frmParamenters);
+  Application.CreateForm(TfrmParamentersAttributers, frmParamentersAttributers);
   Application.Run;
 end.

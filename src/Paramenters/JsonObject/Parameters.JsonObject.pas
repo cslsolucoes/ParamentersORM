@@ -1,4 +1,4 @@
-﻿unit Parameters.JsonObject;
+unit Parameters.JsonObject;
 
 {$IF DEFINED(FPC)}
   {$MODE DELPHI} // Ensures DEFINED() and other Delphi features work
@@ -34,7 +34,7 @@
 
 interface
 
-{$I E:\Pacote\ORM\Paramenters\src\Paramenters.Defines.inc}
+{$I E:\CSL\ORM\src\Paramenters\src\Paramenters.Defines.inc}
 
 Uses
 {$IF DEFINED(FPC)}
@@ -123,12 +123,14 @@ type
     // ========== CRUD ==========
     function List: TParameterList; overload;
     function List(out AList: TParameterList): IParametersJsonObject; overload;
-    function Get(const AName: string): TParameter; overload;
-    function Get(const AName: string; out AParameter: TParameter): IParametersJsonObject; overload;
+    function Getter(const AName: string): TParameter; overload;
+    function Getter(const AName: string; out AParameter: TParameter): IParametersJsonObject; overload;
     function Insert(const AParameter: TParameter): IParametersJsonObject; overload;
     function Insert(const AParameter: TParameter; out ASuccess: Boolean): IParametersJsonObject; overload;
-    function Update(const AParameter: TParameter): IParametersJsonObject; overload;
-    function Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersJsonObject; overload;
+    function Setter(const AParameter: TParameter): IParametersJsonObject; overload;
+    function Setter(const AParameter: TParameter; out ASuccess: Boolean): IParametersJsonObject; overload;
+    function Update(const AParameter: TParameter): IParametersJsonObject; overload; // Deprecated: usar Setter
+    function Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersJsonObject; overload; // Deprecated: usar Setter
     function Delete(const AName: string): IParametersJsonObject; overload;
     function Delete(const AName: string; out ASuccess: Boolean): IParametersJsonObject; overload;
     function Exists(const AName: string): Boolean; overload;
@@ -1196,24 +1198,23 @@ begin
   end;
 end;
 
-function TParametersJsonObject.Get(const AName: string): TParameter;
+function TParametersJsonObject.Getter(const AName: string): TParameter;
 var
   LParameter: TParameter;
 begin
-  Get(AName, LParameter);
+  Getter(AName, LParameter);
   Result := LParameter;
 end;
 
-function TParametersJsonObject.Get(const AName: string; out AParameter: TParameter): IParametersJsonObject;
+function TParametersJsonObject.Getter(const AName: string; out AParameter: TParameter): IParametersJsonObject;
 var
-  LObjectNames: TStringList;
   LObjectName: string;
   LJsonObj: TJSONObject;
   LJsonValue: TJSONValue;
-  I: Integer;
+  LTitulo: string;
   LKeys: TStringList;
-  J: Integer;
-  LKeyName: string;
+  LObjectNames: TStringList;
+  I, J: Integer;
 begin
   FLock.Enter;
   try
@@ -1225,71 +1226,27 @@ begin
       Exit;
     end;
     
-    // Se há filtro de título, busca apenas no objeto correspondente
-    if Trim(FTituloFilter) <> '' then
-    begin
-      LObjectName := GetObjectName(FTituloFilter);
-      FTituloFilter := ''; // Limpa o filtro após usar (é temporário)
-      LObjectNames := TStringList.Create;
-      try
-        LObjectNames.Add(LObjectName);
-      except
-        LObjectNames.Free;
-        raise;
-      end;
-    end
-    else
-    begin
-      // Busca em todos os objetos (exceto "Contrato")
-      LObjectNames := GetAllObjectNames;
-    end;
+    // IMPORTANTE: Respeita hierarquia da constraint UNIQUE: contrato_id, produto_id, titulo, chave
+    // Se os campos da hierarquia estão configurados, usa busca específica
+    // Caso contrário, faz busca ampla (compatibilidade com código legado)
+    LTitulo := FTituloFilter;
     
-    try
-      for I := 0 to LObjectNames.Count - 1 do
-      begin
-        LObjectName := LObjectNames[I];
-        LJsonValue := GetJsonValue(FJsonObject, LObjectName);
-        if not Assigned(LJsonValue) or not (LJsonValue is TJSONObject) then
-          Continue;
-        
-        LJsonObj := TJSONObject(LJsonValue);
-        LKeys := GetKeysInObject(LJsonObj);
-        try
-          for J := 0 to LKeys.Count - 1 do
-          begin
-            LKeyName := LKeys[J];
-            if SameText(LKeyName, AName) then
-            begin
-              LJsonValue := GetJsonValue(LJsonObj, LKeyName);
-              if Assigned(LJsonValue) and (LJsonValue is TJSONObject) then
-              begin
-                AParameter := JsonValueToParameter(TJSONObject(LJsonValue), LObjectName, LKeyName);
-                AParameter.Ordem := J + 1; // Ordem baseada na posição dentro do objeto
-                Result := Self;
-                Exit;
-              end;
-            end;
-          end;
-        finally
-          LKeys.Free;
-        end;
-      end;
-    finally
-      LObjectNames.Free;
-    end;
-    
-    // Se não encontrou, busca no objeto específico (se configurado)
-    if (FObjectName <> '') and (AParameter = nil) then
+    // Se todos os campos da hierarquia estão configurados, busca específica
+    if (FContratoID > 0) and (FProdutoID > 0) and (Trim(LTitulo) <> '') then
     begin
-      LJsonValue := GetJsonValue(FJsonObject, FObjectName);
+      // Busca apenas no objeto correspondente ao título
+      LObjectName := GetObjectName(LTitulo);
+      FTituloFilter := ''; // Limpa após usar (é temporário)
+      
+      LJsonValue := GetJsonValue(FJsonObject, LObjectName);
       if Assigned(LJsonValue) and (LJsonValue is TJSONObject) then
       begin
         LJsonObj := TJSONObject(LJsonValue);
         LJsonValue := GetJsonValue(LJsonObj, AName);
         if Assigned(LJsonValue) and (LJsonValue is TJSONObject) then
         begin
-          AParameter := JsonValueToParameter(TJSONObject(LJsonValue), FObjectName, AName);
-          // Calcula ordem baseada na posição
+          AParameter := JsonValueToParameter(TJSONObject(LJsonValue), LObjectName, AName);
+          // Calcula ordem baseada na posição dentro do objeto
           LKeys := GetKeysInObject(LJsonObj);
           try
             for J := 0 to LKeys.Count - 1 do
@@ -1304,6 +1261,45 @@ begin
             LKeys.Free;
           end;
         end;
+      end;
+    end
+    else
+    begin
+      // Busca ampla: procura em todos os objetos (compatibilidade com código legado)
+      FTituloFilter := ''; // Limpa após usar (é temporário)
+      LObjectNames := GetAllObjectNames;
+      try
+        for I := 0 to LObjectNames.Count - 1 do
+        begin
+          LObjectName := LObjectNames[I];
+          LJsonValue := GetJsonValue(FJsonObject, LObjectName);
+          if not Assigned(LJsonValue) or not (LJsonValue is TJSONObject) then
+            Continue;
+          
+          LJsonObj := TJSONObject(LJsonValue);
+          LJsonValue := GetJsonValue(LJsonObj, AName);
+          if Assigned(LJsonValue) and (LJsonValue is TJSONObject) then
+          begin
+            AParameter := JsonValueToParameter(TJSONObject(LJsonValue), LObjectName, AName);
+            // Calcula ordem baseada na posição dentro do objeto
+            LKeys := GetKeysInObject(LJsonObj);
+            try
+              for J := 0 to LKeys.Count - 1 do
+              begin
+                if SameText(LKeys[J], AName) then
+                begin
+                  AParameter.Ordem := J + 1;
+                  Break;
+                end;
+              end;
+            finally
+              LKeys.Free;
+            end;
+            Break; // Encontrou, para a busca
+          end;
+        end;
+      finally
+        LObjectNames.Free;
       end;
     end;
     
@@ -1367,21 +1363,42 @@ begin
   end;
 end;
 
-function TParametersJsonObject.Update(const AParameter: TParameter): IParametersJsonObject;
+function TParametersJsonObject.Setter(const AParameter: TParameter): IParametersJsonObject;
 var
   LSuccess: Boolean;
 begin
-  Update(AParameter, LSuccess);
+  Setter(AParameter, LSuccess);
   Result := Self;
 end;
 
-function TParametersJsonObject.Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersJsonObject;
+{ =============================================================================
+  Setter - Insere ou atualiza um parâmetro no objeto JSON
+  
+  Descrição:
+  Insere um novo parâmetro se não existir, ou atualiza se já existir.
+  Sempre respeita a hierarquia: contrato_id, produto_id, titulo, chave.
+  
+  Comportamento:
+  - Verifica se o parâmetro existe usando a hierarquia completa
+  - Se existir: faz UPDATE
+  - Se não existir: faz INSERT
+  - Thread-safe (protegido com TCriticalSection)
+  
+  Parâmetros:
+  - AParameter: Parâmetro a ser inserido/atualizado (deve ter ContratoID, ProdutoID, Titulo e Name preenchidos)
+  - ASuccess: Indica se a operação foi bem-sucedida
+  
+  Retorno:
+  - Self (permite encadeamento de métodos - Fluent Interface)
+  ============================================================================= }
+function TParametersJsonObject.Setter(const AParameter: TParameter; out ASuccess: Boolean): IParametersJsonObject;
 var
   LObjectName: string;
   LJsonObj: TJSONObject;
   LJsonValue: TJSONValue;
   LOldOrder: Integer;
   LNewOrder: Integer;
+  LExists: Boolean;
   {$IF DEFINED(FPC)}
   LOrderValue: TJSONValue;
   {$ENDIF}
@@ -1390,51 +1407,78 @@ begin
   try
     ASuccess := False;
     
+    // IMPORTANTE: Valida que todos os campos da hierarquia estão preenchidos
+    // Hierarquia: contrato_id, produto_id, titulo, chave
+    if (AParameter.ContratoID <= 0) or (AParameter.ProdutoID <= 0) or 
+       (Trim(AParameter.Titulo) = '') or (Trim(AParameter.Name) = '') then
+      raise CreateConfigurationException(
+        Format('Setter requer ContratoID, ProdutoID, Titulo e Name preenchidos. Recebido: ContratoID=%d, ProdutoID=%d, Titulo=''%s'', Name=''%s''', 
+          [AParameter.ContratoID, AParameter.ProdutoID, AParameter.Titulo, AParameter.Name]),
+        ERR_INVALID_CONFIGURATION,
+        'Setter'
+      );
+    
     if not EnsureJsonObject then
     begin
       Result := Self;
       Exit;
     end;
     
+    // Verifica se existe usando a hierarquia completa (título + chave)
     LObjectName := GetObjectName(AParameter.Titulo);
     LJsonValue := GetJsonValue(FJsonObject, LObjectName);
-    if not Assigned(LJsonValue) or not (LJsonValue is TJSONObject) then
+    if Assigned(LJsonValue) and (LJsonValue is TJSONObject) then
     begin
-      Result := Self;
-      Exit;
-    end;
-    
-    LJsonObj := TJSONObject(LJsonValue);
-    LJsonValue := GetJsonValue(LJsonObj, AParameter.Name);
-    if not Assigned(LJsonValue) or not (LJsonValue is TJSONObject) then
-    begin
-      Result := Self;
-      Exit;
-    end;
-    
-    // Obtém ordem antiga
-    {$IF DEFINED(FPC)}
-    LOrderValue := GetJsonValue(TJSONObject(LJsonValue), 'ordem');
-    if Assigned(LOrderValue) and (LOrderValue is TJSONNumber) then
-      LOldOrder := TJSONNumber(LOrderValue).AsInteger
+      LJsonObj := TJSONObject(LJsonValue);
+      LJsonValue := GetJsonValue(LJsonObj, AParameter.Name);
+      LExists := Assigned(LJsonValue) and (LJsonValue is TJSONObject);
+    end
     else
-      LOldOrder := 0;
-    {$ELSE}
-    LOldOrder := TJSONObject(LJsonValue).GetValue<Integer>('ordem', 0);
-    {$ENDIF}
+      LExists := False;
     
-    // Calcula nova ordem se necessário
-    LNewOrder := AParameter.Ordem;
-    if LNewOrder <= 0 then
-      LNewOrder := GetNextOrder(AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID);
+    if LExists then
+    begin
+      // EXISTE: Faz UPDATE
+      // Obtém ordem antiga
+      {$IF DEFINED(FPC)}
+      LOrderValue := GetJsonValue(TJSONObject(LJsonValue), 'ordem');
+      if Assigned(LOrderValue) and (LOrderValue is TJSONNumber) then
+        LOldOrder := TJSONNumber(LOrderValue).AsInteger
+      else
+        LOldOrder := 0;
+      {$ELSE}
+      LOldOrder := TJSONObject(LJsonValue).GetValue<Integer>('ordem', 0);
+      {$ENDIF}
+      
+      // Calcula nova ordem se necessário
+      LNewOrder := AParameter.Ordem;
+      if LNewOrder <= 0 then
+        LNewOrder := GetNextOrder(AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID);
+      
+      // Ajusta ordens se necessário
+      if LNewOrder <> LOldOrder then
+        AdjustOrdersForUpdate(AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID, AParameter.Name, LOldOrder, LNewOrder);
+      
+      AParameter.Ordem := LNewOrder;
+    end
+    else
+    begin
+      // NÃO EXISTE: Faz INSERT
+      // Calcula ordem se necessário
+      LNewOrder := AParameter.Ordem;
+      if LNewOrder <= 0 then
+        LNewOrder := GetNextOrder(AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID);
+      
+      // Ajusta ordens se necessário (JsonObject não tem FAutoReorderOnInsert, sempre ajusta)
+      if LNewOrder > 0 then
+      begin
+        AdjustOrdersForInsert(AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID, LNewOrder);
+      end;
+      
+      AParameter.Ordem := LNewOrder;
+    end;
     
-    // Ajusta ordens se necessário
-    if LNewOrder <> LOldOrder then
-      AdjustOrdersForUpdate(AParameter.Titulo, AParameter.ContratoID, AParameter.ProdutoID, AParameter.Name, LOldOrder, LNewOrder);
-    
-    AParameter.Ordem := LNewOrder;
-    
-    // Atualiza o parâmetro
+    // Escreve o parâmetro (insert ou update)
     WriteParameterToJson(AParameter);
     ASuccess := True;
     
@@ -1442,6 +1486,19 @@ begin
   finally
     FLock.Leave;
   end;
+end;
+
+// Método Update mantido para compatibilidade (deprecated - usar Setter)
+function TParametersJsonObject.Update(const AParameter: TParameter): IParametersJsonObject;
+var
+  LSuccess: Boolean;
+begin
+  Result := Setter(AParameter, LSuccess);
+end;
+
+function TParametersJsonObject.Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersJsonObject;
+begin
+  Result := Setter(AParameter, ASuccess);
 end;
 
 function TParametersJsonObject.Delete(const AName: string): IParametersJsonObject;
@@ -1470,16 +1527,16 @@ begin
       Exit;
     end;
     
-    // Busca em todos os objetos (exceto "Contrato")
-    LObjectNames := GetAllObjectNames;
-    try
-      for I := 0 to LObjectNames.Count - 1 do
+    // IMPORTANTE: Usa título (objeto) para identificar onde deletar
+    // Se há filtro de título, usa ele; senão usa FObjectName se configurado
+    if Trim(FTituloFilter) <> '' then
+    begin
+      // Remove apenas do objeto correspondente ao título
+      LObjectName := GetObjectName(FTituloFilter);
+      FTituloFilter := ''; // Limpa após usar (é temporário)
+      LJsonValue := GetJsonValue(FJsonObject, LObjectName);
+      if Assigned(LJsonValue) and (LJsonValue is TJSONObject) then
       begin
-        LObjectName := LObjectNames[I];
-        LJsonValue := GetJsonValue(FJsonObject, LObjectName);
-        if not Assigned(LJsonValue) or not (LJsonValue is TJSONObject) then
-          Continue;
-        
         LJsonObj := TJSONObject(LJsonValue);
         if GetJsonValue(LJsonObj, AName) <> nil then
         begin
@@ -1493,17 +1550,12 @@ begin
           begin
             RemoveJsonPair(FJsonObject, LObjectName);
           end;
-          
-          Break;
         end;
       end;
-    finally
-      LObjectNames.Free;
-    end;
-    
-    // Se não encontrou, busca no objeto específico (se configurado)
-    if not ASuccess and (FObjectName <> '') then
+    end
+    else if FObjectName <> '' then
     begin
+      // Remove apenas do objeto específico configurado
       LJsonValue := GetJsonValue(FJsonObject, FObjectName);
       if Assigned(LJsonValue) and (LJsonValue is TJSONObject) then
       begin
@@ -1521,6 +1573,39 @@ begin
             RemoveJsonPair(FJsonObject, FObjectName);
           end;
         end;
+      end;
+    end
+    else
+    begin
+      // Comportamento antigo para compatibilidade: Busca em todos os objetos (exceto "Contrato")
+      LObjectNames := GetAllObjectNames;
+      try
+        for I := 0 to LObjectNames.Count - 1 do
+        begin
+          LObjectName := LObjectNames[I];
+          LJsonValue := GetJsonValue(FJsonObject, LObjectName);
+          if not Assigned(LJsonValue) or not (LJsonValue is TJSONObject) then
+            Continue;
+          
+          LJsonObj := TJSONObject(LJsonValue);
+          if GetJsonValue(LJsonObj, AName) <> nil then
+          begin
+            RemoveJsonPair(LJsonObj, AName);
+            ASuccess := True;
+            
+            // Verifica se o objeto ficou vazio e remove se necessário
+            // Ignora objeto "Contrato" que é especial
+            if (GetKeysCountInObject(LJsonObj) = 0) and 
+               (not SameText(LObjectName, 'Contrato')) then
+            begin
+              RemoveJsonPair(FJsonObject, LObjectName);
+            end;
+            
+            Break;
+          end;
+        end;
+      finally
+        LObjectNames.Free;
       end;
     end;
     
@@ -1556,35 +1641,51 @@ begin
       Exit;
     end;
     
-    // Busca em todos os objetos (exceto "Contrato")
-    LObjectNames := GetAllObjectNames;
-    try
-      for I := 0 to LObjectNames.Count - 1 do
-      begin
-        LObjectName := LObjectNames[I];
-        LJsonValue := GetJsonValue(FJsonObject, LObjectName);
-        if not Assigned(LJsonValue) or not (LJsonValue is TJSONObject) then
-          Continue;
-        
-        LJsonObj := TJSONObject(LJsonValue);
-        if GetJsonValue(LJsonObj, AName) <> nil then
-        begin
-          AExists := True;
-          Break;
-        end;
-      end;
-    finally
-      LObjectNames.Free;
-    end;
-    
-    // Se não encontrou, busca no objeto específico (se configurado)
-    if not AExists and (FObjectName <> '') then
+    // IMPORTANTE: Usa título (objeto) para identificar onde buscar
+    // Se há filtro de título, usa ele; senão usa FObjectName se configurado
+    if Trim(FTituloFilter) <> '' then
     begin
+      // Busca apenas no objeto correspondente ao título
+      LObjectName := GetObjectName(FTituloFilter);
+      FTituloFilter := ''; // Limpa após usar (é temporário)
+      LJsonValue := GetJsonValue(FJsonObject, LObjectName);
+      if Assigned(LJsonValue) and (LJsonValue is TJSONObject) then
+      begin
+        LJsonObj := TJSONObject(LJsonValue);
+        AExists := (GetJsonValue(LJsonObj, AName) <> nil);
+      end;
+    end
+    else if FObjectName <> '' then
+    begin
+      // Busca apenas no objeto específico configurado
       LJsonValue := GetJsonValue(FJsonObject, FObjectName);
       if Assigned(LJsonValue) and (LJsonValue is TJSONObject) then
       begin
         LJsonObj := TJSONObject(LJsonValue);
         AExists := (GetJsonValue(LJsonObj, AName) <> nil);
+      end;
+    end
+    else
+    begin
+      // Comportamento antigo para compatibilidade: Busca em todos os objetos (exceto "Contrato")
+      LObjectNames := GetAllObjectNames;
+      try
+        for I := 0 to LObjectNames.Count - 1 do
+        begin
+          LObjectName := LObjectNames[I];
+          LJsonValue := GetJsonValue(FJsonObject, LObjectName);
+          if not Assigned(LJsonValue) or not (LJsonValue is TJSONObject) then
+            Continue;
+          
+          LJsonObj := TJSONObject(LJsonValue);
+          if GetJsonValue(LJsonObj, AName) <> nil then
+          begin
+            AExists := True;
+            Break;
+          end;
+        end;
+      finally
+        LObjectNames.Free;
       end;
     end;
     
@@ -2221,7 +2322,7 @@ begin
         if not LParamSuccess then
         begin
           // Tenta atualizar se inserção falhou
-          ADatabase.Update(LParameter, LParamSuccess);
+          ADatabase.Setter(LParameter, LParamSuccess);
         end;
       end;
       
@@ -2351,7 +2452,7 @@ begin
         if not LParamSuccess then
         begin
           // Tenta atualizar se inserção falhou
-          AInifiles.Update(LParameter, LParamSuccess);
+          AInifiles.Setter(LParameter, LParamSuccess);
         end;
       end;
       

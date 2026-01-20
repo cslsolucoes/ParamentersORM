@@ -109,15 +109,17 @@ Parameters := TParameters.New([pcfDataBase, pcfInifile, pcfJsonObject]);
 
 | Método | Descrição | Retorno |
 |--------|-----------|---------|
-| `Get(AName)` | Busca em cascata (Database → INI → JSON) | `TParameter` |
-| `Get(AName, ASource)` | Busca em fonte específica | `TParameter` |
+| `Getter(AName)` | Busca em cascata (Database → INI → JSON). Respeita hierarquia: ContratoID, ProdutoID, Title, Name | `TParameter` |
+| `Getter(AName, ASource)` | Busca em fonte específica. Respeita hierarquia completa | `TParameter` |
 | `List()` | Merge de todas as fontes (remove duplicatas) | `TParameterList` |
 | `Insert(AParameter)` | Insere na fonte ativa | `IParameters` |
-| `Update(AParameter)` | Atualiza na fonte onde existe | `IParameters` |
+| `Setter(AParameter)` | Insere se não existir, atualiza se existir. Respeita hierarquia completa | `IParameters` |
 | `Delete(AName)` | Deleta de todas as fontes onde existe | `IParameters` |
 | `Exists(AName)` | Verifica em todas as fontes (OR lógico) | `Boolean` |
 | `Count()` | Conta parâmetros únicos de todas as fontes | `Integer` |
 | `Refresh()` | Refresh em todas as fontes ativas | `IParameters` |
+
+**Nota:** Os métodos `Get()` e `Update()` estão deprecated. Use `Getter()` e `Setter()` respectivamente.
 
 #### Configuração Unificada
 
@@ -520,8 +522,14 @@ Parameters.JsonObject
 // Define ordem de prioridade
 Parameters.Priority([psDatabase, psInifiles, psJsonObject]);
 
-// Busca em cascata: Database → INI → JSON
-Param := Parameters.Get('database_host');
+// Busca em cascata: Database → INI → JSON (com hierarquia completa)
+Parameters
+  .ContratoID(1)
+  .ProdutoID(1)
+  .Database.Title('ERP')
+  .Inifiles.Title('ERP')
+  .JsonObject.Title('ERP');
+Param := Parameters.Getter('database_host');
 try
   if Assigned(Param) then
     ShowMessage('Encontrado: ' + Param.Value)

@@ -5,6 +5,48 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [1.0.2] - 2026-01-02
+
+### 🔄 Alterado
+
+#### Nomenclatura de Métodos CRUD
+- **Mudança:** Renomeado `Get()` → `Getter()` e `Update()` → `Setter()`
+- **Motivo:** Melhor clareza semântica e alinhamento com padrões modernos
+- **Compatibilidade:** Métodos `Get()` e `Update()` mantidos como deprecated (chamam `Getter()` e `Setter()`)
+- **Arquivos afetados:**
+  - `src/Paramenters/Parameters.Interfaces.pas` - Interfaces atualizadas
+  - `src/Paramenters/Parameters.pas` - Implementação atualizada
+  - `src/Paramenters/Database/Parameters.Database.pas` - Implementação atualizada
+  - `src/Paramenters/IniFiles/Parameters.Inifiles.pas` - Implementação atualizada
+  - `src/Paramenters/JsonObject/Parameters.JsonObject.pas` - Implementação atualizada
+  - `src/View/ufrmParamenters.pas` - Interface gráfica atualizada
+
+#### Hierarquia Completa de Identificação
+- **Mudança:** Todos os métodos CRUD agora respeitam a hierarquia completa: `ContratoID`, `ProdutoID`, `Title`, `Name`
+- **Comportamento:**
+  - **Com hierarquia configurada:** Busca/atualização específica usando todos os campos da constraint UNIQUE
+  - **Sem hierarquia configurada:** Busca ampla (compatibilidade com código legado)
+- **Arquivos afetados:**
+  - `Getter()`: Valida e usa hierarquia quando disponível, busca ampla quando não disponível
+  - `Setter()`: Sempre requer hierarquia completa no `TParameter` recebido
+  - `Delete()`: Respeita hierarquia completa
+  - `Exists()`: Respeita hierarquia completa
+
+### 📝 Detalhes Técnicos
+
+#### Métodos Getter
+- **Database:** `WHERE contrato_id = ? AND produto_id = ? AND titulo = ? AND chave = ?` (quando hierarquia configurada)
+- **Inifiles:** Busca na seção específica (Title) quando configurado
+- **JsonObject:** Busca no objeto específico (Title) quando configurado
+- **Fallback:** Busca ampla quando hierarquia não está configurada (compatibilidade)
+
+#### Métodos Setter
+- **Comportamento:** INSERT se não existir, UPDATE se existir
+- **Validação:** Requer `ContratoID`, `ProdutoID`, `Titulo` e `Name` preenchidos no `TParameter`
+- **Identificação:** Usa hierarquia completa para identificar registro existente
+
+---
+
 ## [1.0.1] - 2026-01-02
 
 ### 🔧 Corrigido

@@ -1,4 +1,4 @@
-﻿unit Parameters.Inifiles;
+unit Parameters.Inifiles;
 
 {$IF DEFINED(FPC)}
   {$MODE DELPHI} // Ensures DEFINED() and other Delphi features work
@@ -26,7 +26,7 @@
 
 interface
 
-{$I E:\Pacote\ORM\Paramenters\src\Paramenters.Defines.inc}
+{$I E:\CSL\ORM\src\Paramenters\src\Paramenters.Defines.inc}
 
 Uses
 {$IF DEFINED(FPC)}
@@ -98,12 +98,14 @@ type
     // ========== CRUD ==========
     function List: TParameterList; overload;
     function List(out AList: TParameterList): IParametersInifiles; overload;
-    function Get(const AName: string): TParameter; overload;
-    function Get(const AName: string; out AParameter: TParameter): IParametersInifiles; overload;
+    function Getter(const AName: string): TParameter; overload;
+    function Getter(const AName: string; out AParameter: TParameter): IParametersInifiles; overload;
     function Insert(const AParameter: TParameter): IParametersInifiles; overload;
     function Insert(const AParameter: TParameter; out ASuccess: Boolean): IParametersInifiles; overload;
-    function Update(const AParameter: TParameter): IParametersInifiles; overload;
-    function Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersInifiles; overload;
+    function Setter(const AParameter: TParameter): IParametersInifiles; overload;
+    function Setter(const AParameter: TParameter; out ASuccess: Boolean): IParametersInifiles; overload;
+    function Update(const AParameter: TParameter): IParametersInifiles; overload; // Deprecated: usar Setter
+    function Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersInifiles; overload; // Deprecated: usar Setter
     function Delete(const AName: string): IParametersInifiles; overload;
     function Delete(const AName: string; out ASuccess: Boolean): IParametersInifiles; overload;
     function Exists(const AName: string): Boolean; overload;
@@ -972,15 +974,15 @@ begin
   end;
 end;
 
-function TParametersInifiles.Get(const AName: string): TParameter;
+function TParametersInifiles.Getter(const AName: string): TParameter;
 var
   LParameter: TParameter;
 begin
-  Get(AName, LParameter);
+  Getter(AName, LParameter);
   Result := LParameter;
 end;
 
-function TParametersInifiles.Get(const AName: string; out AParameter: TParameter): IParametersInifiles;
+function TParametersInifiles.Getter(const AName: string; out AParameter: TParameter): IParametersInifiles;
 var
   LSections: TStringList;
   LKeys: TStringList;
@@ -995,7 +997,7 @@ begin
   LSection := '';
   
   if not EnsureFile then
-    raise CreateInifilesException(Format(MSG_INI_FILE_CANNOT_READ, [FFilePath]), ERR_INI_FILE_CANNOT_READ, 'Get');
+    raise CreateInifilesException(Format(MSG_INI_FILE_CANNOT_READ, [FFilePath]), ERR_INI_FILE_CANNOT_READ, 'Getter');
   
   FLock.Enter;
   try
@@ -1122,36 +1124,90 @@ begin
   end;
 end;
 
-function TParametersInifiles.Update(const AParameter: TParameter): IParametersInifiles;
+function TParametersInifiles.Setter(const AParameter: TParameter): IParametersInifiles;
 var
   LSuccess: Boolean;
 begin
-  Update(AParameter, LSuccess);
+  Setter(AParameter, LSuccess);
   Result := Self;
 end;
 
-function TParametersInifiles.Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersInifiles;
+{ =============================================================================
+  Setter - Insere ou atualiza um parâmetro no arquivo INI
+  
+  Descrição:
+  Insere um novo parâmetro se não existir, ou atualiza se já existir.
+  Sempre respeita a hierarquia: contrato_id, produto_id, titulo, chave.
+  
+  Comportamento:
+  - Verifica se o parâmetro existe usando a hierarquia completa
+  - Se existir: faz UPDATE (remove da seção antiga e escreve na nova)
+  - Se não existir: faz INSERT
+  - Thread-safe (protegido com TCriticalSection)
+  
+  Parâmetros:
+  - AParameter: Parâmetro a ser inserido/atualizado (deve ter ContratoID, ProdutoID, Titulo e Name preenchidos)
+  - ASuccess: Indica se a operação foi bem-sucedida
+  
+  Retorno:
+  - Self (permite encadeamento de métodos - Fluent Interface)
+  ============================================================================= }
+function TParametersInifiles.Setter(const AParameter: TParameter; out ASuccess: Boolean): IParametersInifiles;
+var
+  LExists: Boolean;
 begin
   Result := Self;
   ASuccess := False;
   
+  // IMPORTANTE: Valida que todos os campos da hierarquia estão preenchidos
+  // Hierarquia: contrato_id, produto_id, titulo, chave
+  if (AParameter.ContratoID <= 0) or (AParameter.ProdutoID <= 0) or 
+     (Trim(AParameter.Titulo) = '') or (Trim(AParameter.Name) = '') then
+    raise CreateConfigurationException(
+      Format('Setter requer ContratoID, ProdutoID, Titulo e Name preenchidos. Recebido: ContratoID=%d, ProdutoID=%d, Titulo=''%s'', Name=''%s''', 
+        [AParameter.ContratoID, AParameter.ProdutoID, AParameter.Titulo, AParameter.Name]),
+      ERR_INVALID_CONFIGURATION,
+      'Setter'
+    );
+  
   if not EnsureFile then
-    raise CreateInifilesException(Format(MSG_INI_FILE_CANNOT_WRITE, [FFilePath]), ERR_INI_FILE_CANNOT_WRITE, 'Update');
+    raise CreateInifilesException(Format(MSG_INI_FILE_CANNOT_WRITE, [FFilePath]), ERR_INI_FILE_CANNOT_WRITE, 'Setter');
   
   FLock.Enter;
   try
-    // Remove chave antiga se existir
-    if Exists(AParameter.Name) then
-    begin
-      Delete(AParameter.Name);
-    end;
+    // Verifica se existe usando a hierarquia completa (título + chave)
+    FTituloFilter := AParameter.Titulo;
+    LExists := Exists(AParameter.Name);
+    FTituloFilter := ''; // Limpa após usar
     
-    // Escreve nova chave
+    if LExists then
+    begin
+      // EXISTE: Faz UPDATE (remove da seção antiga e escreve na nova)
+      FTituloFilter := AParameter.Titulo;
+      Delete(AParameter.Name);
+      FTituloFilter := ''; // Limpa após usar
+    end;
+    // Se não existir, apenas insere (não precisa deletar nada)
+    
+    // Escreve nova chave (com título do parâmetro)
     WriteParameterToIni(AParameter);
     ASuccess := True;
   finally
     FLock.Leave;
   end;
+end;
+
+// Método Update mantido para compatibilidade (deprecated - usar Setter)
+function TParametersInifiles.Update(const AParameter: TParameter): IParametersInifiles;
+var
+  LSuccess: Boolean;
+begin
+  Result := Setter(AParameter, LSuccess);
+end;
+
+function TParametersInifiles.Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersInifiles;
+begin
+  Result := Setter(AParameter, ASuccess);
 end;
 
 function TParametersInifiles.Delete(const AName: string): IParametersInifiles;
@@ -1185,7 +1241,37 @@ begin
     // Lê arquivo linha por linha para preservar comentários
     LLines := ReadIniFileLines;
     try
-      if FSection <> '' then
+      // IMPORTANTE: Usa título (seção) para identificar onde deletar
+      // Se há filtro de título, usa ele; senão usa FSection se configurado
+      if Trim(FTituloFilter) <> '' then
+      begin
+        // Remove apenas da seção correspondente ao título
+        LSection := GetSectionName(FTituloFilter);
+        FTituloFilter := ''; // Limpa após usar (é temporário)
+        LSectionIndex := FindSectionInLines(LLines, LSection);
+        
+        if LSectionIndex >= 0 then
+        begin
+          // Busca pela chave na seção (busca pela chave sem o #)
+          LKeyIndex := FindKeyInSection(LLines, LSectionIndex, AName);
+          
+          if LKeyIndex >= 0 then
+          begin
+            // Remove a linha
+            LLines.Delete(LKeyIndex);
+            LFound := True;
+            
+            // Verifica se a seção ficou vazia (sem chaves válidas) e remove se necessário
+            // Ignora seções especiais como [Contrato]
+            if (GetKeysCountInSection(LLines, LSectionIndex) = 0) and 
+               (not SameText(LSection, 'Contrato')) then
+            begin
+              RemoveEmptySection(LLines, LSectionIndex);
+            end;
+          end;
+        end;
+      end
+      else if FSection <> '' then
       begin
         // Remove apenas da seção especificada
         LSection := FSection;
@@ -1214,7 +1300,7 @@ begin
       end
       else
       begin
-        // Remove de todas as seções
+        // Comportamento antigo para compatibilidade: Remove de todas as seções
         LSections := GetAllSections;
         try
           for I := 0 to LSections.Count - 1 do
@@ -1290,7 +1376,32 @@ begin
   
   FLock.Enter;
   try
-    if FSection <> '' then
+    // IMPORTANTE: Usa título (seção) para identificar onde buscar
+    // Se há filtro de título, usa ele; senão usa FSection se configurado
+    if Trim(FTituloFilter) <> '' then
+    begin
+      // Busca apenas na seção correspondente ao título
+      LSection := GetSectionName(FTituloFilter);
+      FTituloFilter := ''; // Limpa após usar (é temporário)
+      LKeys := TStringList.Create;
+      try
+        if Assigned(FIniFile) then
+          FIniFile.ReadSection(LSection, LKeys);
+        
+        for J := 0 to LKeys.Count - 1 do
+        begin
+          LKey := ParseKey(LKeys[J]);
+          if SameText(LKey, AName) then
+          begin
+            AExists := True;
+            Break;
+          end;
+        end;
+      finally
+        LKeys.Free;
+      end;
+    end
+    else if FSection <> '' then
     begin
       // Busca apenas na seção especificada
       LSection := FSection;
@@ -1314,7 +1425,7 @@ begin
     end
     else
     begin
-      // Busca em todas as seções
+      // Comportamento antigo para compatibilidade: Busca em todas as seções
       LSections := GetAllSections;
       try
         for I := 0 to LSections.Count - 1 do
@@ -1525,7 +1636,7 @@ begin
         
         // Verifica se já existe no Database
         if ADatabase.Exists(LParameter.Name) then
-          ADatabase.Update(LParameter)
+          ADatabase.Setter(LParameter)
         else
           ADatabase.Insert(LParameter);
       end;

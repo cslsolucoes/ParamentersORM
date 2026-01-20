@@ -1,10 +1,16 @@
-# 📚 Parameters versão 1.0.1 - Documentação Completa
+# 📚 Parameters versão 1.0.2 - Documentação Completa
 
-**Versão:** 1.0.1  
+**Versão:** 1.0.2  
 **Data de Criação:** 01/01/2026  
 **Data de Atualização:** 02/01/2026  
 **Status Geral:** ✅ **~99% COMPLETO** - Pronto para uso em produção (multithread)  
 **Compatibilidade:** ✅ Delphi 10.3+ | ✅ FPC 3.2.2+ / Lazarus 4.4+
+
+### 🔄 Mudanças na Versão 1.0.2
+
+- ✅ **Nomenclatura:** `Get()` → `Getter()`, `Update()` → `Setter()` (métodos antigos mantidos como deprecated)
+- ✅ **Hierarquia Completa:** Todos os métodos CRUD respeitam `ContratoID`, `ProdutoID`, `Title`, `Name` (constraint UNIQUE)
+- ✅ **Compatibilidade:** Busca ampla quando hierarquia não está configurada (código legado)
 
 ---
 
@@ -464,18 +470,24 @@ Parameters.Priority([psDatabase, psInifiles, psJsonObject]);
 
 ##### Operações Unificadas (com Fallback)
 
-###### `function Get(const AName: string): TParameter; overload;`
+###### `function Getter(const AName: string): TParameter; overload;`
 Busca parâmetro em cascata (Database → INI → JSON) até encontrar.
+
+**IMPORTANTE:** Respeita a hierarquia completa da constraint UNIQUE: `ContratoID`, `ProdutoID`, `Title`, `Name`. Se esses campos estiverem configurados, faz busca específica; caso contrário, faz busca ampla (compatibilidade com código legado).
 
 **Parâmetros:**
 - `AName: string` - Nome/chave do parâmetro
 
 **Retorno:** `TParameter` ou `nil` se não encontrado
 
-**Exemplo:**
+**Exemplo com hierarquia completa:**
 ```pascal
 var Param: TParameter;
-Param := Parameters.Get('database_host');
+Parameters
+  .ContratoID(1)
+  .ProdutoID(1)
+  .Database.Title('ERP')
+  .Getter('database_host', Param);
 if Assigned(Param) then
   ShowMessage(Param.Value)
 else
@@ -483,9 +495,20 @@ else
 Param.Free;
 ```
 
+**Exemplo sem hierarquia (busca ampla - compatibilidade):**
+```pascal
+var Param: TParameter;
+Param := Parameters.Getter('database_host');
+if Assigned(Param) then
+  ShowMessage(Param.Value);
+Param.Free;
+```
+
+**Nota:** O método `Get()` está deprecated. Use `Getter()`.
+
 ---
 
-###### `function Get(const AName: string; ASource: TParameterSource): TParameter; overload;`
+###### `function Getter(const AName: string; ASource: TParameterSource): TParameter; overload;`
 Busca parâmetro em fonte específica.
 
 **Parâmetros:**
@@ -496,7 +519,7 @@ Busca parâmetro em fonte específica.
 
 **Exemplo:**
 ```pascal
-Param := Parameters.Get('database_host', psDatabase); // Busca apenas no Database
+Param := Parameters.Getter('database_host', psDatabase); // Busca apenas no Database
 ```
 
 ---
@@ -589,13 +612,13 @@ Atualiza parâmetro na fonte onde ele existe.
 
 **Retorno:** `IParameters`
 
-**Exemplo:**
+**Exemplo (deprecated - usar Setter):**
 ```pascal
-Param := Parameters.Get('database_host');
+Param := Parameters.Getter('database_host');
 if Assigned(Param) then
 begin
   Param.Value := 'new_host';
-  Parameters.Update(Param);
+  Parameters.Setter(Param); // Insere se não existir, atualiza se existir
 end;
 Param.Free;
 ```
@@ -1086,26 +1109,39 @@ Versão com parâmetro `out`.
 
 ---
 
-###### `function Get(const AName: string): TParameter; overload;`
-Busca parâmetro por chave.
+###### `function Getter(const AName: string): TParameter; overload;`
+Busca parâmetro por chave respeitando a hierarquia completa: `ContratoID`, `ProdutoID`, `Title`, `Name`.
+
+**IMPORTANTE:** Se `ContratoID`, `ProdutoID` e `Title` estiverem configurados, faz busca específica usando a hierarquia completa. Caso contrário, faz busca ampla apenas por chave (compatibilidade com código legado).
 
 **Parâmetros:**
 - `AName: string` - Nome/chave do parâmetro
 
 **Retorno:** `TParameter` ou `nil`
 
-**Exemplo:**
+**Exemplo com hierarquia completa:**
 ```pascal
 var Param: TParameter;
-Param := DB.Get('database_host');
+DB.ContratoID(1).ProdutoID(1).Title('ERP').Getter('database_host', Param);
 if Assigned(Param) then
   ShowMessage(Param.Value);
 Param.Free;
 ```
 
+**Exemplo sem hierarquia (busca ampla - compatibilidade):**
+```pascal
+var Param: TParameter;
+Param := DB.Getter('database_host');
+if Assigned(Param) then
+  ShowMessage(Param.Value);
+Param.Free;
+```
+
+**Nota:** O método `Get()` está deprecated. Use `Getter()`.
+
 ---
 
-###### `function Get(const AName: string; out AParameter: TParameter): IParametersDatabase; overload;`
+###### `function Getter(const AName: string; out AParameter: TParameter): IParametersDatabase; overload;`
 Versão com parâmetro `out`.
 
 **Parâmetros:**
@@ -1150,35 +1186,45 @@ Versão com retorno de sucesso.
 
 ---
 
-###### `function Update(const AParameter: TParameter): IParametersDatabase; overload;`
-Atualiza parâmetro existente.
+###### `function Setter(const AParameter: TParameter): IParametersDatabase; overload;`
+Insere ou atualiza um parâmetro (INSERT se não existir, UPDATE se existir).
+
+**IMPORTANTE:** Sempre respeita a hierarquia completa da constraint UNIQUE: `ContratoID`, `ProdutoID`, `Title`, `Name`. O parâmetro deve ter todos esses campos preenchidos.
 
 **Parâmetros:**
-- `AParameter: TParameter` - Parâmetro a atualizar
+- `AParameter: TParameter` - Parâmetro a ser inserido/atualizado (deve ter ContratoID, ProdutoID, Titulo e Name preenchidos)
 
 **Retorno:** `IParametersDatabase`
 
 **Exemplo:**
 ```pascal
-Param := DB.Get('database_host');
-if Assigned(Param) then
-begin
+var Param: TParameter;
+Param := TParameter.Create;
+try
+  Param.ContratoID := 1;
+  Param.ProdutoID := 1;
+  Param.Titulo := 'ERP';
+  Param.Name := 'database_host';
   Param.Value := 'new_host';
-  DB.Update(Param);
+  Param.ValueType := pvtString;
+  DB.Setter(Param); // Insere se não existir, atualiza se existir
+finally
+  Param.Free;
 end;
-Param.Free;
 ```
 
 ---
 
-###### `function Update(const AParameter: TParameter; out ASuccess: Boolean): IParametersDatabase; overload;`
+###### `function Setter(const AParameter: TParameter; out ASuccess: Boolean): IParametersDatabase; overload;`
 Versão com retorno de sucesso.
 
 **Parâmetros:**
-- `AParameter: TParameter` - Parâmetro a atualizar
-- `out ASuccess: Boolean` - True se atualizado
+- `AParameter: TParameter` - Parâmetro a ser inserido/atualizado
+- `out ASuccess: Boolean` - True se operação foi bem-sucedida
 
 **Retorno:** `IParametersDatabase`
+
+**Nota:** O método `Update()` está deprecated. Use `Setter()`.
 
 ---
 
@@ -1616,9 +1662,12 @@ Todos os métodos CRUD seguem o mesmo padrão de `IParametersDatabase`:
 **Exemplo:**
 ```pascal
 var Ini: IParametersInifiles;
-Ini := TParameters.NewInifiles('C:\Config\params.ini');
+Ini := TParameters.NewInifiles('C:\Config\params.ini')
+  .ContratoID(1)
+  .ProdutoID(1)
+  .Title('ERP');
 var Param: TParameter;
-Param := Ini.Get('database_host');
+Ini.Getter('database_host', Param);
 if Assigned(Param) then
   ShowMessage(Param.Value);
 Param.Free;
@@ -1858,9 +1907,12 @@ Todos os métodos CRUD seguem o mesmo padrão das outras interfaces.
 **Exemplo:**
 ```pascal
 var Json: IParametersJsonObject;
-Json := TParameters.NewJsonObjectFromFile('C:\Config\params.json');
+Json := TParameters.NewJsonObjectFromFile('C:\Config\params.json')
+  .ContratoID(1)
+  .ProdutoID(1)
+  .Title('ERP');
 var Param: TParameter;
-Param := Json.Get('database_host');
+Json.Getter('database_host', Param);
 if Assigned(Param) then
   ShowMessage(Param.Value);
 Param.Free;
@@ -2463,8 +2515,12 @@ finally
   ParamList.Free;
 end;
 
-// Busca um
-Param := Parameters.Get('erp_host');
+// Busca um (com hierarquia completa)
+Parameters
+  .ContratoID(1)
+  .ProdutoID(1)
+  .Database.Title('ERP')
+  .Getter('erp_host', Param);
 try
   if Assigned(Param) then
     ShowMessage(Param.Value);
@@ -2473,16 +2529,16 @@ finally
     Param.Free;
 end;
 
-// Insere novo
+// Insere novo (ou atualiza se existir usando Setter)
 Param := TParameter.Create;
 try
   Param.ContratoID := 1;
   Param.ProdutoID := 1;
+  Param.Titulo := 'ERP';
   Param.Name := 'teste_key';
   Param.Value := 'teste_value';
   Param.ValueType := pvtString;
-  Param.Titulo := 'ERP';
-  Parameters.Insert(Param);
+  Parameters.Setter(Param); // Insere se não existir, atualiza se existir
 finally
   Param.Free;
 end;
@@ -2525,8 +2581,14 @@ Parameters.JsonObject
 // Define ordem de prioridade
 Parameters.Priority([psDatabase, psInifiles, psJsonObject]);
 
-// Busca em cascata: Database → INI → JSON
-Param := Parameters.Get('database_host');
+// Busca em cascata: Database → INI → JSON (com hierarquia completa)
+Parameters
+  .ContratoID(1)
+  .ProdutoID(1)
+  .Database.Title('ERP')
+  .Inifiles.Title('ERP')
+  .JsonObject.Title('ERP');
+Param := Parameters.Getter('database_host');
 try
   if Assigned(Param) then
     ShowMessage('Encontrado: ' + Param.Value)
@@ -2704,7 +2766,9 @@ Parameters := TParameters.NewDatabase
 
 ### Posso ter chaves com o mesmo nome em títulos diferentes?
 
-**Sim!** A partir da versão 1.0.1, é possível ter chaves com o mesmo nome em títulos diferentes. A validação considera `Nome + Título + ContratoID + ProdutoID` como chave única.
+**Sim!** A partir da versão 1.0.1, é possível ter chaves com o mesmo nome em títulos diferentes. A validação considera `ContratoID + ProdutoID + Título + Nome` como chave única (hierarquia completa da constraint UNIQUE).
+
+**IMPORTANTE:** Todos os métodos CRUD (`Getter`, `Setter`, `Delete`, `Exists`) respeitam essa hierarquia completa. Use `Getter()` e `Setter()` em vez de `Get()` e `Update()` (deprecated).
 
 ```pascal
 // Exemplo: Mesma chave em títulos diferentes
@@ -3057,8 +3121,8 @@ begin
     .Section('Game');
   
   // Usar parâmetros
-  Window.Width := StrToInt(Params.Get('window_width').Value);
-  Window.Height := StrToInt(Params.Get('window_height').Value);
+  Window.Width := StrToInt(Params.Getter('window_width').Value);
+  Window.Height := StrToInt(Params.Getter('window_height').Value);
   
   Window.Open;
   Application.Run;
@@ -3129,7 +3193,21 @@ Este projeto está licenciado sob a **GPL-3.0 License** - veja o arquivo [LICENS
 **Autor:** Claiton de Souza Linhares  
 **Data de Criação:** 01/01/2026  
 **Última Atualização:** 02/01/2026  
-**Versão:** 1.0.1  
+**Versão:** 1.0.2  
 **Compatibilidade:** ✅ Delphi 10.3+ | ✅ FPC 3.2.2+ / Lazarus 4.4+  
 **Castle Engine:** ✅ Configurado (Opcional)
+
+---
+
+## 🔄 MUDANÇAS NA VERSÃO 1.0.2
+
+### Nomenclatura de Métodos
+- ✅ `Get()` → `Getter()` (método `Get()` mantido como deprecated)
+- ✅ `Update()` → `Setter()` (método `Update()` mantido como deprecated)
+
+### Hierarquia Completa de Identificação
+- ✅ Todos os métodos CRUD respeitam a hierarquia: `ContratoID`, `ProdutoID`, `Title`, `Name`
+- ✅ Constraint UNIQUE: `(contrato_id, produto_id, titulo, chave)`
+- ✅ `Getter()`: Busca específica quando hierarquia configurada, busca ampla quando não configurada (compatibilidade)
+- ✅ `Setter()`: Sempre requer hierarquia completa no `TParameter` recebido (INSERT se não existir, UPDATE se existir)
 
