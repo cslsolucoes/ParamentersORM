@@ -1,0 +1,311 @@
+---
+alwaysApply: false
+---
+# LOCAL DE ARQUIVOS - PROJETO PROVIDER
+
+## 📦 PACOTES DE TERCEIROS
+**Base:** `E:\Pacote`
+
+### 🔌 Bibliotecas de Rede e Comunicação
+- **Indy 10.6.3** → `E:\Pacote\Indy`
+- **Bird Socket** → `E:\Pacote\Bird.Socket`
+- **Bird Socket Server** → `E:\Pacote\bird-socket-server`
+- **Synapse D123** → `E:\Pacote\synapseD123` (versão completa mantida)
+- **Synapse WebSocket** → `E:\Pacote\synapse-websocket`
+- **Generic Socket** → `E:\Pacote\GenericSocket`
+
+### 🌐 Bibliotecas WebSocket (Multi-Engine Support)
+**Bibliotecas Recomendadas e Instaladas:**
+- **TMS FNC WebSocket** → `C:\Users\Public\Documents\Embarcadero\Studio\tmssoftware\registered\TMSFNCWebSocket RSXE15`
+  - Exemplos: `C:\Users\Public\Documents\Embarcadero\Studio\tmssoftware\registered\TMSFNCWebSocket RSXE15\Demos`
+  - Status: ✅ Instalado - WebSocket Nativo (VCL e FMX)
+  - Componentes: `TTMSFNCWebSocketServer`, `TTMSFNCWebSocketClient`
+  - Licença: Comercial
+  - Prioridade: 🔴 ALTA
+- **ICS - Internet Component Suite** → `D:\Users\claiton.linhares\Documents\Embarcadero\Studio\23.0\CatalogRepository\ICS_FMX-12`
+  - Status: ✅ Instalado - WebSocket Nativo desde V9.0
+  - Componentes: `TSslWebSocketCli` (cliente), `THttpWSSrvConn` (servidor)
+  - Licença: Copyrighted freeware (gratuito)
+  - Prioridade: 🔴 ALTA
+- **IPWorks 2024 Delphi Edition** → `D:\Users\claiton.linhares\Documents\Embarcadero\Studio\IPWorks 2024 Delphi Edition`
+  - Status: ✅ Instalado - WebSocket Nativo
+  - Componentes: `WSServer` (servidor), `WSClient` (cliente)
+  - Licença: Comercial
+  - Prioridade: 🔴 ALTA
+
+**Bibliotecas Disponíveis no Projeto:**
+- **Indy 10.6.3** → `E:\Pacote\Indy`
+  - Status: ✅ Em Uso - WebSocket implementado manualmente
+  - Componentes: `TIdTCPServer` (implementação manual RFC 6455)
+  - Prioridade: 🔴 CRÍTICA (padrão atual)
+- **Bird Socket Server** → `E:\Pacote\bird-socket-server`
+  - Status: ✅ Disponível - WebSocket Nativo
+  - Componentes: `TBirdSocketServer` (herda de `TIdCustomTCPServer`)
+  - Prioridade: 🔴 ALTA
+- **Synapse WebSocket** → `E:\Pacote\synapse-websocket`
+  - Status: ✅ Disponível - WebSocket Específico
+  - Prioridade: 🔴 ALTA
+- **Horse SocketIO** → `E:\Pacote\Horse-SocketIO`
+  - Status: ✅ Disponível - Socket.IO Protocol (baseado em WebSocket)
+  - Nota: Socket.IO ≠ WebSocket puro RFC 6455
+  - Prioridade: 🟡 MÉDIA
+
+### 🐴 Horse Framework (API REST)
+- **Horse Core** → `E:\Pacote\horse\src`
+- **Horse JWT** → `E:\Pacote\horse-jwt\src`
+- **Horse JWT (Jhonson)** → `E:\Pacote\jhonson\src`
+- **Horse Basic Auth** → `E:\Pacote\horse-basic-auth\src`
+- **Horse Exception Logger** → `E:\Pacote\horse-exception-logger\src`
+- **Horse Logger** → `E:\Pacote\horse-logger\src`
+- **Horse Logger Console** → `E:\Pacote\horse-logger-provider-console\src`
+- **Horse Logger LogFile** → `E:\Pacote\horse-logger-provider-logfile\src`
+- **Horse SocketIO** → `E:\Pacote\Horse-SocketIO`
+
+### 🔐 Autenticação e Segurança
+- **Delphi JOSE JWT** → `E:\Pacote\delphi-jose-jwt\Source`
+
+### 🌐 REST e Serialização
+- **RESTRequest4Delphi** → `E:\Pacote\RESTRequest4Delphi\src`
+- **DataSet Serialize** → `E:\Pacote\dataset-serialize\src`
+- **CSV Adapter RESTRequest** → `E:\Pacote\csv-adapter-restrequest4delphi\Src`
+
+### 🗄️ Banco de Dados
+- **Unidac 10.2.1** → `E:\Pacote\Unidac\Source`
+  - Providers: `E:\Pacote\Unidac\Source\UniProviders`
+  - PostgreSQL: `E:\Pacote\Unidac\Source\UniProviders\PostgreSQL`
+  - MySQL: `E:\Pacote\Unidac\Source\UniProviders\MySQL`
+  - SQL Server: `E:\Pacote\Unidac\Source\UniProviders\SQLServer`
+  - SQLite: `E:\Pacote\Unidac\Source\UniProviders\SQLite`
+  - InterBase: `E:\Pacote\Unidac\Source\UniProviders\InterBase`
+  - Access: `E:\Pacote\Unidac\Source\UniProviders\Access`
+  - ODBC: `E:\Pacote\Unidac\Source\UniProviders\ODBC`
+
+### 🎨 Componentes de Interface
+- **DevExpress VCL** → `E:\Pacote\DevExpressVCL\Library\RS29`
+- **KonopkaControls** → `E:\Pacote\KonopkaControls\Lib\RX12\Win32`
+- **StyledComponents** → `E:\Pacote\StyledComponents\source`
+
+### 📊 Relatórios
+- **FortesReport** → `C:\Users\Public\Documents\Embarcadero\Studio\23.0\CatalogRepository\fortesreport-ce`
+
+### 🧪 Testes
+- **DUnitX** → `E:\Pacote\DUnitX`
+- **DUnitX Master** → `E:\Pacote\DUnitX-master`
+
+### 🔧 Utilitários
+- **TProcess** → `E:\Pacote\TProcess`
+
+## 📁 DIRETÓRIOS DO PROJETO PROVIDER
+
+### 📊 Análises e Documentação
+**Local:** `E:\CSL\ParamentersORM\Analises`
+
+### 🏗️ Compilação
+**Estrutura de Diretórios:**
+```
+E:\CSL\ParamentersORM\Compiled\
+├── EXE\$(Platform)\$(Config)\     # Executáveis (.exe)
+├── DCU\$(Platform)\$(Config)\     # Units compiladas (.dcu)
+└── DCP\$(Platform)\$(Config)\     # Packages compilados (.dcp)
+```
+
+**Variáveis:**
+- `$(Platform)` = Win32, Win64, Android, iOS, etc.
+- `$(Config)` = Debug, Release, etc.
+
+**Exemplos de caminhos:**
+- Executáveis: `E:\CSL\ParamentersORM\Compiled\EXE\Win32\Debug\`
+- DCU: `E:\CSL\ParamentersORM\Compiled\DCU\Win64\Release\`
+- DCP: `E:\CSL\ParamentersORM\Compiled\DCP\Win32\Debug\`
+
+### ⚙️ Configuração
+**Arquivo DCC32:** `E:\CSL\ParamentersORM\dcc32.cfg`
+**Arquivo DCC64:** `E:\CSL\ParamentersORM\dcc64.cfg`
+**Arquivo Projeto:** `E:\CSL\ParamentersORM\ProvidersV200.dpr`
+
+### 🖼️ Protótipos e Imagens
+**Local:** `E:\CSL\ParamentersORM\APP` *(a ser criado se necessário)*
+
+### 📝 Módulos do Projeto
+**Estrutura de Diretórios:**
+```
+E:\CSL\ParamentersORM\src\
+├── Modulo\                    # Módulo Parameters
+│   ├── Parameters.pas              # Ponto de Entrada (Factory methods)
+│   ├── Parameters.Intefaces.pas    # Interfaces Públicas
+│   ├── Parameters.Database.pas      # Implementação Database
+│   ├── Parameters.Inifiles.pas     # Implementação INI Files
+│   ├── Parameters.JsonObject.pas   # Implementação JSON Objects
+│   ├── Parameters.Types.pas          # Tipos (re-exportados via Interfaces)
+│   ├── Parameters.Consts.pas        # Constantes
+│   └── Parameters.Exceptions.pas     # Exceções customizadas
+├── View\                      # Interfaces Visuais
+│   ├── ufrmConfigCRUD.pas     # Formulário CRUD de Configuração
+│   └── ufrmConfigCRUD.dfm     # Formulário (Design)
+└── __history\                 # Histórico de versões (automático)
+```
+
+---
+
+## 📝 NOTAS IMPORTANTES
+
+### Caminhos Especiais
+- **FortesReport** usa caminho absoluto diferente dos demais (instalado via Catalog Repository)
+- **Unidac** também pode estar instalado em: `C:\Program Files (x86)\Devart\UniDAC for RAD Studio 12\`
+- **Bibliotecas WebSocket** podem estar instaladas em diferentes locais:
+  - Catalog Repository: `C:\Users\Public\Documents\Embarcadero\Studio\...`
+  - Usuário: `D:\Users\...\Documents\Embarcadero\Studio\...`
+  - Pacotes: `E:\Pacote\...`
+
+### Convenções
+- Todos os pacotes principais estão em `E:\Pacote`
+- Subdiretórios `src` são usados para código-fonte
+- Subdiretórios `Lib` são usados para bibliotecas compiladas
+
+---
+
+## 🦎 LAZARUS / FREE PASCAL COMPILER (FPC)
+
+### 📍 Caminhos de Instalação
+- **Base de Instalação** → `D:\fpc`
+- **Lazarus IDE** → `D:\fpc\lazarus`
+- **Free Pascal Compiler (FPC)** → `D:\fpc\fpc` (versão 3.2.2)
+- **Binários FPC (64-bit)** → `D:\fpc\fpc\bin\x86_64-win64`
+- **Código-fonte FPC** → `D:\fpc\fpcsrc`
+- **Configurações do Lazarus** → `D:\fpc\config_lazarus`
+- **Pacotes Instalados (OPM)** → `D:\fpc\config_lazarus\onlinepackagemanager\packages`
+- **Componentes CCR** → `D:\fpc\ccr`
+- **Cross-compilation** → `D:\fpc\cross`
+- **Projetos** → `D:\fpc\projects`
+
+### 📦 Pacotes Instalados no Lazarus
+
+#### 🗄️ Banco de Dados (CRÍTICOS para o Projeto)
+- **Zeos Library** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\zeosdbo`
+  - Status: ✅ Instalado - Necessário para acesso a banco de dados no FPC
+  - Prioridade: 🔴 CRÍTICA
+- **UniDAC** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\UniDAC`
+  - Status: ✅ Instalado - Alternativa ao Zeos (requer licença)
+  - Prioridade: 🔴 ALTA
+- **SQLdb** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\1-Outros\sqldb`
+  - Status: ✅ Instalado - Framework nativo do Lazarus para SQL
+  - Prioridade: 🟡 MÉDIA
+- **IBX4Lazarus** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\IBX4Lazarus`
+  - Status: ✅ Instalado - InterBase/FireBird
+  - Prioridade: 🟡 MÉDIA
+- **FBIntf** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\FBIntf`
+  - Status: ✅ Instalado - FireBird Interface
+  - Prioridade: 🟡 MÉDIA
+
+#### 🎨 Controles e Interface
+- **BGRAControls** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\BGRAControls`
+  - Status: ✅ Instalado - Controles gráficos avançados
+- **BGRABitmap** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\BGRABitmap`
+  - Status: ✅ Instalado - Processamento de imagens
+- **EC_Controls** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\EC_Controls`
+  - Status: ✅ Instalado - Controles estendidos
+- **uecontrols** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\uecontrols-master`
+  - Status: ✅ Instalado - Controles adicionais
+- **ATFlatControls** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\ATFlatControls`
+  - Status: ✅ Instalado - Controles flat modernos
+- **ATSynEdit** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\ATSynEdit`
+  - Status: ✅ Instalado - Editor de texto avançado
+- **VirtualTreeViewV5** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\VirtualTreeViewV5`
+  - Status: ✅ Instalado - TreeView virtual
+- **richmemo** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\richmemo`
+  - Status: ✅ Instalado - Memo com formatação rica
+- **lazrichview** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\lazrichview`
+  - Status: ✅ Instalado - Visualizador de conteúdo rico
+
+#### 📊 Relatórios e Exportação
+- **fortesreport-ce4** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\fortesreport-ce4`
+  - Status: ✅ Instalado - Sistema de relatórios
+- **FPSpreadsheet** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\FPSpreadsheet`
+  - Status: ✅ Instalado - Manipulação de planilhas Excel/ODS
+- **lazreport** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\1-Outros\lazreport`
+  - Status: ✅ Instalado - Sistema de relatórios alternativo
+
+#### 🌐 Rede e Comunicação
+- **Indy10** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\Indy10`
+  - Status: ✅ Instalado - Componentes de rede
+- **synapse40.1** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\synapse40.1`
+  - Status: ✅ Instalado - Biblioteca de comunicação
+- **lnet** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\lnet`
+  - Status: ✅ Instalado - Lightweight networking
+- **RESTDataware** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\RESTDataware`
+  - Status: ✅ Instalado - Framework REST
+
+#### 🔐 Segurança e Criptografia
+- **DCPcrypt** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\DCPcrypt`
+  - Status: ✅ Instalado - Criptografia
+- **OnGuard** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\OnGuard`
+  - Status: ✅ Instalado - Proteção de software
+
+#### 🗜️ Compressão e Arquivos
+- **Abbrevia** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\Abbrevia`
+  - Status: ✅ Instalado - Compressão ZIP
+- **zipfile** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\zipfile`
+  - Status: ✅ Instalado - Manipulação de ZIP
+
+#### 🗺️ Gráficos e Visualização
+- **LazMapViewer** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\LazMapViewer`
+  - Status: ✅ Instalado - Visualizador de mapas
+- **CADSys42** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\CADSys42`
+  - Status: ✅ Instalado - Sistema CAD
+- **tachart** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\1-Outros\tachart`
+  - Status: ✅ Instalado - Gráficos e charts
+- **opengl** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\1-Outros\opengl`
+  - Status: ✅ Instalado - OpenGL
+
+#### 🧪 Testes e Qualidade
+- **fpcunit** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\1-Outros\fpcunit`
+  - Status: ✅ Instalado - Framework de testes unitários
+
+#### 🐍 Scripting
+- **PythonForLazarus** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\PythonForLazarus`
+  - Status: ✅ Instalado - Integração com Python
+- **PascalScript** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\1-Outros\PascalScript`
+  - Status: ✅ Instalado - Scripting em Pascal
+
+#### 🛠️ Utilitários e Ferramentas
+- **lazsolutions-2.0** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\lazsolutions-2.0`
+  - Status: ✅ Instalado - Soluções e utilitários
+- **systools** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\systools`
+  - Status: ✅ Instalado - Ferramentas do sistema
+- **orpheus** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\orpheus`
+  - Status: ✅ Instalado - Componentes adicionais
+- **Rx** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\Rx`
+  - Status: ✅ Instalado - Componentes RX
+- **jvcllaz** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\jvcllaz`
+  - Status: ✅ Instalado - JEDI Visual Component Library
+- **spktoolbar** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\spktoolbar`
+  - Status: ✅ Instalado - Toolbar moderna
+- **fitgrids** → `C:\lazarus\Configuracao\onlinepackagemanager\packages\fitgrids-master`
+  - Status: ✅ Instalado - Grids avançados
+
+#### 📦 Outros Pacotes (1-Outros)
+- **lazcontrols** → Controles adicionais do Lazarus
+- **synedit** → Editor de código avançado
+- **codetools** → Ferramentas de código
+- **ideintf** → Interface do IDE
+- **lazutils** → Utilitários do Lazarus
+- **fpweb** → Framework web
+- **fpvectorial** → Processamento vetorial
+- **printers** → Impressão
+- **sqlite** → SQLite
+- **memds** → DataSets em memória
+- **tdbf** → Acesso a DBF
+- **paradox** → Acesso a Paradox
+- **sdf** → Arquivos delimitados
+
+### 🔧 Configuração do Projeto
+- **Arquivo de Projeto Lazarus** → `E:\CSL\ParamentersORM\ParamentersCSL.lpi`
+- **Arquivo de Código FPC** → `E:\CSL\ParamentersORM\ParamentersCSL.lpr`
+- **Arquivo de Configuração** → `E:\CSL\ParamentersORM\src\ParamentersORM.Defines.inc`
+
+### 📝 Notas
+- O projeto está **100% adaptado** para FPC/Lazarus
+- FireDAC não está disponível no FPC (usar Zeos ou UniDAC)
+- Funcionalidades específicas do Windows (Access Database, Registry) são condicionadas
+- **Zeos** é o engine recomendado para banco de dados no FPC (open-source)
+- **UniDAC** está disponível mas requer licença comercial

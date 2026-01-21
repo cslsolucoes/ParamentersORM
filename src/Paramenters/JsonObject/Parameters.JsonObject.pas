@@ -1,4 +1,4 @@
-unit Parameters.JsonObject;
+﻿unit Parameters.JsonObject;
 
 {$IF DEFINED(FPC)}
   {$MODE DELPHI} // Ensures DEFINED() and other Delphi features work
@@ -849,13 +849,13 @@ begin
   end;
 end;
 
-{ =============================================================================
+(* =============================================================================
   ParameterToJsonValue - Converte TParameter para objeto JSON
-  
+
   Descrição:
   Converte um objeto TParameter em um objeto JSON com todas as propriedades.
   O objeto JSON gerado contém: valor, descricao, ativo, ordem.
-  
+
   Estrutura JSON gerada:
   {
     "valor": "string",
@@ -863,18 +863,18 @@ end;
     "ativo": true/false,
     "ordem": number
   }
-  
+
   Comportamento:
   - Cria novo TJSONObject
   - Adiciona todas as propriedades do parâmetro
   - Converte tipos automaticamente (Boolean, Integer, String)
-  
+
   Parâmetros:
   - AParameter: Parâmetro a ser convertido
-  
+
   Retorno:
   - TJSONObject com propriedades do parâmetro (deve ser liberado pelo chamador)
-  ============================================================================= }
+  ============================================================================= *)
 function TParametersJsonObject.ParameterToJsonValue(const AParameter: TParameter): TJSONObject;
 begin
   Result := TJSONObject.Create;
@@ -884,13 +884,13 @@ begin
   AddJsonPair(Result, 'ordem', TJSONNumber.Create(AParameter.Ordem));
 end;
 
-{ =============================================================================
+(*=============================================================================
   JsonValueToParameter - Converte objeto JSON para TParameter
-  
+
   Descrição:
   Converte um objeto JSON de volta para um objeto TParameter. Lê todas as
   propriedades do JSON e popula o objeto TParameter correspondente.
-  
+
   Estrutura JSON esperada:
   {
     "valor": "string",
@@ -898,7 +898,7 @@ end;
     "ativo": true/false,
     "ordem": number
   }
-  
+
   Comportamento:
   - Cria novo TParameter
   - Lê propriedades do JSON (valor, descricao, ativo, ordem)
@@ -906,15 +906,15 @@ end;
   - Lê ContratoID e ProdutoID do objeto "Contrato"
   - Converte tipos automaticamente (Boolean, Integer, String)
   - Se propriedade não existir, usa valor padrão
-  
+
   Parâmetros:
   - AJsonValue: Objeto JSON com propriedades do parâmetro
   - ATitulo: Título do parâmetro (nome do objeto JSON pai)
   - AKey: Chave do parâmetro (nome da propriedade no objeto JSON)
-  
+
   Retorno:
   - TParameter populado (deve ser liberado pelo chamador)
-  ============================================================================= }
+  ============================================================================= *)
 function TParametersJsonObject.JsonValueToParameter(AJsonValue: TJSONObject; const ATitulo, AKey: string): TParameter;
 var
   LContratoID: Integer;
@@ -925,7 +925,7 @@ begin
   try
     Result.Titulo := ATitulo;
     Result.Name := AKey;
-    
+
     // Usa GetValueCaseInsensitive para buscar valores (mais robusto)
     LJsonValue := GetValueCaseInsensitive(AJsonValue, 'valor');
     if Assigned(LJsonValue) then
@@ -935,7 +935,7 @@ begin
       else
         Result.Value := LJsonValue.Value;
     end;
-    
+
     LJsonValue := GetValueCaseInsensitive(AJsonValue, 'descricao');
     if Assigned(LJsonValue) then
     begin
